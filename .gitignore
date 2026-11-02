@@ -1,0 +1,9 @@
+node_modules/
+.dev.vars
+.wrangler/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+moodtrip.html
+.DS_Store
+Thumbs.db

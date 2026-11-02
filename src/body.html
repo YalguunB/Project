@@ -1,13 +1,6 @@
 <canvas id="gl" aria-hidden="true"></canvas>
 <div class="bg" aria-hidden="true"><div class="glow a"></div><div class="glow b"></div><div class="horizon" id="horizon"></div></div>
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-  <filter id="liquid" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
-    <feTurbulence id="liquidTurb" type="fractalNoise" baseFrequency="0.004 0.009" numOctaves="2" seed="4" result="n"/>
-    <feDisplacementMap id="liquidMap" in="SourceGraphic" in2="n" scale="0" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
-</svg>
-
 <div class="shell">
   <header class="top">
     <button class="brand" id="brand" type="button" aria-label="MoodTrip, back to the start">
@@ -17,7 +10,7 @@
     <nav class="stages" id="stages" aria-label="Trip progress"></nav>
     <div class="top-r">
       <p class="meta" id="meta"></p>
-      <button class="fieldbtn" id="fieldBtn" type="button" data-act="field" data-cursor="Open"><span class="fb-dot" aria-hidden="true"></span><span>Field</span><b id="fieldCount" hidden></b></button>
+      <button class="fieldbtn" id="fieldBtn" type="button" data-act="field"><span class="fb-dot" aria-hidden="true"></span><span>Field</span><b id="fieldCount" hidden></b></button>
     </div>
   </header>
   <main id="stage"></main>
@@ -48,7 +41,5 @@
     <p class="ld-line ld-num"><span id="ldNum">0</span><i>%</i></p>
   </div>
 </div>
-<div id="cur" aria-hidden="true"><div class="ring"><span></span></div><div class="dot"></div></div>
-
 <div id="toast" role="status"></div>
 <div class="sr" id="live" aria-live="polite"></div>

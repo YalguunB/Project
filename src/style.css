@@ -5,7 +5,7 @@
    Type   : Bricolage Grotesque (display, tight and heavy) + DM Sans (body, UI). Digits are tabular.
    Space  : 4 8 12 16 24 32 48 64 96.  Radius: 10 16 24 32 pill.
    Layout : one centered column (max 1240px). Surfaces are frosted glass over the live canvas.
-   Motion : GSAP for cursor, magnets, tilt, reveals and curtains; everything degrades to static CSS without it. */
+   Motion : GSAP for reveals and curtains; everything degrades to static CSS without it. */
 @property --bg{syntax:'<color>';inherits:true;initial-value:#F7F2EA}
 @property --surface{syntax:'<color>';inherits:true;initial-value:#FFFFFF}
 @property --ink{syntax:'<color>';inherits:true;initial-value:#2B2622}
@@ -577,7 +577,7 @@ html.pl-open body{padding-right:calc(max(16px,env(safe-area-inset-right,0px)) + 
   .pform .strength .face{padding:12px 2px}
 }
 
-/* ---------- Curtain, loader, cursor ---------- */
+/* ---------- Curtain and loader ---------- */
 #curtain{position:fixed;inset:0;z-index:90;overflow:hidden;display:grid;place-items:center}
 #curtain .cp{position:absolute;left:-10vw;right:-10vw;top:0;will-change:transform}
 #curtain .cl{position:relative;font:700 clamp(40px,10vw,140px)/1 var(--f-display);letter-spacing:-.05em;text-align:center;padding-inline:16px;text-wrap:balance}
@@ -589,20 +589,6 @@ html.pl-open body{padding-right:calc(max(16px,env(safe-area-inset-right,0px)) + 
 .ld-sub{font:500 13px/1 var(--f-body);letter-spacing:.14em;text-transform:uppercase;opacity:.65}
 .ld-num{display:flex;align-items:baseline;gap:4px;margin-top:var(--s5);font:700 clamp(96px,22vw,240px)/.85 var(--f-display);letter-spacing:-.07em;font-variant-numeric:tabular-nums;color:#E98A5C}
 .ld-num i{font-style:normal;font-size:.28em;letter-spacing:0;opacity:.75}
-#cur{position:fixed;left:0;top:0;width:0;height:0;z-index:200;pointer-events:none}
-#cur .dot,#cur .ring{position:absolute;left:0;top:0;border-radius:50%}
-#cur .dot{width:8px;height:8px;background:var(--accent);opacity:0;transition:opacity .2s,transform .2s}
-#cur .ring{width:38px;height:38px;border:1.5px solid color-mix(in srgb,var(--ink) 55%,transparent);display:grid;place-items:center;opacity:0;transition:width .35s var(--ease),height .35s var(--ease),background .3s,border-color .3s,opacity .2s}
-#cur.on .dot,#cur.on .ring{opacity:1}
-#cur.hov .ring{width:62px;height:62px;border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent)}
-#cur.lbl .ring{width:88px;height:88px;border-color:var(--accent);background:var(--accent)}
-#cur.lbl .dot{opacity:0}
-#cur.down .ring{width:28px;height:28px}
-#cur .ring span{font:700 12px/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--accent-ink);opacity:0;transition:opacity .2s}
-#cur.lbl .ring span{opacity:1}
-html.has-cursor,html.has-cursor *{cursor:none!important}
-html.has-cursor input[type=text],html.has-cursor input[type=number],html.has-cursor textarea{cursor:text!important}
-
 /* ---------- Toast ---------- */
 #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,24px);z-index:80;max-width:min(520px,calc(100vw - 32px));padding:12px 20px;border-radius:999px;background:var(--ink);color:var(--bg);font:500 14px/1.4 var(--f-body);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0)}

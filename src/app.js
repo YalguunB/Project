@@ -112,7 +112,7 @@ function paintChrome(){
   }).join('');
   $('#meta').textContent = S.stage === 'intro' ? 'Prototype · five places, made-up prices' : S.stage === 'field' ? 'Live · anonymous'
     : S.stage === 'game' ? `${touched.size} of 5 answered` : archetype().name;
-  const fb = $('#fieldBtn'); fb.setAttribute('data-cursor', S.stage === 'field' ? 'Back' : 'Open'); if (S.stage === 'field') fb.setAttribute('aria-current', 'page'); else fb.removeAttribute('aria-current');
+  const fb = $('#fieldBtn'); if (S.stage === 'field') fb.setAttribute('aria-current', 'page'); else fb.removeAttribute('aria-current');
   FX.bind($('.top'));
 }
 function updateFieldCount(){
@@ -217,7 +217,7 @@ const VIEWS = {
     <div>
       <div class="sec-head" data-rise><p class="label accent">What makes it different</p><h2 class="display-m">Feelings first. Honest numbers after.</h2></div>
       <div class="pillars">
-        <article class="pillar" data-tilt data-rise><span class="n">01</span><h3>Feeling first, as a game</h3><p class="small muted">Five quick rounds read your mood and energy. The page, and the 3D orb you can poke, change with every answer.</p></article>
+        <article class="pillar" data-rise><span class="n">01</span><h3>Feeling first, as a game</h3><p class="small muted">Five quick rounds read your mood and energy. The page and 3D orb respond to every answer.</p></article>
         <article class="pillar" data-tilt data-rise><span class="n">02</span><h3>Real feelings from travelers</h3><p class="small muted">Anyone can add an anonymous note on how a place felt. Notes blend into the matches, and you can float your own card in the shared field.</p></article>
         <article class="pillar" data-tilt data-rise><span class="n">03</span><h3>Honest planning</h3><p class="small muted">Budget and best-time estimates sit right beside the plan, so you see the trade-offs early.</p></article>
       </div>
@@ -1151,7 +1151,6 @@ BE.init().then(async ok => {
 $('#horizon').innerHTML = Object.entries(HORIZON).map(([k, v]) => v.replace('<svg ', `<svg data-scene="${k}" `)).join('');
 if (GL.ok) document.documentElement.classList.add('gl');
 document.documentElement.style.setProperty('--energy', S.energy / 100);
-FX.cursor();
 const introTl = render('intro', { focus:false });
 FX.loader(() => { if (introTl) gsap.delayedCall(.3, () => introTl.play()); }, () => { const h = $('#h1'); if (h) h.focus({ preventScroll:true }); });
 let rsz; addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(() => { if (GL.ok && S.stage !== 'field') GL.setAnchor(S.stage === 'game' ? gameAnchor() : anchorFor(S.stage)); }, 120); });

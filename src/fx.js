@@ -1,93 +1,11 @@
-/* ============ FX: custom cursor, magnetic buttons, tilt, liquid hover, text reveals, page curtain, loader ============ */
+/* ============ FX: text reveals, page curtain and loader ============ */
 const FX = (() => {
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hasG = !!window.gsap;
-  const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
-  const api = { on:hasG, reduced:REDUCED, fine };
+  const api = { on:hasG, reduced:REDUCED };
   if (hasG) gsap.config({ nullTargetWarn:false });
-
-  /* ---------- cursor ---------- */
-  api.cursor = () => {
-    if (!hasG || !fine || REDUCED) return;
-    const cur = $('#cur'), dot = $('.dot', cur), ring = $('.ring', cur), lbl = $('.ring span', cur);
-    document.documentElement.classList.add('has-cursor');
-    gsap.set([dot, ring], { xPercent:-50, yPercent:-50 });
-    const dx = gsap.quickTo(dot, 'x', { duration:.12, ease:'power3' }), dy = gsap.quickTo(dot, 'y', { duration:.12, ease:'power3' });
-    const rx = gsap.quickTo(ring, 'x', { duration:.5, ease:'power3' }), ry = gsap.quickTo(ring, 'y', { duration:.5, ease:'power3' });
-    addEventListener('pointermove', e => {
-      if (e.pointerType !== 'mouse') return;
-      cur.classList.add('on'); dx(e.clientX); dy(e.clientY); rx(e.clientX); ry(e.clientY);
-    }, { passive:true });
-    document.documentElement.addEventListener('pointerleave', () => cur.classList.remove('on'));
-    const SEL = '[data-cursor],a,button,label.opt,input,textarea,.battery,.grip,.mcell,.pick';
-    const set = t => {
-      if (!t){ cur.classList.remove('hov', 'lbl'); lbl.textContent = ''; return; }
-      let text = t.getAttribute('data-cursor');
-      if (text === null){
-        const l = t.matches('input[type=radio],input[type=checkbox]') ? t.closest('label.opt') : null;
-        text = l && l.getAttribute('data-cursor') !== null ? l.getAttribute('data-cursor') : l ? 'Pick' : t.matches('.battery,.grip,input[type=range]') ? 'Drag' : '';
-      }
-      if (text){ lbl.textContent = text; cur.classList.add('lbl'); cur.classList.remove('hov'); }
-      else { lbl.textContent = ''; cur.classList.add('hov'); cur.classList.remove('lbl'); }
-    };
-    document.addEventListener('pointerover', e => set(e.target.closest ? e.target.closest(SEL) : null));
-    addEventListener('pointerdown', () => cur.classList.add('down'));
-    addEventListener('pointerup', () => cur.classList.remove('down'));
-  };
-
-  /* ---------- magnetic buttons ---------- */
-  function magnet(root){
-    if (!hasG || !fine || REDUCED) return;
-    $$('.btn,.stagebtn,.brand,.fieldbtn,[data-mag]', root).forEach(el => {
-      if (el._mag) return; el._mag = true;
-      const xTo = gsap.quickTo(el, 'x', { duration:.7, ease:'elastic.out(1,.4)' }), yTo = gsap.quickTo(el, 'y', { duration:.7, ease:'elastic.out(1,.4)' });
-      el.addEventListener('pointermove', e => {
-        if (e.pointerType !== 'mouse') return;
-        const r = el.getBoundingClientRect();
-        xTo((e.clientX - (r.left + r.width / 2)) * .3); yTo((e.clientY - (r.top + r.height / 2)) * .38);
-      });
-      el.addEventListener('pointerleave', () => { xTo(0); yTo(0); });
-    });
-  }
-
-  /* ---------- 3D tilt with a glare that follows the pointer ---------- */
-  function tilt(root){
-    if (!hasG || REDUCED) return;
-    $$('[data-tilt]', root).forEach(el => {
-      if (el._tilt) return; el._tilt = true;
-      const base = parseFloat(el.getAttribute('data-rot') || '0');
-      gsap.set(el, { transformPerspective:900, rotation:base });
-      if (!fine) return;
-      const rx = gsap.quickTo(el, 'rotationX', { duration:.7, ease:'power3' }), ry = gsap.quickTo(el, 'rotationY', { duration:.7, ease:'power3' });
-      el.addEventListener('pointermove', e => {
-        if (e.pointerType !== 'mouse') return;
-        const r = el.getBoundingClientRect(), px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5;
-        ry(px * 11); rx(-py * 9);
-        el.style.setProperty('--gx', ((px + .5) * 100).toFixed(1) + '%'); el.style.setProperty('--gy', ((py + .5) * 100).toFixed(1) + '%');
-      });
-      el.addEventListener('pointerleave', () => { rx(0); ry(0); });
-    });
-  }
-
-  /* ---------- liquid ripple when the pointer enters a picture ---------- */
-  function liquid(root){
-    if (!hasG || REDUCED || !fine) return;
-    const map = $('#liquidMap'), turb = $('#liquidTurb');
-    if (!map || !turb) return;
-    $$('[data-liquid]', root).forEach(el => {
-      if (el._lq) return; el._lq = true;
-      el.addEventListener('pointerenter', () => {
-        gsap.killTweensOf([map, turb]);
-        el.style.filter = 'url(#liquid)';
-        gsap.fromTo(turb, { attr:{ baseFrequency:'0.004 0.009' } }, { attr:{ baseFrequency:'0.012 0.022' }, duration:1.6, ease:'sine.out' });
-        gsap.timeline({ onComplete:() => { el.style.filter = ''; } })
-          .fromTo(map, { attr:{ scale:0 } }, { attr:{ scale:42 }, duration:.35, ease:'power2.out' })
-          .to(map, { attr:{ scale:0 }, duration:1.1, ease:'elastic.out(1,.5)' });
-      });
-    });
-  }
 
   /* ---------- text reveals ---------- */
   function splitWords(el){
@@ -151,7 +69,7 @@ const FX = (() => {
     gsap.ticker.add(tick);
   }
 
-  api.bind = root => { magnet(root); tilt(root); liquid(root); rise(root); marquee(root); };
+  api.bind = root => { rise(root); marquee(root); };
 
   /* ---------- page curtain: a color block with a curved lip sweeps the screen while the view swaps ---------- */
   api.curtain = (label, bg, ink, swap) => {

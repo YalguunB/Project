@@ -23,7 +23,7 @@ const GL = (() => {
   const camera = new T.PerspectiveCamera(35, 1, .1, 100);
   camera.position.set(0, 0, 12);
   const V = { w:1, h:1, ww:1, wh:1 };                       // viewport px, world units at z=0
-  const mouse = { nx:0, ny:0, ux:.5, uy:.5, wx:0, wy:0, down:false, speed:0, px:0, py:0, clientX:-999, clientY:-999 };
+  const mouse = { nx:2, ny:2 };
   const light = { value:new T.Vector3(.3, .6, .8) };
   const time = { value:0 };
 
@@ -53,13 +53,13 @@ const GL = (() => {
     return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
   }`;
 
-  /* ---------- backdrop: flowing mood gradient that ripples under the cursor ---------- */
+  /* ---------- flowing mood gradient backdrop ---------- */
   const bgMat = new T.ShaderMaterial({
-    uniforms:{ uTime:time, uRes:{ value:new T.Vector2(1, 1) }, uBg:{ value:new T.Color() }, uGlow:{ value:new T.Color() }, uAccent:{ value:new T.Color() },
-               uMouse:{ value:new T.Vector2(.5, .5) }, uOrb:{ value:new T.Vector2(.5, .5) }, uOrbR:{ value:.3 }, uEnergy:{ value:.35 }, uDark:{ value:0 } },
+    uniforms:{ uTime:time, uRes:{ value:new T.Vector2(1, 1) }, uBg:{ value:new T.Color() }, uGlow:{ value:new T.Color() },
+               uOrb:{ value:new T.Vector2(.5, .5) }, uOrbR:{ value:.3 }, uEnergy:{ value:.35 }, uDark:{ value:0 } },
     vertexShader:'void main(){ gl_Position = vec4(position.xy, .999, 1.); }',
     fragmentShader: NOISE + `
-    uniform float uTime,uOrbR,uEnergy,uDark; uniform vec2 uRes,uMouse,uOrb; uniform vec3 uBg,uGlow,uAccent;
+    uniform float uTime,uOrbR,uEnergy,uDark; uniform vec2 uRes,uOrb; uniform vec3 uBg,uGlow;
     float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
     float fbm(vec3 p){ float a=.5,s=0.; for(int i=0;i<3;i++){ s+=a*snoise(p); p*=2.03; a*=.5; } return s; }
     void main(){
@@ -72,11 +72,6 @@ const GL = (() => {
       vec2 o=(uOrb-.5)*vec2(asp,1.);
       float d=length(p-o);
       col=mix(col,uGlow,exp(-d*d/(uOrbR*uOrbR*1.8+.02))*mix(.55,.4,uDark));
-      vec2 m=(uMouse-.5)*vec2(asp,1.);
-      float md=length(p-m);
-      col+=uAccent*exp(-md*md*14.)*.07;
-      float ring=sin(md*38.-uTime*2.)*exp(-md*5.);
-      col+=uAccent*ring*.012;
       col+=(hash(gl_FragCoord.xy+fract(uTime))-.5)*.022;
       gl_FragColor=vec4(col,1.);
     }`,
@@ -88,13 +83,13 @@ const GL = (() => {
   /* ---------- the orb ---------- */
   const orbU = {
     uTime:time, uAmp:{ value:.17 }, uFreq:{ value:1 }, uSpeed:{ value:.3 }, uRidge:{ value:0 }, uPulse:{ value:.03 }, uPulseRate:{ value:1.7 }, uSharp:{ value:1 },
-    uRipple:{ value:0 }, uPoke:{ value:0 }, uPokeDir:{ value:new T.Vector3(0, 0, 1) }, uLight:light, uGloss:{ value:.8 },
+    uRipple:{ value:0 }, uLight:light, uGloss:{ value:.8 },
     uColA:{ value:new T.Color() }, uColB:{ value:new T.Color() }, uColC:{ value:new T.Color() }
   };
   const orbMat = new T.ShaderMaterial({
     uniforms:orbU,
     vertexShader: NOISE + `
-    uniform float uTime,uAmp,uFreq,uSpeed,uRidge,uPulse,uPulseRate,uSharp,uRipple,uPoke; uniform vec3 uPokeDir;
+    uniform float uTime,uAmp,uFreq,uSpeed,uRidge,uPulse,uPulseRate,uSharp,uRipple;
     varying vec3 vN; varying vec3 vV; varying float vD;
     vec3 disp(vec3 p){
       float t=uTime*uSpeed;
@@ -103,7 +98,6 @@ const GL = (() => {
       float d=n*uAmp;
       d+=uRipple*snoise(p*6.+vec3(t*3.))*.045;
       d+=uPulse*pow(.5+.5*sin(uTime*uPulseRate+p.y*1.5),uSharp);
-      d+=uPoke*smoothstep(.15,1.,dot(p,uPokeDir));
       return p*(1.+d);
     }
     void main(){
@@ -179,15 +173,13 @@ const GL = (() => {
   dGeo.setAttribute('position', new T.BufferAttribute(dPos, 3));
   dGeo.setAttribute('aSeed', new T.BufferAttribute(dSeed, 4));
   const dustMat = new T.ShaderMaterial({
-    uniforms:{ uTime:time, uView:{ value:new T.Vector2(1, 1) }, uPointer:{ value:new T.Vector2(99, 99) }, uColor:{ value:new T.Color() }, uDpr:{ value:1 } },
-    vertexShader:`attribute vec4 aSeed; uniform float uTime,uDpr; uniform vec2 uView,uPointer; varying float vA;
+    uniforms:{ uTime:time, uView:{ value:new T.Vector2(1, 1) }, uColor:{ value:new T.Color() }, uDpr:{ value:1 } },
+    vertexShader:`attribute vec4 aSeed; uniform float uTime,uDpr; uniform vec2 uView; varying float vA;
       void main(){
         vec3 p=position;
         p.x+=sin(uTime*.12*(.4+aSeed.x)+aSeed.y*6.28)*.05;
         p.y=mod(p.y+1.+uTime*.006*(.3+aSeed.z)*2.,2.)-1.;
         vec2 w=p.xy*uView;
-        vec2 d=w-uPointer; float f=exp(-dot(d,d)*.9);
-        w+=normalize(d+vec2(1e-4))*f*.9;
         vec4 mv=viewMatrix*vec4(w,p.z*1.5,1.);
         gl_Position=projectionMatrix*mv;
         gl_PointSize=(1.5+aSeed.w*4.5)*uDpr*(8./-mv.z);
@@ -212,7 +204,7 @@ const GL = (() => {
   const P = { amp:.17, freq:1, speed:.3, ridge:0, pulse:.03, rate:1.7, sharp:1, ripple:0, gloss:.8 };
   const PT = { ...P };
   const anchor = { x:.7, y:.47, s:.8 };
-  const orbS = { x:0, y:0, s:0, tx:0, ty:0, ts:0, rotX:0, rotY:0, poke:0, pokeT:0, kick:0, vis:1 };
+  const orbS = { x:0, y:0, s:0, tx:0, ty:0, ts:0, kick:0, vis:1 };
   const perf = { t:0, n:0, q:1.75 };
   let bagIds = [], energy = .35, scrollY = 0, activeUntil = 0, hidden = false;
 
@@ -306,26 +298,22 @@ const GL = (() => {
 
   /* ---------- pointer ---------- */
   addEventListener('pointermove', e => {
-    mouse.clientX = e.clientX; mouse.clientY = e.clientY;
-    mouse.ux = e.clientX / V.w; mouse.uy = 1 - e.clientY / V.h;
-    mouse.nx = mouse.ux * 2 - 1; mouse.ny = mouse.uy * 2 - 1;
-    mouse.wx = mouse.nx * V.ww / 2; mouse.wy = mouse.ny * V.wh / 2;
+    if (!fieldOn) return;
+    mouse.nx = e.clientX / V.w * 2 - 1; mouse.ny = 1 - e.clientY / V.h * 2;
     api.invalidate();
   }, { passive:true });
   let pickNext = false;
   addEventListener('pointerdown', e => {
-    mouse.down = true; mouse.clientX = e.clientX; mouse.clientY = e.clientY;
-    mouse.ux = e.clientX / V.w; mouse.uy = 1 - e.clientY / V.h; mouse.nx = mouse.ux * 2 - 1; mouse.ny = mouse.uy * 2 - 1;
-    mouse.wx = mouse.nx * V.ww / 2; mouse.wy = mouse.ny * V.wh / 2;
-    if (!e.target.closest('button,a,input,label,textarea,.battery,.panel,.sheet')) api.kick(.6);
+    if (fieldOn){
+      mouse.nx = e.clientX / V.w * 2 - 1; mouse.ny = 1 - e.clientY / V.h * 2;
+    }
     if (fieldOn && api.pickCb && !e.target.closest('button,a,input,label,.detail')){
       if (e.pointerType === 'mouse'){ if (hoverIdx >= 0) api.pickCb(fieldOrbs[hoverIdx].data); } else pickNext = true;   // touch: hover is resolved on the next frame
     }
-    api.invalidate();
+    if (fieldOn) api.invalidate();
   });
   addEventListener('pointerup', e => {
-    mouse.down = false;
-    if (e.pointerType !== 'mouse') setTimeout(() => { mouse.nx = mouse.ny = -5; mouse.wx = mouse.wy = -99; api.invalidate(); }, 900);
+    if (fieldOn && e.pointerType !== 'mouse') setTimeout(() => { mouse.nx = mouse.ny = 2; api.invalidate(); }, 900);
   });
   addEventListener('scroll', () => { scrollY = window.scrollY; api.invalidate(); }, { passive:true });
   document.addEventListener('visibilitychange', () => { hidden = document.hidden; });
@@ -351,13 +339,8 @@ const GL = (() => {
     const kc = REDUCED ? 1 : ease(dt, 2.6);
     cur.bg.lerp(tgt.bg, kc); cur.glow.lerp(tgt.glow, kc); cur.accent.lerp(tgt.accent, kc); cur.A.lerp(tgt.A, kc); cur.B.lerp(tgt.B, kc); cur.C.lerp(tgt.C, kc);
     cur.dark += (tgt.dark - cur.dark) * kc;
-    bgMat.uniforms.uBg.value.copy(cur.bg); bgMat.uniforms.uGlow.value.copy(cur.glow); bgMat.uniforms.uAccent.value.copy(cur.accent); bgMat.uniforms.uDark.value = cur.dark;
+    bgMat.uniforms.uBg.value.copy(cur.bg); bgMat.uniforms.uGlow.value.copy(cur.glow); bgMat.uniforms.uDark.value = cur.dark;
     orbU.uColA.value.copy(cur.A); orbU.uColB.value.copy(cur.B); orbU.uColC.value.copy(cur.C);
-
-    /* light follows the cursor */
-    light.value.lerp(tmpV.set(mouse.nx * 1.3, mouse.ny * 1.1 + .35, .9), ease(dt, 4));
-    bgMat.uniforms.uMouse.value.lerp(ray.set(mouse.ux, mouse.uy), ease(dt, 5));
-    dustMat.uniforms.uPointer.value.set(mouse.wx, mouse.wy);
 
     /* orb params */
     const kp = REDUCED ? 1 : ease(dt, 2.2);
@@ -367,8 +350,8 @@ const GL = (() => {
 
     /* orb placement (anchor -> world), spring-eased */
     const vmin = Math.min(V.ww, V.wh), px = V.wh / V.h;
-    orbS.tx = (anchor.x - .5) * V.ww + mouse.nx * .22;
-    orbS.ty = (.5 - anchor.y) * V.wh + scrollY * px * .45 + mouse.ny * .16;
+    orbS.tx = (anchor.x - .5) * V.ww;
+    orbS.ty = (.5 - anchor.y) * V.wh + scrollY * px * .45;
     orbS.ts = anchor.s * vmin * .5 * (1 + (energy - .35) * .3) * feelScale * orbS.vis;
     const ko = REDUCED ? 1 : ease(dt, 3.2);
     orbS.x += (orbS.tx - orbS.x) * ko; orbS.y += (orbS.ty - orbS.y) * ko; orbS.s += (orbS.ts - orbS.s) * ease(dt, REDUCED ? 30 : 2.4);
@@ -376,30 +359,17 @@ const GL = (() => {
     const sq = 1 + orbS.kick * .12 * Math.sin(time.value * 22);
     orb.position.set(orbS.x, orbS.y, 0); orb.scale.setScalar(Math.max(.0001, orbS.s * sq));
     orb.visible = orbS.s > .004;
-    orbS.rotY += ((mouse.nx * .6) - orbS.rotY) * ease(dt, 2); orbS.rotX += ((-mouse.ny * .4) - orbS.rotX) * ease(dt, 2);
-    orb.rotation.set(orbS.rotX + time.value * .03, orbS.rotY + time.value * .05, 0);
+    orb.rotation.set(time.value * .03, time.value * .05, 0);
     const sx = .5 + orbS.x / V.ww, sy = .5 + orbS.y / V.wh;
     bgMat.uniforms.uOrb.value.set(sx, sy); bgMat.uniforms.uOrbR.value = orbS.s / V.wh;
 
-    /* poke: the orb bulges toward the cursor when the cursor is over it */
-    if (orb.visible && !fieldOn){
-      ray.set(mouse.nx, mouse.ny); raycaster.setFromCamera(ray, camera);
-      const hit = raycaster.ray.intersectSphere(hitSphere.set(orb.position, orbS.s * 1.02), tmpH);
-      if (hit){ tmpV.copy(hit); orb.worldToLocal(tmpV).normalize(); orbU.uPokeDir.value.lerp(tmpV, ease(dt, 10)); orbS.pokeT = mouse.down ? .3 : .13; }
-      else orbS.pokeT = 0;
-    } else orbS.pokeT = 0;
-    orbS.poke += (orbS.pokeT + orbS.kick * .18 - orbS.poke) * ease(dt, 7);
-    orbU.uPoke.value = orbS.poke;
-
-    /* bag satellites: springs around the orb, pushed by the cursor */
+    /* bag satellites: springs around the orb */
     for (let i = sats.length - 1; i >= 0; i--){
       const s = sats[i], n = sats.length;
       const R = Math.max(.8, orbS.s * 1.32) + (n > 1 ? 0 : .1), a = s.ang + time.value * s.spd + (i / Math.max(1, n)) * 6.28;
       tmpV.set(orbS.x + Math.cos(a) * R, orbS.y + Math.sin(a) * R * .55 + Math.sin(time.value * .8 + s.ph) * .12, Math.sin(a) * R * .8);
       const ax = (tmpV.x - s.pos.x) * 14, ay = (tmpV.y - s.pos.y) * 14, az = (tmpV.z - s.pos.z) * 14;
-      const dx = s.pos.x - mouse.wx, dy = s.pos.y - mouse.wy, d2 = dx * dx + dy * dy, push = Math.exp(-d2 / .9) * 46;
-      const dl = Math.sqrt(d2) + 1e-4;
-      s.vel.x += (ax + dx / dl * push) * dt; s.vel.y += (ay + dy / dl * push) * dt; s.vel.z += az * dt;
+      s.vel.x += ax * dt; s.vel.y += ay * dt; s.vel.z += az * dt;
       const damp = Math.exp(-dt * 4.6); s.vel.multiplyScalar(damp);
       s.pos.addScaledVector(s.vel, dt);
       const want = s.dying ? 0 : Math.min(vmin * .075, .6);
@@ -421,8 +391,6 @@ const GL = (() => {
         const o = fieldOrbs[i];
         const wx = o.home.x + Math.sin(time.value * .35 + o.ph) * .35, wy = o.home.y + Math.cos(time.value * .3 + o.ph * 1.3) * .3;
         let fx = (wx - o.pos.x) * 5, fy = (wy - o.pos.y) * 5;
-        const dx = o.pos.x - mouse.wx, dy = o.pos.y - mouse.wy, dd = Math.sqrt(dx * dx + dy * dy) + 1e-4, R = o.r + .55, inner = o.r * 1.05;
-        if (i !== hoverIdx && dd > inner && dd < R){ const f = (R - dd) / (R - inner); fx += dx / dd * f * f * 9; fy += dy / dd * f * f * 9; }   // a nudge, never a flee: orbs stay hoverable
         for (let j = i + 1; j < N; j++){
           const q = fieldOrbs[j], ex = o.pos.x - q.pos.x, ey = o.pos.y - q.pos.y, de = Math.sqrt(ex * ex + ey * ey) + 1e-4, min = (o.r + q.r) * 1.04;
           if (de < min){ const f = (min - de) * 40; const nx = ex / de, ny = ey / de; fx += nx * f; fy += ny * f; q.vel.x -= nx * f * dt; q.vel.y -= ny * f * dt; }
@@ -442,7 +410,7 @@ const GL = (() => {
     }
     renderer.render(scene, camera);
   }
-  const tmpQ = new T.Quaternion(), hitSphere = new T.Sphere(), tmpH = new T.Vector3();
+  const tmpQ = new T.Quaternion();
 
   resize();
   api.setMood('start', true);
