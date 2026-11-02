@@ -1,0 +1,18 @@
+{
+  "name": "moodtrip",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MoodTrip: plans a trip around how you feel. Static site and API on Cloudflare Workers.",
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "db:local": "wrangler d1 execute moodtrip-db --local --file=schema.sql",
+    "logs": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  },
+  "engines": { "node": ">=18" }
+}

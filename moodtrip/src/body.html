@@ -1,0 +1,54 @@
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="bg" aria-hidden="true"><div class="glow a"></div><div class="glow b"></div><div class="horizon" id="horizon"></div></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="liquid" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+    <feTurbulence id="liquidTurb" type="fractalNoise" baseFrequency="0.004 0.009" numOctaves="2" seed="4" result="n"/>
+    <feDisplacementMap id="liquidMap" in="SourceGraphic" in2="n" scale="0" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+
+<div class="shell">
+  <header class="top">
+    <button class="brand" id="brand" type="button" aria-label="MoodTrip, back to the start">
+      <svg class="logo" viewBox="0 0 28 28" aria-hidden="true"><defs><clipPath id="lg"><circle cx="14" cy="14" r="14"/></clipPath></defs><circle class="l1" cx="14" cy="14" r="14"/><path class="l2" clip-path="url(#lg)" d="M0 17q7-5 14 0t14 0v12H0z"/></svg>
+      <span class="wordmark">MoodTrip</span>
+    </button>
+    <nav class="stages" id="stages" aria-label="Trip progress"></nav>
+    <div class="top-r">
+      <p class="meta" id="meta"></p>
+      <button class="fieldbtn" id="fieldBtn" type="button" data-act="field" data-cursor="Open"><span class="fb-dot" aria-hidden="true"></span><span>Field</span><b id="fieldCount" hidden></b></button>
+    </div>
+  </header>
+  <main id="stage"></main>
+</div>
+
+<div id="tip" role="tooltip" hidden></div>
+
+<div id="sheet" class="sheet-wrap" hidden>
+  <div class="sheet-bd" data-act="closesheet"></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle" tabindex="-1">
+    <div id="shBody"></div>
+  </div>
+</div>
+
+<div id="place" class="place-wrap" hidden>
+  <div class="place-bd" data-act="closeplace"></div>
+  <aside class="place" role="dialog" aria-modal="true" aria-labelledby="plTitle" tabindex="-1">
+    <div id="plBody"></div>
+  </aside>
+</div>
+
+<div id="curtain" hidden aria-hidden="true"><div class="cp"></div><p class="cl"></p></div>
+<div id="loader" role="status" aria-label="Loading MoodTrip">
+  <div class="lp"></div>
+  <div class="ld-in">
+    <p class="ld-line ld-brand">MoodTrip</p>
+    <p class="ld-line ld-sub">Reading the room</p>
+    <p class="ld-line ld-num"><span id="ldNum">0</span><i>%</i></p>
+  </div>
+</div>
+<div id="cur" aria-hidden="true"><div class="ring"><span></span></div><div class="dot"></div></div>
+
+<div id="toast" role="status"></div>
+<div class="sr" id="live" aria-live="polite"></div>

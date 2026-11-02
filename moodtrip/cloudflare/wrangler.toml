@@ -1,0 +1,20 @@
+# MoodTrip on Cloudflare Workers (static site + a small API in one deploy).
+name = "moodtrip"
+main = "src/worker.js"
+compatibility_date = "2025-09-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "moodtrip-db"
+database_id = "00000000-0000-0000-0000-000000000000"   # `npm run setup` fills this in
+
+[vars]
+PLACES_BASE = "https://places.googleapis.com/v1"
+
+# Secrets are set with `wrangler secret put`, never written here:
+#   GOOGLE_PLACES_API_KEY   shows Google ratings, photos and reviews (optional)
+#   ADMIN_TOKEN             lets you delete any traveler review (optional)
