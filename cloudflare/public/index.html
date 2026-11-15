@@ -3620,6 +3620,80 @@ html.pl-open body {
   }
 }
 
+/* === feature: planner route map === */
+.route-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.rday {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  border: var(--border-thin) solid var(--border-color);
+  background: var(--surface);
+  color: var(--muted);
+  font: 600 13px/1 var(--font-body);
+  transition: border-color var(--duration-200),color var(--duration-200),background var(--duration-200);
+  & i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--dc);
+  }
+  &:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+  &[aria-pressed="true"] {
+    border-color: var(--text);
+    background: var(--text);
+    color: var(--page);
+  }
+}
+.route-slot {
+  position: relative;
+  min-height: 380px;
+}
+.route-map {
+  height: 380px;
+  border-radius: var(--radius-large);
+  overflow: hidden;
+  border: var(--border);
+  background: var(--text-a9);
+  isolation: isolate;
+}
+.route-wait {
+  display: grid;
+  place-items: center;
+  height: 100%;
+}
+.rmk {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--white);
+  background: var(--dc);
+  color: var(--white);
+  font: 700 13px/1 var(--font-body);
+  box-shadow: 0 3px 10px rgba(0,0,0,.28);
+  cursor: pointer;
+  transition: transform var(--duration-200);
+  &:hover, &:focus-visible {
+    transform: scale(1.18);
+    z-index: 2;
+  }
+  &[hidden] {
+    display: none;
+  }
+}
+
 /* === language switch === */
 .langbtn {
   min-width: 48px;
@@ -4025,6 +4099,12 @@ html.pl-open body {
   }
 }
 @media (max-width:620px) {
+  .route-slot, .route-map {
+    min-height: 300px;
+    height: 300px;
+  }
+}
+@media (max-width:620px) {
   .pc-stats {
     grid-template-columns: repeat(2,1fr);
   }
@@ -4394,7 +4474,7 @@ html.pl-open body {
 <script>setTimeout(function(){var l=document.getElementById("loader");if(l)l.hidden=true;},9000);</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script>window.MT_GOOGLE=true;</script>
+<script>window.MT_GOOGLE=true;window.MT_MAP=true;</script>
 <script>
 /* ============ CLOUDFLARE RUNTIME ============
    On claude.ai the platform supplies window.claude (shared database, who is viewing). On Cloudflare this file stands in for it,
@@ -5081,6 +5161,120 @@ const SPOT = {
 };
 const GID_RE = /^[A-Za-z0-9_-]{20,200}$/;
 const spotOf = (destId, title) => { const s = SPOT[destId] && SPOT[destId][title]; return s && GID_RE.test(s[1]) ? { name:s[0], gid:s[1] } : null; };
+/* data/places/geo.js — Where the stops are, for the route map in the planner.
+
+   [latitude, longitude] for every stop that is one findable place: a temple, a market, a beach, a viewpoint. Stops that could
+   be anywhere ("Spa afternoon", "Slow breakfast at a kissaten") have no entry and are not pinned, rather than pinned somewhere
+   made up. Positions are approximate (hand-entered for this prototype) and the map says so; correct them here.
+   c = the city's centre [lat, lng] and z = its zoom, for a plan with nothing pinned yet. */
+const GEO = {
+  hoian: { c:[15.8775, 108.3280], z:13.5, p:{
+    'Riverside check-in & walk':[15.8768, 108.3285],
+    'Lantern-lit Old Town stroll':[15.8773, 108.3264],
+    'Sunrise tai chi, An Bang Beach':[15.9147, 108.3405],
+    'Market visit & cooking class':[15.8769, 108.3311],
+    'Banh mi at the central market':[15.8771, 108.3306],
+    'Candle release on the river':[15.8765, 108.3277],
+    'Bicycle through rice paddies':[15.8960, 108.3375],
+    'Water-coconut grove lunch':[15.8790, 108.3650],
+    'Lazy morning on the sand':[15.9140, 108.3408],
+    'Cao lau lunch crawl':[15.8778, 108.3298],
+    'Sunbed & fresh coconut':[15.9125, 108.3415],
+    'Seafood by the shore':[15.9160, 108.3398],
+    'Basket-boat paddle':[15.8782, 108.3642],
+    'Coconut-forest lunch':[15.8797, 108.3657],
+    'Pottery village workshop':[15.8790, 108.3060],
+    'Night-market browse':[15.8755, 108.3265],
+    'Thu Bon river ferry':[15.8760, 108.3292],
+    'Final coffee by the river':[15.8766, 108.3289],
+    'Last stroll through the Old Town':[15.8776, 108.3276]
+  } },
+  lisbon: { c:[38.7110, -9.1400], z:13, p:{
+    'Tram 28 ride to your Alfama stay':[38.7114, -9.1300],
+    'Miradouro viewpoint at golden hour':[38.7118, -9.1305],
+    'Airport metro & coffee in Chiado':[38.7107, -9.1420],
+    'Wander Alfama’s back lanes':[38.7122, -9.1290],
+    'Time Out Market lunch':[38.7069, -9.1459],
+    'Rooftop sunset in Bairro Alto':[38.7130, -9.1450],
+    'Belém Tower & the river path':[38.6916, -9.2160],
+    'Pastéis de Belém & MAAT':[38.6975, -9.2032],
+    'LX Factory lunch & bookshop':[38.7036, -9.1784],
+    'Quinta da Regaleira wells':[38.7963, -9.3961],
+    'Pena Palace gardens':[38.7876, -9.3906],
+    'Cascais seafood dinner':[38.6967, -9.4207],
+    'Train to Cascais & coastal walk':[38.6979, -9.4215],
+    'Sunbathe at Carcavelos':[38.6789, -9.3360],
+    'Beach lunch at Guincho':[38.7300, -9.4730],
+    'Sunset at Cabo da Roca':[38.7804, -9.4989],
+    'Azulejo tile museum':[38.7247, -9.1137],
+    'Secondhand shops in Príncipe Real':[38.7166, -9.1490],
+    'Petiscos lunch in Graça':[38.7170, -9.1310],
+    'Ginjinha & live jazz':[38.7146, -9.1381],
+    'Gulbenkian garden afternoon':[38.7375, -9.1540],
+    'Sardine lunch in Alcântara':[38.7040, -9.1780],
+    'Last walk along the Tagus':[38.7068, -9.1405]
+  } },
+  oaxaca: { c:[17.0606, -96.7253], z:13.5, p:{
+    'Zócalo stroll & fresh nieve':[17.0607, -96.7254],
+    'Mercado 20 de Noviembre breakfast':[17.0580, -96.7266],
+    'Walk Calle Alcalá to Santo Domingo':[17.0657, -96.7234],
+    'Live music in the plaza':[17.0611, -96.7250],
+    'Monte Albán at opening time':[17.0436, -96.7678],
+    'Lunch in Xoxocotlán':[17.0270, -96.7350],
+    'Barro negro pottery village':[16.9590, -96.7080],
+    'Zapotec weaving in Teotitlán':[17.0300, -96.5200],
+    'Hierve el Agua viewpoint':[16.8657, -96.2760],
+    'Sunset at Cerro del Fortín':[17.0680, -96.7330],
+    'Botanical garden guided walk':[17.0652, -96.7225],
+    'Mezcal distillery in Matatlán':[16.8660, -96.3830],
+    'Artisan workshops in Arrazola':[17.0400, -96.7900],
+    'Lunch under the giant Tule tree':[17.0466, -96.6363],
+    'Sunrise yoga in the botanical garden':[17.0649, -96.7221],
+    'Last Zócalo loop':[17.0609, -96.7252]
+  } },
+  kyoto: { c:[35.0116, 135.7681], z:12.5, p:{
+    'Check in to a machiya near Gion':[35.0037, 135.7750],
+    'Pontocho alley dinner':[35.0050, 135.7708],
+    'Walk the edge of the Philosopher’s Path':[35.0220, 135.7940],
+    'Early Fushimi Inari gates':[34.9671, 135.7727],
+    'Tea ceremony in Gion':[35.0031, 135.7760],
+    'Evening stroll down Hanamikoji':[35.0020, 135.7750],
+    'Arashiyama bamboo grove at dawn':[35.0170, 135.6713],
+    'Tenryu-ji garden & moss walk':[35.0156, 135.6738],
+    'Tofu lunch by the river':[35.0130, 135.6780],
+    'Kinkaku-ji in morning light':[35.0394, 135.7292],
+    'Nishiki Market tasting':[35.0050, 135.7650],
+    'Ryoan-ji rock garden':[35.0345, 135.7183],
+    'Ramen back at Kyoto Station':[34.9858, 135.7588],
+    'Deer park & Todai-ji':[34.6890, 135.8398],
+    'Kasuga Taisha lantern path':[34.6812, 135.8484],
+    'Sunset on the Kamo river bank':[35.0080, 135.7710],
+    'Last look at the river':[35.0100, 135.7715]
+  } },
+  reykjavik: { c:[64.1466, -21.9426], z:13, p:{
+    'Hot dog at Bæjarins Beztu':[64.1485, -21.9399],
+    'Harbour walk':[64.1510, -21.9410],
+    'Coffee on Laugavegur':[64.1440, -21.9270],
+    'Laugardalslaug hot pools':[64.1430, -21.8780],
+    'Hallgrímskirkja tower view':[64.1417, -21.9266],
+    'Sun Voyager sculpture walk':[64.1476, -21.9223],
+    'Fish-soup lunch at the harbour':[64.1505, -21.9430],
+    'Þingvellir & Geysir day tour':[64.2559, -21.1299],
+    'Gullfoss waterfall':[64.3271, -20.1199],
+    'Secret Lagoon soak':[64.1373, -20.3094],
+    'Blue Lagoon soak':[63.8804, -22.4495],
+    'Seafood supper in the old harbour':[64.1515, -21.9425],
+    'Reykjanes lava-field drive':[63.8500, -22.5000],
+    'Lagoon-side lunch':[63.8800, -22.4490],
+    'Whale-watching from the Old Harbour':[64.1525, -21.9420],
+    'Viðey Island ferry & walk':[64.1640, -21.8540],
+    'Sunset geothermal soak':[64.1162, -21.9470],
+    'National Museum':[64.1418, -21.9483],
+    'Sunrise coast walk':[64.1640, -22.0220],
+    'Perlan observation deck':[64.1290, -21.9190],
+    'Last harbour stroll':[64.1508, -21.9415]
+  } }
+};
 /* ============ SCENERY: inline SVG, no external images ============ */
 let _uid = 0;
 const svgWrap = inner => `<svg viewBox="0 0 300 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">${inner}</svg>`;
@@ -6702,6 +6896,17 @@ const MN_STRINGS = {
   "Comment posted.": "Коммент нийтлэгдлээ.",
   "Comment deleted.": "Коммент устгагдлаа.",
 
+  /* ---------- route map ---------- */
+  "Your route · {0}": "Таны маршрут · {0}",
+  "Where each day takes you": "Өдөр бүр хаашаа явах вэ",
+  "Show on the map": "Газрын зураг дээр харуулах",
+  "All days": "Бүх өдөр",
+  "Map of your route": "Таны маршрутын газрын зураг",
+  "Loading the map…": "Газрын зургийг ачаалж байна…",
+  "The map could not load right now. The plan below works without it.": "Газрын зураг одоогоор ачаалагдсангүй. Доорх төлөвлөгөө үүнгүйгээр ажиллана.",
+  "{0} of {1} stops are on the map. Pins are approximate, and stops that are not one place (a spa, a café of your choice) are left off. Tap a pin for the place.": "{1} газраас {0} нь газрын зураг дээр байна. Байршил ойролцоо бөгөөд нэг тодорхой газар биш зогсоолуудыг (спа, дуртай кафе гэх мэт) тэмдэглээгүй. Дэлгэрэнгүйг харахын тулд тэмдэг дээр дарна уу.",
+  "Day {0}, stop {1}: {2}": "{0}-р өдөр, {1}-р зогсоол: {2}",
+
   /* ---------- errors from the shared database ---------- */
   "This link is view-only for you, so posting is switched off. Ask the owner for Contributor access.": "Энэ холбоос танд зөвхөн харах эрхтэй тул нийтлэх хаалттай. Эзэмшигчээс Contributor эрх хүсээрэй.",
   "The shared database is full, so nothing more can be added right now.": "Нийтийн мэдээллийн сан дүүрсэн тул одоогоор юу ч нэмэх боломжгүй.",
@@ -8044,6 +8249,7 @@ function plannerHTML(){
       </div>
     </div>
     <div class="panel" data-pop id="crowdPanel">${crowdPanelHTML(d)}</div>
+    ${routePanelHTML()}
     <div class="days">
       ${P.days.map(dayHTML).join('')}
       <button class="add-day" data-act="addday">＋ Add a day</button>
@@ -8062,6 +8268,100 @@ function dayHTML(day, k){
     <button class="btn btn-secondary btn-sm" data-act="adder" data-day="${k}" aria-expanded="${S.adder === k}">＋ Add a stop</button>
     ${S.adder === k ? adderHTML(k) : ''}
   </section>`;
+}
+/* features/planner/route-map.js — Planner: the route map (OpenFreeMap tiles drawn with MapLibre GL).
+
+   - No key and no account: OpenFreeMap's public tiles. MapLibre adds the map credit (OpenFreeMap, OpenMapTiles, OpenStreetMap).
+   - MapLibre (about 1 MB) is served from this site (/vendor) and loaded only when a plan is on screen, so nobody else pays for it.
+     It is the CSP build: its worker is a normal file on this site, so the page's Content-Security-Policy needs no blob: workers.
+   - The planner redraws itself on every edit; the map element is kept and moved into the new slot, so the map is built once.
+   - Pins come from data/places/geo.js and are approximate. Stops with no single place (a spa, a café of your choice) are not pinned.
+   - Only in the Cloudflare build (window.MT_MAP); the claude.ai page has no /vendor files. */
+const MAP_ON = !!window.MT_MAP;
+const MAP_STYLE = 'https://tiles.openfreemap.org/styles/positron';
+const MAP_LIB = '/vendor/maplibre-5.24.1/';
+const DAY_COLORS = ['#c8553d', '#2a7f9e', '#7a5bb5', '#3b8f5a', '#c28a1e', '#c2456e', '#4f6fd1', '#8a6b4e'];
+const dayColor = k => DAY_COLORS[k % DAY_COLORS.length];
+let mapLib = null, mapEl = null, routeMap = null, routeReady = false, mapDestId = null, mapDay = -1, mapMarkers = [];
+
+function loadMapLib(){
+  if (mapLib) return mapLib;
+  mapLib = new Promise((ok, no) => {
+    const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = MAP_LIB + 'maplibre-gl.css'; document.head.appendChild(css);
+    const js = document.createElement('script'); js.src = MAP_LIB + 'maplibre-gl-csp.js'; js.async = true;
+    js.onload = () => { try { window.maplibregl.setWorkerUrl(MAP_LIB + 'maplibre-gl-csp-worker.js'); ok(window.maplibregl); } catch (e) { no(e); } };
+    js.onerror = () => { mapLib = null; no(new Error('load')); };
+    document.head.appendChild(js);
+  });
+  return mapLib;
+}
+/* every pinned stop of the plan, per day, in plan order */
+function routePoints(){
+  const g = GEO[S.dest.id] || { p:{} };
+  return S.plan.days.map((day, k) => day.stops.map((s, i) => ({ s, k, i, ll:!s.custom && g.p[s.title] })).filter(x => x.ll));
+}
+function routePanelHTML(){
+  if (!MAP_ON) return '';
+  const pts = routePoints(), pinned = pts.reduce((n, d) => n + d.length, 0), total = S.plan.days.reduce((n, d) => n + d.stops.length, 0);
+  if (mapDay >= S.plan.days.length) mapDay = -1;
+  return `<div class="panel route-panel" data-pop>
+    <div class="cost-top"><div><p class="label muted">Your route · ${esc(S.dest.name)}</p><p class="title" style="margin-top:4px">Where each day takes you</p></div>
+      <div class="route-days" role="group" aria-label="Show on the map">
+        <button type="button" class="rday" data-act="mapday" data-day="-1" aria-pressed="${mapDay < 0}">All days</button>
+        ${S.plan.days.map((_, k) => `<button type="button" class="rday" data-act="mapday" data-day="${k}" aria-pressed="${mapDay === k}" style="--dc:${dayColor(k)}"><i aria-hidden="true"></i>Day ${k + 1}</button>`).join('')}
+      </div></div>
+    <div id="routeMapSlot" class="route-slot"></div>
+    <p class="fine">${pinned} of ${total} stops are on the map. Pins are approximate, and stops that are not one place (a spa, a café of your choice) are left off. Tap a pin for the place.</p>
+  </div>`;
+}
+async function mountRouteMap(){
+  if (!MAP_ON) return;
+  const slot = $('#routeMapSlot'); if (!slot) return;
+  if (!mapEl){
+    mapEl = document.createElement('div'); mapEl.className = 'route-map';
+    mapEl.setAttribute('role', 'region'); mapEl.setAttribute('aria-label', 'Map of your route'); mapEl.setAttribute('translate', 'no');
+    mapEl.innerHTML = '<p class="route-wait fine">Loading the map…</p>';
+  }
+  slot.appendChild(mapEl);
+  if (routeMap){ routeMap.resize(); paintRoute(mapDestId !== S.dest.id); return; }
+  let lib;
+  try { lib = await loadMapLib(); } catch (e) { mapEl.innerHTML = '<p class="route-wait fine">The map could not load right now. The plan below works without it.</p>'; return; }
+  if (routeMap || !mapEl.isConnected || !S.dest) return;
+  mapEl.innerHTML = '';
+  const g = GEO[S.dest.id];
+  routeMap = new lib.Map({ container:mapEl, style:MAP_STYLE, center:g ? [g.c[1], g.c[0]] : [0, 20], zoom:g ? g.z : 1.5,
+    cooperativeGestures:true, attributionControl:{ compact:true }, fadeDuration:0 });
+  routeMap.addControl(new lib.NavigationControl({ showCompass:false }), 'top-right');
+  routeMap.on('load', () => { routeReady = true; paintRoute(true); });
+}
+function paintRoute(fit){
+  if (!routeMap || !routeReady || !S.plan || !S.dest) return;
+  const lib = window.maplibregl, days = routePoints(), show = (k) => mapDay < 0 || mapDay === k;
+  mapMarkers.forEach(m => m.remove()); mapMarkers = [];
+  days.forEach((list, k) => list.forEach((x, n) => {
+    const el = document.createElement('button');
+    el.type = 'button'; el.className = 'rmk'; el.dataset.act = 'place'; el.dataset.id = x.s.id;
+    el.style.setProperty('--dc', dayColor(k)); el.textContent = n + 1; el.hidden = !show(k);
+    el.setAttribute('aria-label', `Day ${k + 1}, stop ${n + 1}: ${x.s.title}`); el.title = `Day ${k + 1} · ${x.s.title}`;
+    mapMarkers.push(new lib.Marker({ element:el, anchor:'center' }).setLngLat([x.ll[1], x.ll[0]]).addTo(routeMap));
+  }));
+  const lines = { type:'FeatureCollection', features:days.map((list, k) => ({ type:'Feature', properties:{ c:dayColor(k), on:show(k) ? 1 : 0 },
+    geometry:{ type:'LineString', coordinates:list.map(x => [x.ll[1], x.ll[0]]) } })).filter(f => f.geometry.coordinates.length > 1) };
+  const src = routeMap.getSource('route');
+  if (src) src.setData(lines);
+  else {
+    routeMap.addSource('route', { type:'geojson', data:lines });
+    routeMap.addLayer({ id:'route', type:'line', source:'route', layout:{ 'line-cap':'round', 'line-join':'round' },
+      paint:{ 'line-color':['get', 'c'], 'line-width':3, 'line-opacity':['*', 0.75, ['get', 'on']], 'line-dasharray':[1.5, 1.5] } });
+  }
+  if (fit || mapDestId !== S.dest.id){
+    mapDestId = S.dest.id;
+    const vis = days.flatMap((list, k) => show(k) ? list : []);
+    if (vis.length){
+      const b = new lib.LngLatBounds(); vis.forEach(x => b.extend([x.ll[1], x.ll[0]]));
+      routeMap.fitBounds(b, { padding:48, maxZoom:15, duration:FX.reduced ? 0 : 700 });
+    } else { const g = GEO[S.dest.id]; if (g) routeMap.jumpTo({ center:[g.c[1], g.c[0]], zoom:g.z }); }
+  }
 }
 /* features/planner/stops.js — Planner: stops, adding, removing, days. */
 /* a stop's guide entry and review id come from its title, so a saved or edited plan can never point reviews at the wrong place */
@@ -8101,6 +8401,7 @@ function refreshPlan(focusSel){
   const root = $('#plan'); if (!root) return;
   root.innerHTML = plannerHTML();
   FX.bind(root);
+  mountRouteMap();
   if (focusSel){ const el = $(focusSel, root); if (el) el.focus({ preventScroll:true }); }
 }
 function locate(id){ for (let k = 0; k < S.plan.days.length; k++){ const i = S.plan.days[k].stops.findIndex(s => s.id === id); if (i >= 0) return [k, i]; } return null; }
@@ -8436,6 +8737,12 @@ ACT.save = async () => {
     toast(where.length ? `Plan saved to ${where.join(' and ')}.${dbErr ? ' The shared database could not be reached.' : BE.account ? ' Find it in My plans.' : BE.canAccount ? ' Sign in to keep it in your account.' : ''}` : dbErr ? BE.explain(dbErr) : 'This browser blocks saving here. Your plan is still on screen.');
   };
 ACT.resume = () => { if (!saved) return; restoreTrip(saved); go('planner'); };
+AFTER.planner = () => { mountRouteMap(); };
+ACT.mapday = el => {
+  mapDay = +el.dataset.day;
+  $$('.rday').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.day === mapDay)));
+  paintRoute(true);
+};
 /* features/field/index.js — Field: entry points. */
 VIEWS.field = () => `<section class="field-view" aria-labelledby="h1">
     <div class="field-top">

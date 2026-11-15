@@ -26,6 +26,7 @@ PARTS="
   src/data/places/kyoto.js
   src/data/places/reykjavik.js
   src/data/places/spots.js
+  src/data/places/geo.js
   src/visuals/scenes.js
   src/core/backend.js
   src/visuals/gl.js
@@ -53,6 +54,7 @@ PARTS="
   src/features/account/account.js
   src/features/plans/plans.js
   src/features/planner/views.js
+  src/features/planner/route-map.js
   src/features/planner/stops.js
   src/features/budget/budget.js
   src/features/feel/game.js
@@ -98,7 +100,7 @@ if [ "$1" = "cloudflare" ]; then
     echo '</style></head><body>'
     cat src/body.html
     echo "$LIBS"
-    echo '<script>window.MT_GOOGLE=true;</script>'
+    echo '<script>window.MT_GOOGLE=true;window.MT_MAP=true;</script>'
     echo '<script>'
     cat src/core/runtime-cloudflare.js
     echo '</script>'

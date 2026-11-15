@@ -9,6 +9,7 @@ src/
 ├─ styles/            4 CSS files only: tokens-primitive, tokens-brand, tokens-semantic, component
 ├─ core/              shared code: model, backend, state, chrome (render/go), events, boot
 ├─ data/places/       destination and venue data
+├─ data/places/geo.js  approximate positions of the stops, for the route map (OpenFreeMap + MapLibre, served from cloudflare/public/vendor)
 ├─ i18n/              Mongolian strings (mn.js); the switch itself is core/i18n.js, see docs/i18n.md
 ├─ visuals/           3D scene, motion, SVG scenery
 ├─ features/          one folder per feature (feel, budget, matches, planner, field, place, reviews)
