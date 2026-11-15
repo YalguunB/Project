@@ -1,0 +1,42 @@
+/* ===================================================================
+   tokens-semantic.css — roles. Components use these names, never a color.
+   Everything mood-dependent comes from the brand layer; the alpha steps
+   (--accent-a14 = accent at 14%) are derived here so no component repeats
+   a color-mix().
+   =================================================================== */
+@layer semantic {
+:root {
+  --page: var(--brand-bg);
+  --surface: var(--brand-surface);
+  --text: var(--brand-ink);
+  --muted: var(--brand-muted);
+  --accent: var(--brand-accent);
+  --accent-text: var(--brand-accent-ink);
+  --glow: var(--brand-glow);
+  --border-color: var(--brand-line);
+  --positive: var(--brand-ok);
+  --danger: var(--brand-warn);
+  --energy: .35;
+
+  --border: var(--line-medium) solid var(--border-color);
+  --border-thin: var(--line-thin) solid var(--border-color);
+  --focus-ring: var(--focus-width) solid var(--accent);
+
+  --accent-a16: color-mix(in srgb, var(--accent) 16%, transparent);
+  --accent-a55: color-mix(in srgb, var(--accent) 55%, transparent);
+  --accent-text-a82: color-mix(in srgb, var(--accent-text) 82%, transparent);
+  --danger-a12: color-mix(in srgb, var(--danger) 12%, transparent);
+  --glow-a22: color-mix(in srgb, var(--glow) 22%, transparent);
+  --surface-a70: color-mix(in srgb, var(--surface) 70%, transparent);
+  --surface-a78: color-mix(in srgb, var(--surface) 78%, transparent);
+  --text-a9: color-mix(in srgb, var(--text) 9%, transparent);
+  --text-a10: color-mix(in srgb, var(--text) 10%, transparent);
+  --text-a60: color-mix(in srgb, var(--text) 60%, transparent);
+  --text-a80: color-mix(in srgb, var(--text) 80%, transparent);
+
+  transition: --page var(--duration-900) ease, --surface var(--duration-900) ease, --text var(--duration-900) ease,
+    --muted var(--duration-900) ease, --accent var(--duration-900) ease, --accent-text var(--duration-900) ease,
+    --glow var(--duration-900) ease, --border-color var(--duration-900) ease, --positive var(--duration-900) ease,
+    --danger var(--duration-900) ease;
+}
+}
