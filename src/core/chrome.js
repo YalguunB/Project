@@ -58,7 +58,7 @@ function render(stage, opts = {}){
     document.documentElement.classList.toggle('in-game', stage === 'game');
     document.documentElement.dataset.mood = moodFor(stage);
     syncGL(stage); paintHorizon(); paintChrome();
-    stageEl.innerHTML = VIEWS[stage]();
+    stageEl.innerHTML = I18N.html(VIEWS[stage]());
     window.scrollTo(0, 0);
     if (AFTER[stage]) AFTER[stage]();
     FX.bind(stageEl);

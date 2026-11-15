@@ -75,8 +75,8 @@
   --graphite-900: #1F1F1F;
 
   /* type */
-  --font-display: 'Bricolage Grotesque','Helvetica Neue',Arial,system-ui,sans-serif;
-  --font-body: 'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-display: 'Bricolage Grotesque','Manrope','Helvetica Neue',Arial,system-ui,sans-serif;
+  --font-body: 'DM Sans','Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
 
   /* space */
   --space-1: 4px;

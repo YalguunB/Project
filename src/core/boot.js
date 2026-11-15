@@ -3,6 +3,7 @@
 $('#horizon').innerHTML = Object.entries(HORIZON).map(([k, v]) => v.replace('<svg ', `<svg data-scene="${k}" `)).join('');
 if (GL.ok) document.documentElement.classList.add('gl');
 document.documentElement.style.setProperty('--energy', S.energy / 100);
+I18N.start();
 const introTl = render('intro', { focus:false });
 FX.loader(() => { if (introTl) gsap.delayedCall(.3, () => introTl.play()); }, () => { const h = $('#h1'); if (h) h.focus({ preventScroll:true }); });
 let rsz;
