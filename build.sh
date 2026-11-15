@@ -35,6 +35,7 @@ PARTS="
   src/features/feel/state.js
   src/core/utils.js
   src/core/saved-trip.js
+  src/core/profile.js
   src/core/chrome.js
   src/core/view-parts.js
   src/features/matches/crowd.js
@@ -46,6 +47,7 @@ PARTS="
   src/features/place/maps-google.js
   src/features/place/panel.js
   src/features/reviews/actions.js
+  src/features/engage/nudge.js
   src/features/planner/views.js
   src/features/planner/stops.js
   src/features/budget/budget.js
@@ -59,6 +61,7 @@ PARTS="
   src/features/field/index.js
   src/features/place/index.js
   src/features/reviews/index.js
+  src/features/engage/index.js
   src/core/events.js
   src/features/planner/drag.js
   src/core/backend-sync.js

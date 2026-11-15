@@ -22,7 +22,7 @@ ACT.save = async () => {
     const where = []; let dbErr = null;
     if (BE.ready && BE.uid){ try { await BE.saveTrip(trip); where.push('your account'); } catch (e) { dbErr = e; } }
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(trip)); where.push('this browser'); } catch (e) {}
-    const c = cleanTrip(trip); if (c && where.length) saved = c;
+    const c = cleanTrip(trip); if (c && where.length){ saved = c; recordTrip(trip); }
     toast(where.length ? `Plan saved to ${where.join(' and ')}.${dbErr ? ' The shared database could not be reached.' : ''}` : dbErr ? BE.explain(dbErr) : 'This browser blocks saving here. Your plan is still on screen.');
   };
 ACT.resume = () => {

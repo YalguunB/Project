@@ -55,7 +55,7 @@
     const s = String(path).split('/');
     let coll, id;
     if (s.length === 2 && (s[0] === 'feelings' || s[0] === 'cards' || s[0] === 'reviews')){ coll = s[0]; id = s[1]; }
-    else if (s.length === 4 && s[0] === 'data' && s[1] === 'users' && s[3] === 'trip'){ coll = 'trip'; id = s[2]; }
+    else if (s.length === 4 && s[0] === 'data' && s[1] === 'users' && (s[3] === 'trip' || s[3] === 'profile')){ coll = s[3]; id = s[2]; }
     else throw { code:'invalid_argument' };
     const p = coll + '/' + encodeURIComponent(id);
     return {

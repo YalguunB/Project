@@ -26,7 +26,7 @@ async function submitReview(form){
   let ph = photo.remove ? null : oldPh, fresh = null;
   try {
     if (photo.blob){ btn.textContent = 'Uploading photo…'; fresh = await BE.uploadPhoto(photo.blob); ph = fresh; btn.textContent = label; }
-    await BE.submitReview(realPid, { r, t, f, ph });
+    await BE.submitReview(realPid, { r, t, f, ph, tc:tripsTaken(profile).length });
     lastPost = Date.now();
     if (oldPh && oldPh !== ph) BE.dropPhoto(oldPh);
     if (placeId === pid) setReviewForm(realPid);

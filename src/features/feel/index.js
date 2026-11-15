@@ -10,6 +10,7 @@ VIEWS.intro = () => `
         <button class="btn btn-ghost" data-act="skip">Skip the game</button>
         <span id="resumeSlot">${resumeBtn()}</span>
       </div>
+      <div id="engageSlot" class="engage-slot" aria-live="polite"></div>
       <div class="who" data-fade><span class="label muted">Who it’s for</span><span class="tag outline">Solo travelers</span><span class="tag outline">Couples</span><span class="tag outline">Burnt-out professionals</span></div>
     </div>
     <div class="marquee" aria-hidden="true"><div class="track">${marq}${marq}</div></div>

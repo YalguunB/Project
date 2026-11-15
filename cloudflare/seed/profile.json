@@ -1,0 +1,18 @@
+{
+  "v": 1,
+  "first": 1735689600000,
+  "last": 1735689600000,
+  "visits": 3,
+  "trips": [
+    {
+      "dest": "kyoto",
+      "month": 3,
+      "year": 2026,
+      "nights": 4,
+      "saved": 1738368000000,
+      "went": null,
+      "pids": ["kyoto:0:0", "kyoto:0:1", "kyoto:1:0", "kyoto:1:1", "kyoto:2:0", "kyoto:2:2", "kyoto:3:0", "kyoto:3:2"],
+      "snooze": 0
+    }
+  ]
+}

@@ -11,12 +11,13 @@ src/
 ├─ data/places/       destination and venue data
 ├─ visuals/           3D scene, motion, SVG scenery
 ├─ features/          one folder per feature (feel, budget, matches, planner, field, place, reviews)
+│  ├─ engage/          start-screen nudge per segment (new / once / seasoned), "rate your trip" sheet
 │  └─ <feature>/index.js   registers the feature's screens (VIEWS), actions (ACT) and hooks (AFTER)
 ├─ components/        page markup split into components (registry, one file per part, overlays.js aggregates, mount.js renders)
 └─ body.html          layout glue + component calls (<div data-component="x"></div>)
 build.sh              concatenates src/ (file order is listed in build.sh) into cloudflare/public/index.html
 cloudflare/           Worker API, D1 schema, and deployable site
-docs/                 css-architecture.md
+docs/                 css-architecture.md, engagement.md (segments, nudges, review asks, why requests were slow)
 delete/               unused files kept here until the team confirms they can be removed
 ```
 

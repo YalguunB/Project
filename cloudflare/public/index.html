@@ -3236,6 +3236,28 @@ html.pl-open body {
   color: var(--text);
   font: 500 14px/1.45 var(--font-body);
 }
+/* === feature: engage === */
+.engage-slot:empty {
+  display: none;
+}
+.nudge {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 560px;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-large);
+  border: var(--border);
+  border-left: var(--line-thick) solid var(--accent);
+  background: var(--surface-a78);
+  & .row {
+    margin-top: var(--space-2);
+  }
+}
+.rv-exp {
+  margin-left: var(--space-2);
+}
+
 @media (max-width:760px) {
   .place-wrap {
     align-items: flex-end;
@@ -3971,7 +3993,7 @@ html.pl-open body {
     const s = String(path).split('/');
     let coll, id;
     if (s.length === 2 && (s[0] === 'feelings' || s[0] === 'cards' || s[0] === 'reviews')){ coll = s[0]; id = s[1]; }
-    else if (s.length === 4 && s[0] === 'data' && s[1] === 'users' && s[3] === 'trip'){ coll = 'trip'; id = s[2]; }
+    else if (s.length === 4 && s[0] === 'data' && s[1] === 'users' && (s[3] === 'trip' || s[3] === 'profile')){ coll = s[3]; id = s[2]; }
     else throw { code:'invalid_argument' };
     const p = coll + '/' + encodeURIComponent(id);
     return {
@@ -4685,6 +4707,7 @@ const BE = (() => {
     const w = WIN.find(x => x.id === data.w), f = FEEL.find(x => x.id === data.f), lvl = energyLevel(e);
     return { id:'u' + uid, uid, w:data.w, f:data.f, e, s:SOUND_IDS.includes(data.s) ? data.s : 'lofi', d:DEST_IDS.includes(data.d) ? data.d : null,
              bag:Array.isArray(data.bag) ? data.bag.filter(b => BAG_IDS.includes(b)).slice(0, 3) : [], mood:w.mood,
+             at:Math.min(Math.max(0, +data.at || 0), Date.now() + 60000),
              name:`${lvl.pace}-${w.noun} ${f.role}`, mine:uid === st.uid };
   }
   /* Reviews are free text from other people: strip control and direction-override characters, collapse spaces, cap the length.
@@ -4697,12 +4720,12 @@ const BE = (() => {
       const x = items[pid]; if (!PLACE_IDS.has(pid) || !x || typeof x !== 'object') return;
       const r = Math.round(+x.r); if (!(r >= 1 && r <= 5)) return;
       const w = WIN.find(k => k.id === x.w) || WIN[0], f = FEEL.find(k => k.id === x.f) || null, e = clampN(x.e, 0, 100, 35), lvl = energyLevel(e);
-      out.set(pid, { pid, uid, r, t:cleanText(x.t), f:f ? f.id : null, w:w.id, e, ph:typeof x.ph === 'string' && PH_RE.test(x.ph) ? x.ph : null, at:Math.min(Math.max(0, +x.at || 0), Date.now() + 60000),
+      out.set(pid, { pid, uid, r, t:cleanText(x.t), f:f ? f.id : null, w:w.id, e, ph:typeof x.ph === 'string' && PH_RE.test(x.ph) ? x.ph : null, tc:clampN(x.tc, 0, 99, 0), at:Math.min(Math.max(0, +x.at || 0), Date.now() + 60000),
                      name:`${lvl.pace}-${w.noun} ${f ? f.role : 'traveler'}`, mine:uid === st.uid });
     });
     return out;
   }
-  const packReview = it => ({ r:it.r, t:it.t, f:it.f, w:it.w, e:it.e, at:it.at, ...(it.ph ? { ph:it.ph } : {}) });
+  const packReview = it => ({ r:it.r, t:it.t, f:it.f, w:it.w, e:it.e, at:it.at, ...(it.tc ? { tc:it.tc } : {}), ...(it.ph ? { ph:it.ph } : {}) });
   function reindexReviews(){
     st.rIndex = new Map();
     st.reviews.forEach(m => m.forEach(it => { if (!st.rIndex.has(it.pid)) st.rIndex.set(it.pid, []); st.rIndex.get(it.pid).push(it); }));
@@ -4775,6 +4798,7 @@ const BE = (() => {
       return { n:list.length, avg:list.length ? sum / list.length : 0, dist, list };
     },
     myReview(pid){ const m = st.uid && st.reviews.get(st.uid); return m && m.get(pid) || null; },
+    myReviewCount(){ const m = st.uid && st.reviews.get(st.uid); return m ? m.size : 0; },
     reviewCount(){ let n = 0; st.reviews.forEach(m => { n += m.size; }); return n; },
     reportCount(){ let n = 0; st.feelings.forEach(r => { n += Object.keys(r).length; }); return n; },
 
@@ -4786,13 +4810,28 @@ const BE = (() => {
         st.feelings.set(st.uid, cleanReports({ reports:mine })); recompute(); emit();
       });
     },
-    submitReview(pid, { r, t, f, ph }){
+    submitReview(pid, { r, t, f, ph, tc }){
       return queue(async () => {
         if (!PLACE_IDS.has(pid)) throw { code:'invalid' };
         const mine = st.reviews.get(st.uid) || new Map();
         if (!mine.has(pid) && mine.size >= MAX_REVIEWS) throw { code:'limit' };
         const items = {}; mine.forEach((it, k) => { items[k] = packReview(it); });
-        items[pid] = { r:clampN(r, 1, 5, 3), t:cleanText(t), f:FEEL_IDS.includes(f) ? f : null, w:S.window, e:S.energy, at:Date.now(), ...(typeof ph === 'string' && PH_RE.test(ph) ? { ph } : {}) };
+        items[pid] = { r:clampN(r, 1, 5, 3), t:cleanText(t), f:FEEL_IDS.includes(f) ? f : null, w:S.window, e:S.energy, at:Date.now(), ...(tc > 0 ? { tc:clampN(tc, 0, 99, 0) } : {}), ...(typeof ph === 'string' && PH_RE.test(ph) ? { ph } : {}) };
+        await st.db.doc('reviews/' + st.uid).set({ v:1, items });
+        st.reviews.set(st.uid, cleanReviews({ items }, st.uid)); reindexReviews(); st.reviewsAt = Date.now(); emit();
+      });
+    },
+    /* several star ratings at once (the "how was your trip?" sheet): one write instead of one per place */
+    submitRatings(list, tc){
+      return queue(async () => {
+        const mine = st.reviews.get(st.uid) || new Map();
+        const items = {}; mine.forEach((it, k) => { items[k] = packReview(it); });
+        list.forEach(({ pid, r }) => {
+          if (!PLACE_IDS.has(pid)) return;
+          const old = items[pid];
+          items[pid] = { ...(old || {}), r:clampN(r, 1, 5, 3), t:old ? old.t : '', f:old ? old.f : null, w:old ? old.w : S.window, e:old ? old.e : S.energy, at:Date.now(), ...(tc > 0 ? { tc:clampN(tc, 0, 99, 0) } : {}) };
+        });
+        if (Object.keys(items).length > MAX_REVIEWS) throw { code:'limit' };
         await st.db.doc('reviews/' + st.uid).set({ v:1, items });
         st.reviews.set(st.uid, cleanReviews({ items }, st.uid)); reindexReviews(); st.reviewsAt = Date.now(); emit();
       });
@@ -4829,6 +4868,15 @@ const BE = (() => {
     saveTrip(trip){
       if (!st.ready || !st.uid) return Promise.reject({ code:'unavailable' });
       return queue(() => st.db.doc('data/users/' + st.uid + '/trip').set(trip));
+    },
+    /* the traveler's private profile: visits and the trips they planned or took (see core/profile.js) */
+    async loadProfile(){
+      if (!st.ready || !st.uid) return null;
+      try { const d = await st.db.doc('data/users/' + st.uid + '/profile').get(); return d.exists ? d.data() : null; } catch (e) { return null; }
+    },
+    saveProfile(p){
+      if (!st.ready || !st.uid) return Promise.reject({ code:'unavailable' });
+      return queue(() => st.db.doc('data/users/' + st.uid + '/profile').set(p));
     }
   };
   return api;
@@ -5447,6 +5495,111 @@ function loadSaved(){
 }
 let saved = loadSaved();
 const resumeBtn = () => saved ? `<button class="btn btn-secondary" data-act="resume">Continue your ${esc(destById(saved.destId).name)} plan</button>` : '';
+/* core/profile.js — The traveler's profile: visits and trips, which segment they are in, and what to ask them next.
+
+   Stored in two places, like the saved trip: this browser (localStorage) and, when the shared database is there, the traveler's
+   private document data/users/<id>/profile (Cloudflare: /api/db/profile/<id>, readable only with the traveler's secret).
+
+   Shape (also the shape to write by hand, see docs/engagement.md and cloudflare/seed/):
+   {
+     v: 1,
+     first: 1730000000000,          // first visit, ms since 1970
+     last:  1731600000000,          // latest visit
+     visits: 4,                     // a new visit = back after SESSION_GAP or more
+     trips: [{
+       dest: 'kyoto', month: 3, year: 2026, nights: 5,   // month is 0-11 (3 = April)
+       saved: 1730500000000,        // when the plan was saved
+       went: true,                  // true = went, false = did not go, null = not asked yet
+       pids: ['kyoto:0:1', ...],    // the guide places in that plan, so we can ask for reviews of exactly those
+       snooze: 0                    // "not now": no asks about this trip until this time
+     }]
+   }
+
+   Segments (segmentOf): 'new' = no trip taken yet (first-timer), 'once' = exactly one, 'seasoned' = two or more. */
+const PROFILE_KEY = 'moodtrip:profile:v1';
+const SESSION_GAP = 30 * 60 * 1000;
+const DAY_MS = 864e5;
+let profile = null;
+const profileSubs = new Set();
+const onProfile = f => { profileSubs.add(f); return () => profileSubs.delete(f); };
+const profileChanged = () => profileSubs.forEach(f => { try { f(); } catch (e) {} });
+
+function cleanProfile(v){
+  if (!v || typeof v !== 'object') return null;
+  const now = Date.now(), n = (x, a, b, d) => { x = Math.round(+x); return isFinite(x) ? Math.max(a, Math.min(b, x)) : d; };
+  const trips = (Array.isArray(v.trips) ? v.trips : []).slice(-30).map(t => {
+    const d = t && destById(t.dest); if (!d) return null;
+    const ids = new Set(catalog(d).map(c => c.id));
+    return { dest:d.id, month:n(t.month, 0, 11, 0), year:n(t.year, 2020, 2100, new Date().getFullYear()), nights:n(t.nights, 1, 30, 7),
+             saved:n(t.saved, 0, now + 6e4, now), went:t.went === true ? true : t.went === false ? false : null,
+             pids:[...new Set((Array.isArray(t.pids) ? t.pids : []).filter(p => ids.has(p)))].slice(0, 60), snooze:n(t.snooze, 0, now + 365 * DAY_MS, 0) };
+  }).filter(Boolean);
+  return { v:1, first:n(v.first, 0, now + 6e4, now), last:n(v.last, 0, now + 6e4, now), visits:n(v.visits, 0, 1e6, 0), trips };
+}
+const freshProfile = () => ({ v:1, first:Date.now(), last:0, visits:0, trips:[] });
+
+/* ---------- reading the profile ---------- */
+const tripStart = t => new Date(t.year, t.month, 1).getTime();
+const tripOver = t => Date.now() >= new Date(t.year, t.month + 1, 1).getTime() + t.nights * DAY_MS;   // we know the month, not the day
+const tripsTaken = p => p ? p.trips.filter(t => t.went === true) : [];
+function segmentOf(p){
+  const n = tripsTaken(p).length;
+  return n === 0 ? 'new' : n === 1 ? 'once' : 'seasoned';
+}
+/* the one thing worth asking right now, most useful first */
+function nextAsk(p){
+  if (!p) return null;
+  const now = Date.now(), recent = p.trips.slice().reverse().filter(t => t.snooze <= now);
+  const unsure = recent.find(t => t.went === null && tripOver(t));
+  if (unsure) return { kind:'went', trip:unsure };
+  if (BE.reviewsAt){                                    // only once the reviews are loaded, or every place would look unreviewed
+    for (const t of recent) if (t.went){ const left = t.pids.filter(pid => !BE.myReview(pid)); if (left.length) return { kind:'review', trip:t, left }; }
+  }
+  const soon = p.trips.filter(t => t.went === null && !tripOver(t)).sort((a, b) => tripStart(a) - tripStart(b))[0];
+  if (soon) return { kind:'upcoming', trip:soon };
+  return null;
+}
+const sameTrip = (a, b) => a.dest === b.dest && a.month === b.month && a.year === b.year;
+
+/* ---------- writing the profile ---------- */
+function persistProfile(){
+  if (!profile) return Promise.resolve();
+  try { localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); } catch (e) {}
+  profileChanged();
+  return BE.ready && BE.uid ? BE.saveProfile(profile).catch(() => {}) : Promise.resolve();
+}
+/* called once the shared database has answered (or not): picks the newer copy and counts the visit */
+async function loadProfile(){
+  let local = null; try { local = cleanProfile(JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null')); } catch (e) {}
+  const remote = cleanProfile(await BE.loadProfile());
+  profile = remote && (!local || remote.last >= local.last) ? remote : local || freshProfile();
+  const now = Date.now();
+  if (now - profile.last >= SESSION_GAP){ profile.visits++; profile.last = now; await persistProfile(); }
+  else { profile.last = now; profileChanged(); }
+}
+/* the guide places in a plan, by title (the same rule pidOf uses in the planner) */
+function planPids(d, plan){
+  const byTitle = new Map(catalog(d).map(c => [c.title, c.id]));
+  return [...new Set(plan.days.flatMap(day => day.stops.filter(s => !s.custom).map(s => byTitle.get(s.title))).filter(Boolean))];
+}
+/* a saved plan becomes a trip: the same place, month and year updates the one already there */
+function recordTrip(trip){
+  const d = destById(trip.destId); if (!d) return Promise.resolve();
+  if (!profile) profile = freshProfile();
+  const now = new Date(), year = trip.month >= now.getMonth() ? now.getFullYear() : now.getFullYear() + 1;
+  const t = { dest:d.id, month:trip.month, year, nights:trip.nights, saved:Date.now(), went:null, pids:planPids(d, trip.plan), snooze:0 };
+  const i = profile.trips.findIndex(x => sameTrip(x, t) && x.went === null);
+  if (i >= 0) profile.trips[i] = t; else profile.trips = [...profile.trips, t].slice(-30);
+  return persistProfile();
+}
+function markWent(trip, went){
+  const t = profile && profile.trips.find(x => sameTrip(x, trip)); if (!t) return Promise.resolve();
+  t.went = !!went; return persistProfile();
+}
+function snoozeTrip(trip, days = 7){
+  const t = profile && profile.trips.find(x => sameTrip(x, trip)); if (!t) return Promise.resolve();
+  t.snooze = Date.now() + days * DAY_MS; return persistProfile();
+}
 /* core/chrome.js — Chrome: mood, 3D scene sync, stage nav, render and go(). */
 /* ---------- chrome: mood, 3D scene sync, stage nav ---------- */
 function moodFor(stage){
@@ -5675,7 +5828,7 @@ const starsHTML = v => `<span class="stars" style="--p:${Math.round(v / 5 * 100)
 const revKey = x => x.uid + '|' + x.pid + '|' + x.at;
 function revItemHTML(x, fresh){
   const f = x.f && FEEL.find(k => k.id === x.f);
-  return `<li class="rv${fresh ? ' fresh' : ''}${x.mine ? ' mine' : ''}"><div class="rv-top">${starsHTML(x.r)}<b>${esc(x.name)}${x.mine ? ' · you' : ''}</b>${x.at ? `<time datetime="${new Date(x.at).toISOString()}">${ago(x.at)}</time>` : ''}</div>${f ? `<span class="tag">Felt ${esc(f.label.toLowerCase())}</span>` : ''}${x.t ? `<p>${esc(x.t)}</p>` : ''}${x.ph ? `<a class="rv-photo" href="/_blob/${x.ph}" target="_blank" rel="noopener" aria-label="Open this photo in a new tab"><img class="rev-img" src="/_blob/${x.ph}" alt="Photo shared with this review" loading="lazy" decoding="async"></a>` : ''}</li>`;
+  return `<li class="rv${fresh ? ' fresh' : ''}${x.mine ? ' mine' : ''}"><div class="rv-top">${starsHTML(x.r)}<b>${esc(x.name)}${x.mine ? ' · you' : ''}</b>${x.tc >= 2 ? `<span class="tag outline rv-exp" title="This traveler has taken ${x.tc} trips with MoodTrip">${x.tc} trips</span>` : ''}${x.at ? `<time datetime="${new Date(x.at).toISOString()}">${ago(x.at)}</time>` : ''}</div>${f ? `<span class="tag">Felt ${esc(f.label.toLowerCase())}</span>` : ''}${x.t ? `<p>${esc(x.t)}</p>` : ''}${x.ph ? `<a class="rv-photo" href="/_blob/${x.ph}" target="_blank" rel="noopener" aria-label="Open this photo in a new tab"><img class="rev-img" src="/_blob/${x.ph}" alt="Photo shared with this review" loading="lazy" decoding="async"></a>` : ''}</li>`;
 }
 const photosOf = R => R.list.filter(x => x.ph);
 function photoStripHTML(R){
@@ -5901,7 +6054,7 @@ async function submitReview(form){
   let ph = photo.remove ? null : oldPh, fresh = null;
   try {
     if (photo.blob){ btn.textContent = 'Uploading photo…'; fresh = await BE.uploadPhoto(photo.blob); ph = fresh; btn.textContent = label; }
-    await BE.submitReview(realPid, { r, t, f, ph });
+    await BE.submitReview(realPid, { r, t, f, ph, tc:tripsTaken(profile).length });
     lastPost = Date.now();
     if (oldPh && oldPh !== ph) BE.dropPhoto(oldPh);
     if (placeId === pid) setReviewForm(realPid);
@@ -5917,6 +6070,104 @@ async function deleteReview(btn){
   const mine = BE.myReview(pid);
   try { await BE.removeReview(pid); if (mine && mine.ph) BE.dropPhoto(mine.ph); if (placeId) setReviewForm(pid); paintStopRatings(); toast('Your review was removed.'); }
   catch (e) { toast(BE.explain(e)); btn.disabled = false; }
+}
+/* features/engage/nudge.js — Engage: one nudge on the start screen, shaped by who is visiting, and a quick "rate your trip" sheet.
+
+   Every line here is true for this traveler: their own trip dates, the month's real season score, and counts of real cards in the
+   shared field. Nothing is invented ("only 2 left!") because nothing is sold here; a made-up deadline would cost trust the first
+   time someone noticed. Urgency comes from the traveler's own calendar instead. */
+const WEEK_MS = 7 * DAY_MS;
+const tripKey = t => `${t.dest}|${t.month}|${t.year}`;
+const tripOf = el => { const [dest, m, y] = String(el.dataset.trip || '').split('|'); return profile && profile.trips.find(t => t.dest === dest && t.month === +m && t.year === +y) || null; };
+const pickedThisWeek = destId => BE.cards().filter(c => c.d === destId && !c.mine && c.at > Date.now() - WEEK_MS).length;
+const notYet = p => { const been = new Set(tripsTaken(p).map(t => t.dest)); return DEST.filter(d => !been.has(d.id)); };
+const listNames = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' or ' + a[a.length - 1];
+function whenText(t){
+  const ms = tripStart(t) - Date.now();
+  if (ms <= 0) return 'this month';
+  const days = Math.round(ms / DAY_MS); if (days < 14) return `in ${days} ${plural(days, 'day', 'days')}`;
+  const w = Math.round(ms / WEEK_MS); if (w < 9) return `in ${w} weeks`;
+  const m = Math.round(ms / (30.4 * DAY_MS)); return `in ${m} months`;
+}
+
+function nudgeHTML(){
+  const p = profile; if (!p) return '';
+  const seg = segmentOf(p), n = tripsTaken(p).length, ask = nextAsk(p);
+  const label = seg === 'seasoned' ? `Seasoned traveler · ${n} trips` : seg === 'once' || p.visits > 1 ? 'Welcome back' : 'Your next trip';
+  let title, body, btns = '';
+
+  if (ask && ask.kind === 'went'){
+    const d = destById(ask.trip.dest), k = tripKey(ask.trip);
+    title = `Did you make it to ${d.name} in ${MONTH_FULL[ask.trip.month]}?`;
+    body = 'Tell us and we will ask how the places on your plan were. It helps the next traveler going there.';
+    btns = `<button class="btn btn-primary btn-sm" data-act="went" data-v="1" data-trip="${k}">Yes, I went</button><button class="btn btn-ghost btn-sm" data-act="went" data-v="0" data-trip="${k}">No, not this time</button>`;
+  }
+  else if (ask && ask.kind === 'review'){
+    const d = destById(ask.trip.dest), k = ask.left.length;
+    title = seg === 'seasoned' ? `Your take on ${d.name} carries weight` : `How was ${d.name}?`;
+    body = `${k} ${plural(k, 'place', 'places')} from your plan ${k === 1 ? 'is' : 'are'} waiting for a rating. Stars only, a few taps.`
+      + (n >= 2 ? ` Your reviews carry a “${n} trips” badge, so readers know they come from experience.` : ' The next traveler heading there will see them.');
+    btns = `<button class="btn btn-primary btn-sm" data-act="ratetrip" data-trip="${tripKey(ask.trip)}">Rate my ${esc(d.name)} stops</button><button class="btn btn-ghost btn-sm" data-act="snoozetrip" data-trip="${tripKey(ask.trip)}">Not now</button>`;
+  }
+  else if (ask && ask.kind === 'upcoming'){
+    const t = ask.trip, d = destById(t.dest), crowd = pickedThisWeek(d.id), busy = mlevel(d.months[t.month]) === 2;
+    title = `${d.name} ${whenText(t)}`;
+    body = [busy ? `${MONTH_FULL[t.month]} is one of the best and busiest months there, so stays tend to fill early.` : '',
+            crowd >= 2 ? `${crowd} other travelers picked ${d.name} in the field this week.` : '',
+            seg === 'new' ? 'First trip planned with us? Your plan, budget and best-time notes are saved, so come back to them anytime.' : ''].filter(Boolean).join(' ')
+      || `Your ${t.nights}-night plan is saved.`;
+    btns = saved && saved.destId === t.dest ? `<button class="btn btn-primary btn-sm" data-act="resume">Open my ${esc(d.name)} plan</button>` : '';
+  }
+  else if (seg !== 'new'){
+    const fresh = notYet(p).map(d => d.name);
+    title = seg === 'seasoned' ? 'Somewhere new this time?' : 'Ready for trip number two?';
+    body = (fresh.length ? `You have not been to ${listNames(fresh.slice(0, 3))} yet.` : 'You have been to every place here. Go back with a different mood?')
+      + (seg === 'seasoned' ? ' You know how it works, so skip the game and go straight to your budget.' : '');
+    btns = seg === 'seasoned' ? '<button class="btn btn-primary btn-sm" data-act="skip">Skip to budget</button>' : '';
+  }
+  else if (p.visits > 1){
+    title = 'Good to see you again';
+    body = 'The feeling game takes about a minute, and nothing gets booked here, so plan freely.';
+  }
+  else return '';                                       // a first visit: the page itself is the welcome
+  return `<aside class="nudge nudge-${seg}" data-seg="${seg}"><p class="label accent">${esc(label)}</p><p class="title">${esc(title)}</p><p class="small muted">${esc(body)}</p>${btns ? `<div class="row">${btns}</div>` : ''}</aside>`;
+}
+function paintEngage(){
+  const slot = $('#engageSlot'); if (!slot) return;
+  const h = nudgeHTML(); if (slot.dataset.h === h) return;
+  slot.dataset.h = h; slot.innerHTML = h; FX.bind(slot);
+}
+
+/* ---------- "how was your trip?": star every unreviewed place from the plan in one sheet, saved in one write ---------- */
+let rateTrip = null;
+function openRateSheet(trip){
+  const d = destById(trip.dest); if (!d) return;
+  const titles = new Map(catalog(d).map(c => [c.id, c.title])), left = trip.pids.filter(pid => !BE.myReview(pid) && titles.has(pid));
+  if (!left.length){ toast(`You have rated every place from ${d.name}. Thank you.`); return; }
+  rateTrip = trip; sheetFor = null; sheetOpener = document.activeElement;
+  $('#shBody').innerHTML = `
+    <div><p class="label accent">Your ${esc(d.name)} trip · ${MONTH_FULL[trip.month]}</p><h2 class="heading" id="shTitle">How were these places?</h2>
+    <p class="small muted" style="margin-top:8px">Rate the ones you remember and leave the rest. You can add words later from any place in your plan.</p></div>
+    ${BE.canPost ? `<form id="rateForm" class="rform" novalidate>
+      ${left.map((pid, i) => `<fieldset><legend class="label muted">${esc(titles.get(pid))}</legend><div class="strength rate-pick" role="radiogroup">${STAR_WORDS.map((w, s) => `<label class="opt" data-cursor=""><input type="radio" name="tr${i}" value="${s + 1}" data-pid="${pid}"><span class="face"><span class="sr">${s + 1} ${plural(s + 1, 'star', 'stars')}, </span><span class="pnr" aria-hidden="true">${s + 1}<i class="rstar"></i></span><small>${w}</small></span></label>`).join('')}</div></fieldset>`).join('')}
+      <p class="notice" id="trerr" hidden></p>
+      <div class="sheet-foot"><button type="button" class="btn btn-ghost" data-act="closesheet">Later</button><button class="btn btn-primary" type="submit" id="trsub">Post ratings</button></div>
+    </form>` : `<p class="notice">Ratings need the shared version of this page.</p><div class="sheet-foot"><button type="button" class="btn btn-secondary" data-act="closesheet">Close</button></div>`}`;
+  const wrap = $('#sheet'); wrap.hidden = false;
+  if (FX.on && !FX.reduced){ gsap.fromTo('.sheet-bd', { opacity:0 }, { opacity:1, duration:.3 }); gsap.fromTo('.sheet', { y:50, opacity:0, scale:.97 }, { y:0, opacity:1, scale:1, duration:.55, ease:'power4.out' }); }
+  FX.bind(wrap); $('.sheet').focus();
+}
+async function submitRatings(form){
+  const err = $('#trerr'), btn = $('#trsub');
+  const list = $$('input[type="radio"]:checked', form).map(i => ({ pid:i.dataset.pid, r:+i.value }));
+  if (!list.length){ err.textContent = 'Tap a star rating on at least one place.'; err.hidden = false; return; }
+  btn.disabled = true; err.hidden = true;
+  try {
+    await BE.submitRatings(list, tripsTaken(profile).length);
+    const d = rateTrip && destById(rateTrip.dest);
+    closeSheet(); paintEngage();
+    toast(`Thanks. ${list.length} ${plural(list.length, 'rating is', 'ratings are')} live${d ? ` for the next traveler to ${d.name}` : ''}.`);
+  } catch (e) { err.textContent = BE.explain(e); err.hidden = false; btn.disabled = false; }
 }
 /* features/planner/views.js — Planner: cost, month grid, day cards. */
 /* ---------- planner views ---------- */
@@ -6178,6 +6429,7 @@ VIEWS.intro = () => `
         <button class="btn btn-ghost" data-act="skip">Skip the game</button>
         <span id="resumeSlot">${resumeBtn()}</span>
       </div>
+      <div id="engageSlot" class="engage-slot" aria-live="polite"></div>
       <div class="who" data-fade><span class="label muted">Who it’s for</span><span class="tag outline">Solo travelers</span><span class="tag outline">Couples</span><span class="tag outline">Burnt-out professionals</span></div>
     </div>
     <div class="marquee" aria-hidden="true"><div class="track">${marq}${marq}</div></div>
@@ -6336,7 +6588,7 @@ ACT.save = async () => {
     const where = []; let dbErr = null;
     if (BE.ready && BE.uid){ try { await BE.saveTrip(trip); where.push('your account'); } catch (e) { dbErr = e; } }
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(trip)); where.push('this browser'); } catch (e) {}
-    const c = cleanTrip(trip); if (c && where.length) saved = c;
+    const c = cleanTrip(trip); if (c && where.length){ saved = c; recordTrip(trip); }
     toast(where.length ? `Plan saved to ${where.join(' and ')}.${dbErr ? ' The shared database could not be reached.' : ''}` : dbErr ? BE.explain(dbErr) : 'This browser blocks saving here. Your plan is still on screen.');
   };
 ACT.resume = () => {
@@ -6379,6 +6631,18 @@ ACT.closeplace = () => closePlace();
 ACT.morerev = () => { revAll = !revAll; paintReviews(); const b = $('[data-act="morerev"]'); if (b) b.focus({ preventScroll:true }); };
 ACT.delreview = el => deleteReview(el);
 ACT.phremove = () => { resetPhoto(); photo.remove = true; paintPhotoField('Photo removed. It stays off your review once you post.'); const b = $('#ppBtn'); if (b) b.focus({ preventScroll:true }); };
+/* features/engage/index.js — Engage: entry points. The nudge lives in #engageSlot on the start screen. */
+AFTER.intro = paintEngage;
+onProfile(() => { if (S.stage === 'intro') paintEngage(); });
+BE.on(() => { if (S.stage === 'intro') paintEngage(); });
+ACT.went = async el => {
+  const t = tripOf(el); if (!t) return;
+  const yes = el.dataset.v === '1';
+  await markWent(t, yes);
+  if (yes) openRateSheet(t); else toast('Got it. Plans change. Your saved plan is still here when you want it.');
+};
+ACT.ratetrip = el => { const t = tripOf(el); if (t) openRateSheet(t); };
+ACT.snoozetrip = async el => { const t = tripOf(el); if (!t) return; await snoozeTrip(t, 7); toast('No problem. We will ask again next week.'); };
 /* core/events.js — Global event delegation: click, change, input, submit, keys. */
 document.addEventListener('click', e => {
   const nav = e.target.closest('[data-nav]');
@@ -6419,6 +6683,7 @@ document.addEventListener('error', e => {      // a photo that no longer loads i
 }, true);
 document.addEventListener('submit', e => {
   const rf = e.target.closest('#reportForm'); if (rf){ e.preventDefault(); submitReport(rf); return; }
+  const tr = e.target.closest('#rateForm'); if (tr){ e.preventDefault(); submitRatings(tr); return; }
   const pf = e.target.closest('#placeForm'); if (pf){ e.preventDefault(); submitReview(pf); return; }
   const f = e.target.closest('.custom'); if (!f) return; e.preventDefault();
   const title = f.elements.title.value.trim(), cost = clamp(Math.round(+f.elements.cost.value || 0), 0, 9999), k = +f.dataset.day;
@@ -6516,6 +6781,7 @@ BE.on(() => {
 });
 BE.init().then(async ok => {
   updateFieldCount();
+  await loadProfile();                       // works without the database too (this browser only)
   if (!ok) return;
   const t = cleanTrip(await BE.loadTrip());
   if (t){ saved = t; const slot = $('#resumeSlot'); if (slot){ slot.innerHTML = resumeBtn(); FX.bind(slot); } }

@@ -17,6 +17,7 @@ BE.on(() => {
 });
 BE.init().then(async ok => {
   updateFieldCount();
+  await loadProfile();                       // works without the database too (this browser only)
   if (!ok) return;
   const t = cleanTrip(await BE.loadTrip());
   if (t){ saved = t; const slot = $('#resumeSlot'); if (slot){ slot.innerHTML = resumeBtn(); FX.bind(slot); } }
