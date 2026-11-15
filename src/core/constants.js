@@ -4,9 +4,9 @@ const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 const stageEl = $('#stage');
-const GROUP = { intro:-1, game:0, card:0, budget:1, matches:2, planner:3, field:-1 };
+const GROUP = { intro:-1, game:0, card:0, budget:1, matches:2, planner:3, field:-1, plans:-1 };
 const STAGE_NAMES = ['Feel', 'Budget', 'Matches', 'Plan'];
-const STAGE_LABEL = { intro:'MoodTrip', game:'The game', card:'Your feeling', budget:'Budget & timing', matches:'Your matches', planner:'Your plan', field:'The field' };
+const STAGE_LABEL = { intro:'MoodTrip', game:'The game', card:'Your feeling', budget:'Budget & timing', matches:'Your matches', planner:'Your plan', field:'The field', plans:'My plans' };
 const SAVE_KEY = 'moodtrip:saved:v1';
 const GRIP = '<svg width="14" height="20" viewBox="0 0 14 20" fill="currentColor" aria-hidden="true"><circle cx="4" cy="4" r="1.7"/><circle cx="10" cy="4" r="1.7"/><circle cx="4" cy="10" r="1.7"/><circle cx="10" cy="10" r="1.7"/><circle cx="4" cy="16" r="1.7"/><circle cx="10" cy="16" r="1.7"/></svg>';
 /* where the 3D orb sits on each screen: [desktop, phone] = [x, y, size] as fractions of the viewport.
@@ -21,7 +21,8 @@ const ANCHOR = {
   card:    [[.22, .52, .52], [.5, .2, .55]],
   budget:  [[.93, .20, .42], [.82, .12, .42]],
   matches: [[.98, .07, .34], [.85, .09, .4]],
-  planner: [[.97, .05, .3],  [.86, .08, .36]]
+  planner: [[.97, .05, .3],  [.86, .08, .36]],
+  plans:   [[.95, .14, .36], [.86, .08, .36]]
 };
 const BAG_STAGES = new Set(['card']); // the game shows the bag from round 3 on (see bagOn)
 let picked = false; // has the traveler chosen a window yet (round 1 shifts the whole mood)

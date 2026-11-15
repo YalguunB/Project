@@ -2,6 +2,9 @@
 <title>MoodTrip</title>
 <meta name="description" content="MoodTrip plans your trip around how you feel.">
 <meta name="theme-color" content="#F7F2EA">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js">
+<link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&family=Manrope:wght@400..800&display=swap">
@@ -518,7 +521,7 @@ html.gl .bg {
 /* ---------- Top bar ---------- */
 .top {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: var(--space-4);
   min-height: 56px;
@@ -548,6 +551,7 @@ html.gl .bg {
 }
 .stages {
   display: flex;
+  justify-self: center;
   gap: var(--space-5);
 }
 .stagebtn {
@@ -3236,6 +3240,386 @@ html.pl-open body {
   color: var(--text);
   font: 500 14px/1.45 var(--font-body);
 }
+/* === feature: account === */
+.acctbtn {
+  & svg {
+    flex: none;
+  }
+  & span {
+    max-width: 14ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  &.on {
+    border-color: var(--accent-a55);
+  }
+}
+.tfield .tinput {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-medium);
+  border: var(--border);
+  background: var(--surface);
+  font: 400 16px/1.4 var(--font-body);
+  &:focus {
+    outline: 3px solid color-mix(in srgb,var(--accent) 45%,transparent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+  }
+}
+.seg {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--text-a9);
+}
+.seg-b {
+  min-height: 40px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--muted);
+  font: 600 14px/1 var(--font-body);
+  transition: background var(--duration-200),color var(--duration-200);
+  &[aria-selected="true"] {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,.12);
+  }
+}
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-medium);
+  border: var(--border);
+  background: var(--surface);
+  text-align: left;
+  transition: border-color var(--duration-200),transform var(--duration-200);
+  & b {
+    font: 600 16px/1.3 var(--font-body);
+  }
+  & small {
+    color: var(--muted);
+    font: 400 13px/1.4 var(--font-body);
+  }
+  &:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+}
+
+/* === feature: plans === */
+.plans-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 880px;
+}
+.plans-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.empty-panel {
+  align-items: flex-start;
+  background: var(--surface-a78);
+}
+.plan-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  border-radius: var(--radius-xlarge);
+  border: var(--border);
+  background: var(--surface-a78);
+  -webkit-backdrop-filter: blur(var(--blur-14));
+  backdrop-filter: blur(var(--blur-14));
+  box-shadow: 0 18px 40px -28px rgba(0,0,0,.35);
+}
+.pc-top {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-4);
+  & time {
+    align-self: start;
+    color: var(--muted);
+  }
+}
+.pc-mark {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: linear-gradient(135deg,var(--accent),var(--glow));
+  color: var(--accent-text);
+  font: 700 24px/1 var(--font-display);
+}
+.pc-title {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.plan-name {
+  width: 100%;
+  min-width: 0;
+  padding: 2px 6px;
+  margin-left: -6px;
+  border: var(--border-thin) solid transparent;
+  border-radius: var(--radius-small);
+  background: transparent;
+  font: 700 22px/1.25 var(--font-display);
+  &:hover {
+    border-color: var(--border-color);
+  }
+  &:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+}
+.pc-stats {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: var(--space-2);
+  margin: 0;
+  & div {
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-medium);
+    background: var(--text-a9);
+  }
+  & dt {
+    color: var(--muted);
+    font: 500 12px/1.3 var(--font-body);
+  }
+  & dd {
+    margin: 0;
+    font: 600 17px/1.3 var(--font-body);
+    font-variant-numeric: tabular-nums;
+  }
+}
+.pc-del {
+  margin-left: auto;
+}
+.pc-places {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  border-top: var(--border);
+  & li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-3) 0;
+    border-bottom: var(--border-thin) solid var(--border-color);
+  }
+  & li > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  & b {
+    font: 600 15px/1.35 var(--font-body);
+  }
+  & q {
+    color: var(--muted);
+    font-style: italic;
+  }
+}
+.pc-rate {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: 500 13px/1.4 var(--font-body);
+  & .rstar {
+    width: 13px;
+    height: 13px;
+  }
+}
+
+/* === feature: reviews: authors, votes, comments === */
+.rv-top {
+  & .who.named {
+    color: var(--accent);
+  }
+  & .you {
+    padding: 1px 7px;
+    border-radius: var(--radius-pill);
+    background: var(--accent-a16);
+    font: 600 11px/1.5 var(--font-body);
+  }
+}
+.rv-acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: 2px;
+}
+.rv-act {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  border: var(--border-thin) solid var(--border-color);
+  background: transparent;
+  color: var(--muted);
+  font: 500 13px/1 var(--font-body);
+  transition: border-color var(--duration-200),color var(--duration-200),background var(--duration-200);
+  &.down svg {
+    transform: scaleY(-1);
+  }
+  & b {
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  &:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+  &.on {
+    border-color: var(--accent);
+    background: var(--accent-a16);
+    color: var(--text);
+  }
+}
+.rv-score {
+  color: var(--muted);
+  font: 500 13px/1.4 var(--font-body);
+}
+.rv-thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  margin-top: var(--space-2);
+  padding-left: var(--space-3);
+  border-left: var(--line-thick) solid var(--accent-a55);
+}
+.cmts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.cmt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  & p {
+    font: 400 14px/1.5 var(--font-body);
+    overflow-wrap: anywhere;
+  }
+}
+.cmt-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px var(--space-2);
+  font: 600 13px/1.4 var(--font-body);
+  & .who.named {
+    color: var(--accent);
+  }
+  & .you {
+    padding: 0 6px;
+    border-radius: var(--radius-pill);
+    background: var(--accent-a16);
+    font-size: 11px;
+  }
+  & time {
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 12px;
+  }
+}
+.link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: 500 12px/1.4 var(--font-body);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  &:hover {
+    color: var(--danger);
+  }
+}
+.cform {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  & textarea {
+    width: 100%;
+    min-height: 64px;
+    resize: vertical;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-medium);
+    border: var(--border);
+    background: var(--surface);
+    font: 400 14px/1.5 var(--font-body);
+  }
+  & textarea:focus {
+    outline: 3px solid color-mix(in srgb,var(--accent) 45%,transparent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+  }
+}
+.cform-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.post-as {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  & .chips {
+    gap: var(--space-2);
+  }
+}
+.cform .post-as {
+  flex-direction: row;
+  align-items: center;
+  & legend {
+    float: left;
+    margin-right: var(--space-2);
+  }
+  & .opt .face {
+    min-height: 30px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+}
+
 /* === language switch === */
 .langbtn {
   min-width: 48px;
@@ -3630,14 +4014,73 @@ html.pl-open body {
     max-width: none;
   }
 }
-@media (max-width:480px) {
-  /* the language switch needs the room: the logo stays, the word goes (the button keeps its aria-label) */
+@media (max-width:860px) {
+  .acctbtn {
+    min-width: 40px;
+    padding: 0 11px;
+    justify-content: center;
+    & span {
+      display: none;
+    }
+  }
+}
+@media (max-width:620px) {
+  .pc-stats {
+    grid-template-columns: repeat(2,1fr);
+  }
+  .pc-top {
+    grid-template-columns: auto 1fr;
+    & time {
+      grid-column: 1 / -1;
+    }
+  }
+  .pc-places li {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .plan-card {
+    padding: var(--space-4);
+  }
+}
+@media (max-width:1180px) {
+  /* the account and language buttons need the room: the archetype line goes first */
+  .meta {
+    display: none;
+  }
+}
+@media (max-width:1000px) {
+  /* step names: only the current one keeps its label (as on tablets) */
+  .stagebtn:not([aria-current="step"]) span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+@media (max-width:680px) {
+  /* then the word beside the logo (the button keeps its aria-label) */
   .wordmark {
     display: none;
   }
-  .langbtn {
-    min-width: 40px;
+}
+@media (max-width:480px) {
+  .top-r {
+    gap: 6px;
+  }
+  .fieldbtn {
+    min-height: 36px;
     padding: 0 10px;
+  }
+  .langbtn, .acctbtn {
+    min-width: 36px;
+    padding: 0 8px;
+  }
+}
+@media (max-width:380px) {
+  .stages .stagebtn {
+    min-width: 20px;
   }
 }
 @media (max-width:440px) {
@@ -3955,64 +4398,81 @@ html.pl-open body {
 <script>
 /* ============ CLOUDFLARE RUNTIME ============
    On claude.ai the platform supplies window.claude (shared database, who is viewing). On Cloudflare this file stands in for it,
-   backed by this site's own /api/db routes (cloudflare/src/worker.js). Only the parts backend.js uses exist: `db` and `user`.
-   Traveler photo uploads are not offered here, so `assets` resolves to null and the page hides that control.
+   backed by this site's own API (cloudflare/src/worker.js): `db`, `user`, and `auth` (accounts). Traveler photo uploads are not
+   offered here, so `assets` resolves to null and the page hides that control.
 
-   Identity: each browser makes a random public id and a random secret and keeps both in localStorage. The server remembers a hash
-   of the secret the first time that id writes, so nobody else can overwrite or delete that traveler's documents. Clearing site
-   data starts a new, anonymous traveler. */
+   Identity:
+   - Anonymous: each browser makes a random public id and a random secret and keeps both in localStorage. The server remembers a
+     hash of the secret the first time that id writes, so nobody else can overwrite or delete that traveler's documents.
+   - Signed in: signing up links the browser's anonymous id to a username and password; signing in on any browser returns a
+     session token for that id. Signing out forgets the token and starts a fresh anonymous traveler, so the next person on this
+     computer cannot reach the account's documents.
+
+   Shared collections are watched with one request for all of them (/api/sync), every few seconds while the tab is visible and
+   straight away after this browser writes. */
 (() => {
   if (window.claude && typeof window.claude.use === 'function') return;
   const hex = n => Array.from(crypto.getRandomValues(new Uint8Array(n)), b => b.toString(16).padStart(2, '0')).join('');
-  let who = null;
-  try { who = JSON.parse(localStorage.getItem('mt.who.v1') || 'null'); } catch (e) {}
-  if (!who || !/^[0-9a-f]{32}$/.test(who.id) || !/^[0-9a-f]{64}$/.test(who.key)){
-    who = { id:hex(16), key:hex(32) };
-    try { localStorage.setItem('mt.who.v1', JSON.stringify(who)); } catch (e) {}
-  }
-  const CODES = { 400:'invalid_argument', 403:'revoked', 413:'too_large', 429:'rate_limited', 507:'quota_exceeded' };
+  const load = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+  const keep = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  let who = load('mt.who.v1');
+  const freshWho = () => { who = { id:hex(16), key:hex(32) }; keep('mt.who.v1', who); };
+  if (!who || !/^[0-9a-f]{32}$/.test(who.id) || !/^[0-9a-f]{64}$/.test(who.key)) freshWho();
+  let sess = load('mt.session.v1');
+  if (!sess || !/^[0-9a-f]{32}$/.test(sess.id) || !/^[0-9a-f]{64}$/.test(sess.token)) sess = null;
+  const myId = () => sess ? sess.id : who.id;
+  const headers = () => ({ 'content-type':'application/json', 'x-mt-key':who.key, ...(sess ? { authorization:'Bearer ' + sess.token } : {}) });
+
+  const CODES = { 400:'invalid_argument', 401:'signed_out', 403:'revoked', 409:'conflict', 413:'too_large', 429:'rate_limited', 507:'quota_exceeded' };
   async function call(method, path, body){
     let res;
-    try {
-      res = await fetch('/api/db/' + path, { method, cache:'no-store', headers:{ 'content-type':'application/json', 'x-mt-key':who.key }, body:body === undefined ? undefined : JSON.stringify(body) });
-    } catch (e) { throw { code:'upstream_error' }; }
+    try { res = await fetch('/api/' + path, { method, cache:'no-store', headers:headers(), body:body === undefined ? undefined : JSON.stringify(body) }); }
+    catch (e) { throw { code:'upstream_error' }; }
     if (res.status === 404 && method === 'GET') return null;
-    if (!res.ok) throw { code:CODES[res.status] || 'upstream_error' };
+    if (!res.ok){ let j = null; try { j = await res.json(); } catch (e) {} throw { code:(j && j.error) || CODES[res.status] || 'upstream_error', status:res.status }; }
     return res.status === 204 ? null : res.json();
   }
 
-  /* A collection is watched by polling: a cheap "has anything changed?" check every few seconds while the tab is visible,
-     and straight away after this browser writes. */
-  const watchers = new Set(), POLL = 7000;
-  function watch(name, onSnap, onErr){
-    const w = { name, tag:'', stop:false, timer:0, busy:false };
-    async function tick(){
-      if (w.stop || w.busy) return;
-      clearTimeout(w.timer); w.busy = true;
-      try {
-        const out = await call('GET', name + (w.tag ? '?since=' + encodeURIComponent(w.tag) : ''));
-        if (out && !w.stop && !out.unchanged){
-          w.tag = out.tag || '';
-          onSnap({ docs:(out.docs || []).map(d => ({ id:d.id, exists:true, data:() => d.data })) });
-        } else if (out && out.tag) w.tag = out.tag;
-      } catch (e) { if (onErr) { try { onErr(e); } catch (x) {} } }
-      w.busy = false;
-      if (!w.stop) w.timer = setTimeout(tick, POLL + Math.random() * 1500);
-    }
-    w.tick = () => { if (!document.hidden) tick(); };
-    watchers.add(w); tick();
-    return () => { w.stop = true; clearTimeout(w.timer); watchers.delete(w); };
+  /* ---------- one poll for every watched collection ---------- */
+  const watchers = new Map(), POLL = 7000;          // name -> { tag, subs:Set }
+  let timer = 0, busy = false, again = false;
+  async function poll(){
+    clearTimeout(timer);
+    if (busy){ again = true; return; }
+    if (document.hidden || !watchers.size){ timer = setTimeout(poll, POLL); return; }
+    busy = true;
+    const q = [...watchers].map(([n, w]) => encodeURIComponent(n) + '=' + encodeURIComponent(w.tag)).join('&');
+    try {
+      const out = await call('GET', 'sync?' + q);
+      Object.entries(out || {}).forEach(([n, r]) => {
+        const w = watchers.get(n); if (!w || !r) return;
+        w.tag = r.tag || '';
+        if (!r.unchanged){ const snap = { docs:(r.docs || []).map(d => ({ id:d.id, exists:true, data:() => d.data })) }; w.subs.forEach(s => { try { s.ok(snap); } catch (e) {} }); }
+      });
+    } catch (e) { watchers.forEach(w => w.subs.forEach(s => { if (s.err) { try { s.err(e); } catch (x) {} } })); }
+    busy = false;
+    if (again){ again = false; poll(); return; }
+    timer = setTimeout(poll, POLL + Math.random() * 1500);
   }
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) watchers.forEach(w => w.tick()); });
-  const bump = name => watchers.forEach(w => { if (w.name === name){ w.tag = ''; w.tick(); } });
+  let soon = 0;
+  const pollSoon = () => { clearTimeout(soon); soon = setTimeout(poll, 30); };   // several watches registered at once -> one request
+  function watch(name, ok, err){
+    let w = watchers.get(name); if (!w){ w = { tag:'', subs:new Set() }; watchers.set(name, w); }
+    const s = { ok, err }; w.subs.add(s); w.tag = ''; pollSoon();
+    return () => { w.subs.delete(s); if (!w.subs.size) watchers.delete(name); };
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) poll(); });
+  const bump = name => { const w = watchers.get(name); if (w){ w.tag = ''; pollSoon(); } };
+  const refetchAll = () => { watchers.forEach(w => { w.tag = ''; }); pollSoon(); };
 
+  const SHARED = ['feelings', 'cards', 'reviews', 'comments', 'votes'], PRIVATE = ['trip', 'profile', 'plans'];
   function docRef(path){
     const s = String(path).split('/');
     let coll, id;
-    if (s.length === 2 && (s[0] === 'feelings' || s[0] === 'cards' || s[0] === 'reviews')){ coll = s[0]; id = s[1]; }
-    else if (s.length === 4 && s[0] === 'data' && s[1] === 'users' && (s[3] === 'trip' || s[3] === 'profile')){ coll = s[3]; id = s[2]; }
+    if (s.length === 2 && SHARED.includes(s[0])){ coll = s[0]; id = s[1]; }
+    else if (s.length === 4 && s[0] === 'data' && s[1] === 'users' && PRIVATE.includes(s[3])){ coll = s[3]; id = s[2]; }
     else throw { code:'invalid_argument' };
-    const p = coll + '/' + encodeURIComponent(id);
+    const p = 'db/' + coll + '/' + encodeURIComponent(id);
     return {
       async get(){ const d = await call('GET', p); return { id, exists:!!d, data:() => d ? d.data : undefined }; },
       async set(data){ await call('PUT', p, data); bump(coll); },
@@ -4020,8 +4480,34 @@ html.pl-open body {
     };
   }
   const db = { collection:name => ({ onSnapshot:(ok, err) => watch(name, ok, err) }), doc:docRef };
-  const user = { id:async () => who.id, me:async () => ({ id:who.id }), can:async () => true, canEdit:() => false, isOwner:() => false };
-  window.claude = { use: async name => name === 'db' ? db : name === 'user' ? user : null };
+  const user = { id:async () => myId(), me:async () => ({ id:myId(), name:sess ? sess.name : null }), can:async () => true, canEdit:() => false, isOwner:() => false };
+
+  /* ---------- accounts ---------- */
+  const idListeners = new Set();
+  const changedId = () => { refetchAll(); idListeners.forEach(f => { try { f(); } catch (e) {} }); };
+  const signIn = out => { sess = { id:out.id, name:out.name, token:out.token }; keep('mt.session.v1', sess); changedId(); return { id:sess.id, name:sess.name }; };
+  const auth = {
+    current:() => sess ? { id:sess.id, name:sess.name } : null,
+    onChange:f => { idListeners.add(f); return () => idListeners.delete(f); },
+    async login(username, password){ return signIn(await call('POST', 'auth/login', { username, password })); },
+    async signup(username, password){
+      try { return signIn(await call('POST', 'auth/signup', { username, password, id:who.id, key:who.key })); }
+      catch (e) {
+        if (e.code !== 'id_has_account') throw e;   // this browser's anonymous id already belongs to an account: start a fresh one
+        freshWho(); return signIn(await call('POST', 'auth/signup', { username, password, id:who.id, key:who.key }));
+      }
+    },
+    async logout(){
+      try { if (sess) await call('POST', 'auth/logout'); } catch (e) {}
+      sess = null; keep('mt.session.v1', null); freshWho(); changedId();
+    },
+    async check(){                                    // an expired or revoked session quietly signs the browser out
+      if (!sess) return null;
+      try { const me = await call('GET', 'auth/me'); if (me && me.name){ sess.name = me.name; keep('mt.session.v1', sess); } return auth.current(); }
+      catch (e) { if (e.code === 'signed_out'){ sess = null; keep('mt.session.v1', null); freshWho(); changedId(); } return auth.current(); }
+    }
+  };
+  window.claude = { use: async name => name === 'db' ? db : name === 'user' ? user : name === 'auth' ? auth : null };
 })();
 </script>
 <script>
@@ -4041,6 +4527,7 @@ COMPONENTS['brand'] = () => `    <button class="brand" id="brand" type="button" 
 /* components/top-right.js — Meta line, the language switch and the Field button. */
 COMPONENTS['top-right'] = () => `    <div class="top-r">
       <p class="meta" id="meta"></p>
+      <button class="fieldbtn acctbtn" id="acctBtn" type="button" data-act="account" hidden></button>
       <button class="fieldbtn langbtn" id="langBtn" type="button" data-act="lang" translate="no" lang="mn" aria-label="Монгол хэл рүү шилжих">МН</button>
       <button class="fieldbtn" id="fieldBtn" type="button" data-act="field"><span class="fb-dot" aria-hidden="true"></span><span>Field</span><b id="fieldCount" hidden></b></button>
     </div>`;
@@ -4219,7 +4706,7 @@ const S = {
   stage:'intro', reached:-1, cardSeen:false,
   ...ANSWER_DEFAULTS, bag:ANSWER_DEFAULTS.bag.slice(),
   budget:1800, style:'comfy', month:2, nights:7,
-  dest:null, plan:null, adder:null
+  dest:null, plan:null, adder:null, planId:null   // planId: which of the account's saved plans is on screen
 };
 const ORDER = ['intro','game','card','budget','matches','planner'];
 
@@ -4705,7 +5192,12 @@ const icon = id => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" 
 
 const BE = (() => {
   const FEEL_IDS = FEEL.map(f => f.id), WIN_IDS = WIN.map(w => w.id), SOUND_IDS = SOUND.map(s => s.id), BAG_IDS = BAG.map(b => b.id), DEST_IDS = DEST.map(d => d.id);
-  const st = { db:null, assets:null, uid:null, ready:false, canWrite:true, feelings:new Map(), cards:new Map(), reviews:new Map(), rIndex:new Map(), reviewsAt:0, subs:[], chain:Promise.resolve(), busy:false };
+  const st = { db:null, assets:null, auth:null, account:null, uid:null, ready:false, canWrite:true, feelings:new Map(), cards:new Map(), reviews:new Map(), rIndex:new Map(), reviewsAt:0,
+              comments:new Map(), cIndex:new Map(), votes:new Map(), vIndex:new Map(), plans:null, subs:[], chain:Promise.resolve(), busy:false };
+  const NAME_RE = /^[a-z0-9_.-]{3,24}$/i;
+  const TARGET_RE = /^[0-9a-f]{32}~[a-z]+:\d{1,2}:\d{1,2}$/;
+  const MAX_COMMENTS = 20, MAX_PLANS = 30;
+  const idSubs = new Set();
   const PLACE_IDS = new Set(DEST.flatMap(d => d.days.flatMap((day, t) => day[1].map((_, i) => `${d.id}:${t}:${i}`))));
   const MAX_REVIEWS = 60;
   const PH_RE = /^[0-9a-f]{32}$/;     // a photo is an asset id and nothing else: the page builds the address itself
@@ -4730,7 +5222,7 @@ const BE = (() => {
   }
   /* Reviews are free text from other people: strip control and direction-override characters, collapse spaces, cap the length.
      Only known place ids, known feeling / window ids and a 1-5 rating survive. The page shows the text with textContent-safe escaping. */
-  const cleanText = v => String(v == null ? '' : v).replace(/[\u0000-\u001f\u007f\u200b-\u200f\u202a-\u202e\u2066-\u2069]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 240);
+  const cleanText = (v, n = 240) => String(v == null ? '' : v).replace(/[\u0000-\u001f\u007f\u200b-\u200f\u202a-\u202e\u2066-\u2069]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, n);
   function cleanReviews(data, uid){
     const out = new Map(), items = data && typeof data === 'object' ? data.items : null;
     if (!items || typeof items !== 'object') return out;
@@ -4738,16 +5230,48 @@ const BE = (() => {
       const x = items[pid]; if (!PLACE_IDS.has(pid) || !x || typeof x !== 'object') return;
       const r = Math.round(+x.r); if (!(r >= 1 && r <= 5)) return;
       const w = WIN.find(k => k.id === x.w) || WIN[0], f = FEEL.find(k => k.id === x.f) || null, e = clampN(x.e, 0, 100, 35), lvl = energyLevel(e);
-      out.set(pid, { pid, uid, r, t:cleanText(x.t), f:f ? f.id : null, w:w.id, e, ph:typeof x.ph === 'string' && PH_RE.test(x.ph) ? x.ph : null, tc:clampN(x.tc, 0, 99, 0), at:Math.min(Math.max(0, +x.at || 0), Date.now() + 60000),
+      out.set(pid, { pid, uid, r, t:cleanText(x.t), f:f ? f.id : null, w:w.id, e, ph:typeof x.ph === 'string' && PH_RE.test(x.ph) ? x.ph : null, tc:clampN(x.tc, 0, 99, 0), named:x.named === true, u:x.named === true ? nameOf(x.u, uid) : null, at:Math.min(Math.max(0, +x.at || 0), Date.now() + 60000),
                      name:`${lvl.pace}-${w.noun} ${f ? f.role : 'traveler'}`, mine:uid === st.uid });
     });
     return out;
   }
-  const packReview = it => ({ r:it.r, t:it.t, f:it.f, w:it.w, e:it.e, at:it.at, ...(it.tc ? { tc:it.tc } : {}), ...(it.ph ? { ph:it.ph } : {}) });
+  const packReview = it => ({ r:it.r, t:it.t, f:it.f, w:it.w, e:it.e, at:it.at, ...(it.named ? { named:true } : {}), ...(it.tc ? { tc:it.tc } : {}), ...(it.ph ? { ph:it.ph } : {}) });
   function reindexReviews(){
     st.rIndex = new Map();
     st.reviews.forEach(m => m.forEach(it => { if (!st.rIndex.has(it.pid)) st.rIndex.set(it.pid, []); st.rIndex.get(it.pid).push(it); }));
     st.rIndex.forEach(list => list.sort((a, b) => (b.at - a.at) || (a.uid < b.uid ? -1 : 1)));
+  }
+  const nameOf = (u, uid) => typeof u === 'string' && NAME_RE.test(u) ? u : uid === st.uid && st.account ? st.account.name : null;
+  /* comments on reviews: each traveler's document holds their comments, keyed by the review (<author id>~<place id>) */
+  function cleanComments(data, uid){
+    const out = new Map(), items = data && typeof data === 'object' ? data.items : null;
+    if (!items || typeof items !== 'object') return out;
+    Object.keys(items).slice(0, 200).forEach(tg => {
+      const list = items[tg]; if (!TARGET_RE.test(tg) || !Array.isArray(list)) return;
+      const ok = list.slice(0, MAX_COMMENTS).map(c => c && typeof c === 'object' ? { target:tg, uid, t:cleanText(c.t, 400), at:Math.min(Math.max(0, +c.at || 0), Date.now() + 60000),
+        named:c.named === true, u:c.named === true ? nameOf(c.u, uid) : null, mine:uid === st.uid } : null).filter(c => c && c.t);
+      if (ok.length) out.set(tg, ok);
+    });
+    return out;
+  }
+  function reindexComments(){
+    st.cIndex = new Map();
+    st.comments.forEach(m => m.forEach((list, tg) => { if (!st.cIndex.has(tg)) st.cIndex.set(tg, []); st.cIndex.get(tg).push(...list); }));
+    st.cIndex.forEach(list => list.sort((a, b) => a.at - b.at));
+  }
+  /* "was this review helpful?": +1 or -1 per traveler per review */
+  function cleanVotes(data){
+    const out = new Map(), items = data && typeof data === 'object' ? data.items : null;
+    if (!items || typeof items !== 'object') return out;
+    Object.keys(items).slice(0, 1000).forEach(tg => { const v = items[tg]; if (TARGET_RE.test(tg) && (v === 1 || v === -1)) out.set(tg, v); });
+    return out;
+  }
+  function reindexVotes(){
+    st.vIndex = new Map();
+    st.votes.forEach((m, voter) => m.forEach((v, tg) => {
+      if (tg.split('~')[0] === voter) return;           // nobody votes on their own review
+      const o = st.vIndex.get(tg) || { up:0, down:0 }; if (v > 0) o.up++; else o.down++; st.vIndex.set(tg, o);
+    }));
   }
   function recompute(){
     DEST.forEach(d => { CROWD[d.id] = { n:0, total:0, byFeel:{}, count:{} }; });
@@ -4767,6 +5291,14 @@ const BE = (() => {
     if (c === 'unsupported_type' || c === 'invalid_request') return 'That file could not be used as a photo. Try a JPEG or PNG.';
     if (c === 'quota_or_state') return 'The shared storage is full, so the photo could not be added. You can post the review without it.';
     if (c === 'rate_limited') return 'Too many requests at once. Give it a moment and try again.';
+    if (c === 'wrong_login') return 'That username and password do not match.';
+    if (c === 'name_taken') return 'That username is taken. Try another one.';
+    if (c === 'bad_username') return 'Use 3 to 24 letters, numbers, dots, dashes or underscores.';
+    if (c === 'bad_password') return 'Use a password of at least 8 characters.';
+    if (c === 'signed_out') return 'You were signed out. Sign in again to continue.';
+    if (c === 'no_account') return 'Sign in to keep plans in your account.';
+    if (c === 'plans_full') return `You have ${MAX_PLANS} saved plans. Delete one first.`;
+    if (c === 'comments_full') return `You can leave up to ${MAX_COMMENTS} comments on one review.`;
     if (c === 'not_granted' || c === 'capability_disabled' || c === 'capability_removed') return 'Photos are not available for your access level. You can post the review without one.';
     if (c === 'store_unavailable' || c === 'upstream_error' || c === 'upstream_auth') return 'The photo could not be uploaded just now. Try again, or post the review without it.';
     return 'Could not reach the shared database. Try again in a moment.';
@@ -4776,9 +5308,19 @@ const BE = (() => {
     const claude = window.claude;
     if (!claude || typeof claude.use !== 'function') return false;
     try {
-      const [db, user, assets] = await Promise.all([claude.use('db'), claude.use('user'), Promise.resolve(claude.use('assets')).catch(() => null)]);
+      const [db, user, assets, auth] = await Promise.all([claude.use('db'), claude.use('user'), Promise.resolve(claude.use('assets')).catch(() => null), Promise.resolve(claude.use('auth')).catch(() => null)]);
       if (!db) return false;
       st.db = db; st.assets = assets && typeof assets.upload === 'function' ? assets : null;
+      if (auth && typeof auth.login === 'function'){
+        st.auth = auth; st.account = auth.current();
+        auth.onChange(async () => {                      // signed in or out: a different traveler id from now on
+          st.uid = await user.id(); st.account = auth.current(); st.plans = null;
+          [st.feelings, st.cards, st.reviews, st.comments, st.votes].forEach(m => m.clear());
+          reindexReviews(); reindexComments(); reindexVotes(); recompute();
+          idSubs.forEach(f => { try { f(); } catch (e) {} }); emit();
+        });
+        auth.check().then(a => { st.account = a; emit(); });
+      }
       st.uid = user && user.id ? await user.id() : null;
       if (user && user.can){ const w = await user.can('data.write'); st.canWrite = w !== false; }
       st.ready = true;
@@ -4794,6 +5336,14 @@ const BE = (() => {
       st.subs.push(db.collection('reviews').onSnapshot(snap => {
         st.reviews = new Map(); snap.docs.forEach(d => { if (!d.exists) return; const m = cleanReviews(d.data(), d.id); if (m.size) st.reviews.set(d.id, m); });
         reindexReviews(); st.reviewsAt = Date.now(); emit();
+      }, fail));
+      st.subs.push(db.collection('comments').onSnapshot(snap => {
+        st.comments = new Map(); snap.docs.forEach(d => { if (!d.exists) return; const m = cleanComments(d.data(), d.id); if (m.size) st.comments.set(d.id, m); });
+        reindexComments(); emit();
+      }, fail));
+      st.subs.push(db.collection('votes').onSnapshot(snap => {
+        st.votes = new Map(); snap.docs.forEach(d => { if (!d.exists) return; const m = cleanVotes(d.data()); if (m.size) st.votes.set(d.id, m); });
+        reindexVotes(); emit();
       }, fail));
       emit();
       return true;
@@ -4828,13 +5378,13 @@ const BE = (() => {
         st.feelings.set(st.uid, cleanReports({ reports:mine })); recompute(); emit();
       });
     },
-    submitReview(pid, { r, t, f, ph, tc }){
+    submitReview(pid, { r, t, f, ph, tc, named }){
       return queue(async () => {
         if (!PLACE_IDS.has(pid)) throw { code:'invalid' };
         const mine = st.reviews.get(st.uid) || new Map();
         if (!mine.has(pid) && mine.size >= MAX_REVIEWS) throw { code:'limit' };
         const items = {}; mine.forEach((it, k) => { items[k] = packReview(it); });
-        items[pid] = { r:clampN(r, 1, 5, 3), t:cleanText(t), f:FEEL_IDS.includes(f) ? f : null, w:S.window, e:S.energy, at:Date.now(), ...(tc > 0 ? { tc:clampN(tc, 0, 99, 0) } : {}), ...(typeof ph === 'string' && PH_RE.test(ph) ? { ph } : {}) };
+        items[pid] = { r:clampN(r, 1, 5, 3), t:cleanText(t), f:FEEL_IDS.includes(f) ? f : null, w:S.window, e:S.energy, at:Date.now(), ...(tc > 0 ? { tc:clampN(tc, 0, 99, 0) } : {}), ...(named && st.account ? { named:true } : {}), ...(typeof ph === 'string' && PH_RE.test(ph) ? { ph } : {}) };
         await st.db.doc('reviews/' + st.uid).set({ v:1, items });
         st.reviews.set(st.uid, cleanReviews({ items }, st.uid)); reindexReviews(); st.reviewsAt = Date.now(); emit();
       });
@@ -4887,6 +5437,81 @@ const BE = (() => {
       if (!st.ready || !st.uid) return Promise.reject({ code:'unavailable' });
       return queue(() => st.db.doc('data/users/' + st.uid + '/trip').set(trip));
     },
+    /* ---------- accounts ---------- */
+    get canAccount(){ return !!st.auth; },
+    get account(){ return st.account; },
+    onIdentity:f => { idSubs.add(f); return () => idSubs.delete(f); },
+    async login(u, p){ if (!st.auth) throw { code:'capability_disabled' }; await st.auth.login(u, p); },
+    async signup(u, p){ if (!st.auth) throw { code:'capability_disabled' }; await st.auth.signup(u, p); },
+    async logout(){ if (st.auth) await st.auth.logout(); },
+
+    /* ---------- comments and helpful votes on reviews; a review is <author id>~<place id> ---------- */
+    reviewKey:x => x.uid + '~' + x.pid,
+    commentsFor:tg => st.cIndex.get(tg) || [],
+    votesFor(tg){ const o = st.vIndex.get(tg) || { up:0, down:0 }, m = st.uid && st.votes.get(st.uid); return { up:o.up, down:o.down, mine:m && m.get(tg) || 0 }; },
+    addComment(tg, text, named){
+      return queue(async () => {
+        if (!TARGET_RE.test(tg)) throw { code:'invalid' };
+        const t = cleanText(text, 400); if (!t) throw { code:'invalid' };
+        const mine = st.comments.get(st.uid) || new Map(), items = {};
+        mine.forEach((list, k) => { items[k] = list.map(c => ({ t:c.t, at:c.at, ...(c.named ? { named:true } : {}) })); });
+        const list = items[tg] || [];
+        if (list.length >= MAX_COMMENTS) throw { code:'comments_full' };
+        items[tg] = [...list, { t, at:Date.now(), ...(named && st.account ? { named:true } : {}) }];
+        await st.db.doc('comments/' + st.uid).set({ v:1, items });
+        st.comments.set(st.uid, cleanComments({ items }, st.uid)); reindexComments(); emit();
+      });
+    },
+    removeComment(tg, at){
+      return queue(async () => {
+        const mine = st.comments.get(st.uid); if (!mine || !mine.has(tg)) return;
+        const items = {}; mine.forEach((list, k) => { const keep = list.filter(c => !(k === tg && c.at === at)); if (keep.length) items[k] = keep.map(c => ({ t:c.t, at:c.at, ...(c.named ? { named:true } : {}) })); });
+        if (Object.keys(items).length) await st.db.doc('comments/' + st.uid).set({ v:1, items }); else await st.db.doc('comments/' + st.uid).delete();
+        st.comments.set(st.uid, cleanComments({ items }, st.uid)); reindexComments(); emit();
+      });
+    },
+    vote(tg, v){                                         // the same vote again takes it back
+      return queue(async () => {
+        if (!TARGET_RE.test(tg) || tg.split('~')[0] === st.uid) return;
+        const mine = new Map(st.votes.get(st.uid) || []);
+        if (mine.get(tg) === v) mine.delete(tg); else mine.set(tg, v > 0 ? 1 : -1);
+        const items = Object.fromEntries(mine);
+        if (mine.size) await st.db.doc('votes/' + st.uid).set({ v:1, items }); else await st.db.doc('votes/' + st.uid).delete();
+        st.votes.set(st.uid, mine); reindexVotes(); emit();
+      });
+    },
+
+    /* ---------- saved plans on the account: { id, name, at, trip } ---------- */
+    async loadPlans(){
+      if (!st.ready || !st.uid || !st.account) return [];
+      if (st.plans) return st.plans;
+      try {
+        const d = await st.db.doc('data/users/' + st.uid + '/plans').get(), items = d.exists && d.data() && d.data().items || {};
+        st.plans = Object.entries(items).filter(([id, p]) => /^[a-z0-9]{6,16}$/.test(id) && p && typeof p === 'object' && p.trip)
+          .map(([id, p]) => ({ id, name:cleanText(p.name, 60) || 'My trip', at:+p.at || 0, trip:p.trip })).sort((a, b) => b.at - a.at);
+      } catch (e) { st.plans = []; }
+      return st.plans;
+    },
+    savePlan({ id, name, trip }){
+      return queue(async () => {
+        if (!st.account) throw { code:'no_account' };
+        const list = (await api.loadPlans()).slice(), pid = id && list.some(p => p.id === id) ? id : Math.random().toString(36).slice(2, 12).padEnd(10, '0');
+        if (!list.some(p => p.id === pid) && list.length >= MAX_PLANS) throw { code:'plans_full' };
+        const old = list.find(p => p.id === pid), next = { id:pid, name:cleanText(name, 60) || (old && old.name) || 'My trip', at:Date.now(), trip };
+        const all = [next, ...list.filter(p => p.id !== pid)];
+        await st.db.doc('data/users/' + st.uid + '/plans').set({ v:1, items:Object.fromEntries(all.map(p => [p.id, { name:p.name, at:p.at, trip:p.trip }])) });
+        st.plans = all; emit(); return pid;
+      });
+    },
+    renamePlan(id, name){ const p = (st.plans || []).find(x => x.id === id); return p ? api.savePlan({ id, name, trip:p.trip }) : Promise.resolve(); },
+    removePlan(id){
+      return queue(async () => {
+        const all = (await api.loadPlans()).filter(p => p.id !== id);
+        await st.db.doc('data/users/' + st.uid + '/plans').set({ v:1, items:Object.fromEntries(all.map(p => [p.id, { name:p.name, at:p.at, trip:p.trip }])) });
+        st.plans = all; emit();
+      });
+    },
+
     /* the traveler's private profile: visits and the trips they planned or took (see core/profile.js) */
     async loadProfile(){
       if (!st.ready || !st.uid) return null;
@@ -5116,7 +5741,7 @@ const GL = (() => {
   let feelScale = 1;
 
   function resize(){
-    const w = innerWidth, h = innerHeight, dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+    const w = innerWidth, h = innerHeight, dpr = Math.min(window.devicePixelRatio || 1, matchMedia('(pointer: coarse)').matches ? 1.5 : 1.75);
     renderer.setPixelRatio(dpr); renderer.setSize(w, h, false);
     camera.aspect = w / h; camera.updateProjectionMatrix();
     V.w = w; V.h = h; V.wh = 2 * Math.tan(T.MathUtils.degToRad(camera.fov / 2)) * camera.position.z; V.ww = V.wh * camera.aspect;
@@ -5225,12 +5850,19 @@ const GL = (() => {
   let last = performance.now();
   function ease(dt, k){ return 1 - Math.exp(-dt * k); }
 
+  /* frame budget: full rate while something is moving (activeUntil), 30 fps when the scene is only drifting, and 15 fps while
+     a sheet or the place panel covers it. The scene's slow wobble looks the same; the GPU and battery do a lot less. */
+  const sheetEl = document.getElementById('sheet'), rootEl = document.documentElement;
+  const covered = () => rootEl.classList.contains('pl-open') || (sheetEl && !sheetEl.hidden);
   function frame(now){
     requestAnimationFrame(frame);
     if (hidden) return;
+    const busy = now < activeUntil || fieldOn, gap = covered() ? 64 : busy ? 0 : 31;
+    if (gap && now - last < gap) return;
     const raw = (now - last) / 1000, dt = Math.min(.05, raw); last = now;
     if (REDUCED && now > activeUntil) return;
-    if (raw < .25){                                   // adaptive quality: slow machines render fewer pixels
+    if (raw < .25 && busy && !gap){                  // only measure speed at full rate
+                                   // adaptive quality: slow machines render fewer pixels
       perf.t += raw; perf.n++;
       if (perf.n >= 90){ const avg = perf.t / perf.n; perf.t = 0; perf.n = 0; if (avg > .036 && perf.q > .8){ perf.q = Math.max(.75, perf.q - .3); resize(); } }
     }
@@ -5440,9 +6072,9 @@ const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 const stageEl = $('#stage');
-const GROUP = { intro:-1, game:0, card:0, budget:1, matches:2, planner:3, field:-1 };
+const GROUP = { intro:-1, game:0, card:0, budget:1, matches:2, planner:3, field:-1, plans:-1 };
 const STAGE_NAMES = ['Feel', 'Budget', 'Matches', 'Plan'];
-const STAGE_LABEL = { intro:'MoodTrip', game:'The game', card:'Your feeling', budget:'Budget & timing', matches:'Your matches', planner:'Your plan', field:'The field' };
+const STAGE_LABEL = { intro:'MoodTrip', game:'The game', card:'Your feeling', budget:'Budget & timing', matches:'Your matches', planner:'Your plan', field:'The field', plans:'My plans' };
 const SAVE_KEY = 'moodtrip:saved:v1';
 const GRIP = '<svg width="14" height="20" viewBox="0 0 14 20" fill="currentColor" aria-hidden="true"><circle cx="4" cy="4" r="1.7"/><circle cx="10" cy="4" r="1.7"/><circle cx="4" cy="10" r="1.7"/><circle cx="10" cy="10" r="1.7"/><circle cx="4" cy="16" r="1.7"/><circle cx="10" cy="16" r="1.7"/></svg>';
 /* where the 3D orb sits on each screen: [desktop, phone] = [x, y, size] as fractions of the viewport.
@@ -5457,7 +6089,8 @@ const ANCHOR = {
   card:    [[.22, .52, .52], [.5, .2, .55]],
   budget:  [[.93, .20, .42], [.82, .12, .42]],
   matches: [[.98, .07, .34], [.85, .09, .4]],
-  planner: [[.97, .05, .3],  [.86, .08, .36]]
+  planner: [[.97, .05, .3],  [.86, .08, .36]],
+  plans:   [[.95, .14, .36], [.86, .08, .36]]
 };
 const BAG_STAGES = new Set(['card']); // the game shows the bag from round 3 on (see bagOn)
 let picked = false; // has the traveler chosen a window yet (round 1 shifts the whole mood)
@@ -5984,6 +6617,91 @@ const MN_STRINGS = {
   "{0}: {1}, energy {2}%": "{0}: {1}, эрч хүч {2}%",
   "{0} (you): {1}, energy {2}%": "{0} (та): {1}, эрч хүч {2}%",
 
+  /* ---------- accounts ---------- */
+  "Sign in": "Нэвтрэх",
+  "Sign in or create an account": "Нэвтрэх эсвэл бүртгэл үүсгэх",
+  "Account: {0}": "Бүртгэл: {0}",
+  "Your account": "Таны бүртгэл",
+  "Welcome back": "Эргэн тавтай морил",
+  "Create an account": "Бүртгэл үүсгэх",
+  "Create account": "Бүртгүүлэх",
+  "Sign in to see your saved plans and reviews on any device.": "Нэвтэрч ороод хадгалсан төлөвлөгөө, сэтгэгдлээ аль ч төхөөрөмжөөс хараарай.",
+  "Keep plans in your account and post reviews under your name. What you already saved in this browser comes with you.": "Төлөвлөгөөгөө бүртгэлдээ хадгалж, сэтгэгдлээ нэрээрээ нийтлээрэй. Энэ хөтөчид хадгалсан зүйл тань хамт шилжинэ.",
+  "Username": "Хэрэглэгчийн нэр",
+  "Password": "Нууц үг",
+  "At least 8 characters": "Дор хаяж 8 тэмдэгт",
+  "e.g. yalguun": "жишээ нь: yalguun",
+  "There is no email and no password reset in this prototype, so keep your password somewhere safe.": "Энэ прототипт имэйл болон нууц үг сэргээх боломж алга тул нууц үгээ найдвартай газар хадгалаарай.",
+  "Signing in…": "Нэвтэрч байна…",
+  "Creating…": "Үүсгэж байна…",
+  "Signed in as {0}.": "{0} нэрээр нэвтэрлээ.",
+  "Welcome, {0}. Your account is ready.": "Тавтай морил, {0}. Таны бүртгэл бэлэн боллоо.",
+  "Your plans, reviews and comments are saved to this account.": "Таны төлөвлөгөө, сэтгэгдэл, коммент энэ бүртгэлд хадгалагдана.",
+  "My plans": "Миний төлөвлөгөөнүүд",
+  "Open, rename, delete, and review the places you went": "Нээх, нэр өөрчлөх, устгах, очсон газруудаа үнэлэх",
+  "Sign out": "Гарах",
+  "This browser starts over as an anonymous traveler": "Энэ хөтөч нэргүй аялагч болж шинээр эхэлнэ",
+  "Signed out. This browser is a new anonymous traveler now.": "Гарлаа. Энэ хөтөч одоо шинэ нэргүй аялагч боллоо.",
+  "That username and password do not match.": "Хэрэглэгчийн нэр, нууц үг таарахгүй байна.",
+  "That username is taken. Try another one.": "Энэ нэр бүртгэлтэй байна. Өөр нэр сонгоорой.",
+  "Use 3 to 24 letters, numbers, dots, dashes or underscores.": "3–24 латин үсэг, тоо, цэг, зураас эсвэл доогуур зураас ашиглана уу.",
+  "Use a password of at least 8 characters.": "Дор хаяж 8 тэмдэгттэй нууц үг ашиглана уу.",
+  "You were signed out. Sign in again to continue.": "Та системээс гарсан байна. Үргэлжлүүлэхийн тулд дахин нэвтэрнэ үү.",
+  "Sign in to keep plans in your account.": "Төлөвлөгөөгөө бүртгэлдээ хадгалахын тулд нэвтэрнэ үү.",
+  "You have {0} saved plans. Delete one first.": "Танд {0} хадгалсан төлөвлөгөө байна. Эхлээд нэгийг устгана уу.",
+  "You can leave up to {0} comments on one review.": "Нэг сэтгэгдэлд {0} хүртэл коммент үлдээж болно.",
+  "The plan saved in this browser is now in your account too.": "Энэ хөтөчид хадгалсан төлөвлөгөө одоо таны бүртгэлд ч бас байна.",
+
+  /* ---------- my plans ---------- */
+  "My plans.": "Миний төлөвлөгөөнүүд.",
+  "← Back": "← Буцах",
+  "Every plan you saved to your account. Open one to keep editing, or rate its places once you have been.": "Бүртгэлдээ хадгалсан бүх төлөвлөгөө. Нээж засварлах эсвэл очсоныхоо дараа газруудыг нь үнэлээрэй.",
+  "Loading your plans…": "Төлөвлөгөөнүүдийг ачаалж байна…",
+  "Sign in to see your plans": "Төлөвлөгөөгөө харахын тулд нэвтэрнэ үү",
+  "Plans saved to an account follow you to any device, and you can review their places later.": "Бүртгэлд хадгалсан төлөвлөгөө аль ч төхөөрөмж дээр тантай хамт байх бөгөөд газруудыг нь дараа үнэлж болно.",
+  "No saved plans yet": "Хадгалсан төлөвлөгөө алга",
+  "Plan a trip and press “Save plan”. It lands here, on every device you sign in on.": "Аялал төлөвлөөд “Төлөвлөгөө хадгалах”-ыг дар. Нэвтэрсэн бүх төхөөрөмж дээр энд гарна.",
+  "Plan name": "Төлөвлөгөөний нэр",
+  "Saved {0}": "Хадгалсан: {0}",
+  "Days": "Өдөр",
+  "Budget": "Төсөв",
+  "Reviewed": "Үнэлсэн",
+  "Open plan": "Төлөвлөгөө нээх",
+  "Review places": "Газруудыг үнэлэх",
+  "Hide places": "Газруудыг нуух",
+  "Delete": "Устгах",
+  "Tap again to delete": "Устгахын тулд дахин дар",
+  "Not reviewed yet": "Үнэлээгүй",
+  "Write review": "Сэтгэгдэл бичих",
+  "Edit review": "Сэтгэгдэл засах",
+  "{0} · New review": "{0} · Шинэ сэтгэгдэл",
+  "{0} · Your review": "{0} · Таны сэтгэгдэл",
+  "Update review": "Сэтгэгдэл шинэчлэх",
+  "Delete review": "Сэтгэгдэл устгах",
+  "Thanks. Your review is live.": "Баярлалаа. Таны сэтгэгдэл нийтлэгдлээ.",
+  "Plan renamed.": "Төлөвлөгөөний нэр өөрчлөгдлөө.",
+  "Plan deleted.": "Төлөвлөгөө устгагдлаа.",
+  "Save changes": "Өөрчлөлт хадгалах",
+  "Plan saved to {0}. Find it in My plans.": "Төлөвлөгөө {0} хадгалагдлаа. “Миний төлөвлөгөөнүүд”-ээс олоорой.",
+  "Plan saved to {0}. Sign in to keep it in your account.": "Төлөвлөгөө {0} хадгалагдлаа. Бүртгэлдээ хадгалахын тулд нэвтэрнэ үү.",
+
+  /* ---------- reviews: authors, votes, comments ---------- */
+  "Post as": "Хэн гэж нийтлэх",
+  "Anonymous": "Нэргүй",
+  "Anonymous traveler": "Нэргүй аялагч",
+  "Helpful": "Тустай",
+  "Not helpful": "Тус болоогүй",
+  "{0} found this helpful": "{0} хүн тустай гэж үзсэн",
+  "Comment": "Коммент",
+  "{0} comment": "{0} коммент",
+  "{0} comments": "{0} коммент",
+  "No comments yet. Ask something, or thank them.": "Коммент алга. Асуулт асуух эсвэл талархал илэрхийлээрэй.",
+  "Your comment": "Таны коммент",
+  "Write a comment": "Коммент бичих",
+  "Post comment": "Коммент нийтлэх",
+  "Comment posted.": "Коммент нийтлэгдлээ.",
+  "Comment deleted.": "Коммент устгагдлаа.",
+
   /* ---------- errors from the shared database ---------- */
   "This link is view-only for you, so posting is switched off. Ask the owner for Contributor access.": "Энэ холбоос танд зөвхөн харах эрхтэй тул нийтлэх хаалттай. Эзэмшигчээс Contributor эрх хүсээрэй.",
   "The shared database is full, so nothing more can be added right now.": "Нийтийн мэдээллийн сан дүүрсэн тул одоогоор юу ч нэмэх боломжгүй.",
@@ -6282,7 +7000,7 @@ const I18N = (() => {
     const v = n.nodeValue; if (!v || !latin.test(v)) return;
     const p = n.parentElement; if (!p || p.closest(SKIP)) return;
     const core = v.replace(/\s+/g, ' ').trim(); if (!core || CYR.test(core)) return;   // already translated
-    const short = PACKS[lang].short && p.closest('.mcell') && PACKS[lang].short[core];
+    const short = PACKS[lang].short && p.closest('.mcell, input[name="month"] + .face') && PACKS[lang].short[core];
     const out = short || tr(core); if (out == null) { missing.add(core); return; }
     textOrig.set(n, v);
     const lead = /^\s*/.exec(v)[0], trail = /\s*$/.exec(v)[0];
@@ -6380,6 +7098,15 @@ let toastTimer;
 function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 3600); }
 const say = msg => { $('#live').textContent = ''; setTimeout(() => { $('#live').textContent = msg; }, 30); };
 const plural = (n, a, b) => n === 1 ? a : b;
+
+/* how long ago, for reviews, comments and saved plans */
+function ago(ms){
+  if (!ms) return '';
+  const s = Math.max(0, Math.round((Date.now() - ms) / 1000)); if (s < 45) return 'just now';
+  const m = Math.round(s / 60); if (m < 60) return `${m} min ago`;
+  const h = Math.round(m / 60); if (h < 24) return `${h} h ago`;
+  const d = Math.round(h / 24); return d < 30 ? `${d} ${plural(d, 'day', 'days')} ago` : new Date(ms).toLocaleDateString('en-US', { month:'short', year:'numeric' });
+}
 /* core/saved-trip.js — Saved trip: validated before it is trusted. */
 /* ---------- saved trip: validated before it is trusted (it comes from storage or the shared database) ---------- */
 function cleanTrip(v){
@@ -6407,6 +7134,12 @@ function loadSaved(){
   try { return cleanTrip(JSON.parse(localStorage.getItem(SAVE_KEY) || 'null')); } catch (e) { return null; }
 }
 let saved = loadSaved();
+/* put a saved trip back on screen: answers, budget and the plan itself */
+function restoreTrip(t){
+  const { destId, plan, ...rest } = t;
+  Object.assign(S, rest, { dest:destById(destId), plan, adder:null, cardSeen:true, reached:3, planId:null });
+  picked = true; [1, 2, 3, 4, 5].forEach(n => touched.add(n)); document.documentElement.style.setProperty('--energy', S.energy / 100);
+}
 const resumeBtn = () => saved ? `<button class="btn btn-secondary" data-act="resume">Continue your ${esc(destById(saved.destId).name)} plan</button>` : '';
 /* core/profile.js — The traveler's profile: visits and trips, which segment they are in, and what to ask them next.
 
@@ -6598,6 +7331,17 @@ const capFirst = s => s.charAt(0).toUpperCase() + s.slice(1);
 const dflt = n => touched.has(n) ? '' : ' <span class="muted">· default</span>';
 const bagNames = () => S.bag.map(id => BAG.find(b => b.id === id).name.toLowerCase());
 const marq = FEEL.map(f => `<span>${f.label}</span><span class="sep">✺</span>`).join('');
+
+/* star words for every rating control */
+const STAR_WORDS = ['Poor', 'Fair', 'Good', 'Great', 'Superb'];
+/* "post as": a signed-in traveler chooses between their username and staying anonymous. The server checks it either way. */
+function postAsHTML(name, named){
+  if (!BE.account) return '';
+  return `<fieldset class="post-as"><legend class="label muted">Post as</legend><div class="chips" role="radiogroup">
+    <label class="opt chip" data-cursor=""><input type="radio" name="${name}" value="named" ${named ? 'checked' : ''}><span class="face" translate="no">@${esc(BE.account.name)}</span></label>
+    <label class="opt chip" data-cursor=""><input type="radio" name="${name}" value="anon" ${named ? '' : 'checked'}><span class="face">Anonymous</span></label></div></fieldset>`;
+}
+const postAsNamed = (form, name) => !!BE.account && !!form.elements[name] && form.elements[name].value === 'named';
 /* features/matches/crowd.js — Matches: what other travelers said about a place. */
 /* ---------- crowd: what other travelers said about a place ---------- */
 function crowdHTML(r){
@@ -6726,22 +7470,32 @@ async function submitReport(form){
 }
 /* features/reviews/list.js — Reviews: list, stars, aggregate. */
 /* ---------- place panel: what a stop is like, plus live traveler reviews ---------- */
-const STAR_WORDS = ['Poor', 'Fair', 'Good', 'Great', 'Superb'];
 const REV_SHOWN = 6;
 let placeId = null, placeOpener = null, revAll = false, lastPost = 0, agoTimer = 0, seenRev = null; // seenRev: reviews already on screen (null until the first live load)
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-function ago(ms){
-  if (!ms) return '';
-  const s = Math.max(0, Math.round((Date.now() - ms) / 1000)); if (s < 45) return 'just now';
-  const m = Math.round(s / 60); if (m < 60) return `${m} min ago`;
-  const h = Math.round(m / 60); if (h < 24) return `${h} h ago`;
-  const d = Math.round(h / 24); return d < 30 ? `${d} ${plural(d, 'day', 'days')} ago` : new Date(ms).toLocaleDateString('en-US', { month:'short', year:'numeric' });
-}
 const starsHTML = v => `<span class="stars" style="--p:${Math.round(v / 5 * 100)}%" role="img" aria-label="${avgText(v)} out of 5"></span>`;
 const revKey = x => x.uid + '|' + x.pid + '|' + x.at;
+/* comments and votes: threads stay open, and a half-written comment survives the list being redrawn under it */
+const openThreads = new Set(), cDrafts = new Map();
+const THUMB = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M5 7.2V14H2.6a.6.6 0 0 1-.6-.6V7.8a.6.6 0 0 1 .6-.6H5Zm0 0 2.6-5c1.2 0 2 .9 1.8 2.1L9 6.4h3.6c.9 0 1.6.8 1.4 1.7l-1 4.8c-.2.6-.7 1.1-1.4 1.1H5"/></svg>';
+const authorHTML = (u, fallback, mine) => `${u ? `<b class="who named" translate="no">@${esc(u)}</b>` : `<b class="who">${esc(fallback)}</b>`}${mine ? '<span class="you">you</span>' : ''}`;
+function threadHTML(x, tg){
+  const list = BE.commentsFor(tg);
+  return `<div class="rv-thread" id="th-${tg.replace(/[^a-z0-9]/gi, '')}">
+    ${list.length ? `<ul class="cmts">${list.map(c => `<li class="cmt${c.mine ? ' mine' : ''}"><div class="cmt-top">${authorHTML(c.u, 'Anonymous traveler', c.mine)}<time datetime="${new Date(c.at).toISOString()}">${ago(c.at)}</time>${c.mine ? `<button type="button" class="link-btn" data-act="delcomment" data-tg="${tg}" data-at="${c.at}">Delete</button>` : ''}</div><p translate="no">${esc(c.t)}</p></li>`).join('')}</ul>` : '<p class="fine">No comments yet. Ask something, or thank them.</p>'}
+    ${BE.canPost ? `<form class="cform" data-tg="${tg}" novalidate><label class="sr" for="ct-${tg.replace(/[^a-z0-9]/gi, '')}">Your comment</label><textarea id="ct-${tg.replace(/[^a-z0-9]/gi, '')}" name="ctext" data-tg="${tg}" rows="2" maxlength="400" placeholder="Write a comment"></textarea>
+      <div class="cform-foot">${postAsHTML('cas-' + tg.replace(/[^a-z0-9]/gi, ''), !!BE.account)}<button class="btn btn-primary btn-sm" type="submit">Post comment</button></div></form>` : ''}
+  </div>`;
+}
 function revItemHTML(x, fresh){
-  const f = x.f && FEEL.find(k => k.id === x.f);
-  return `<li class="rv${fresh ? ' fresh' : ''}${x.mine ? ' mine' : ''}"><div class="rv-top">${starsHTML(x.r)}<b>${esc(x.name)}${x.mine ? ' · you' : ''}</b>${x.tc >= 2 ? `<span class="tag outline rv-exp" title="This traveler has taken ${x.tc} trips with MoodTrip">${x.tc} trips</span>` : ''}${x.at ? `<time datetime="${new Date(x.at).toISOString()}">${ago(x.at)}</time>` : ''}</div>${f ? `<span class="tag">Felt ${esc(f.label.toLowerCase())}</span>` : ''}${x.t ? `<p>${esc(x.t)}</p>` : ''}${x.ph ? `<a class="rv-photo" href="/_blob/${x.ph}" target="_blank" rel="noopener" aria-label="Open this photo in a new tab"><img class="rev-img" src="/_blob/${x.ph}" alt="Photo shared with this review" loading="lazy" decoding="async"></a>` : ''}</li>`;
+  const f = x.f && FEEL.find(k => k.id === x.f), tg = BE.reviewKey(x), v = BE.votesFor(tg), n = BE.commentsFor(tg).length, open = openThreads.has(tg);
+  const votes = x.mine || !BE.canPost
+    ? (v.up || v.down ? `<span class="rv-score">${v.up} found this helpful</span>` : '')
+    : `<button type="button" class="rv-act${v.mine > 0 ? ' on' : ''}" data-act="vote" data-tg="${tg}" data-v="1" aria-pressed="${v.mine > 0}">${THUMB}<span>Helpful</span>${v.up ? `<b>${v.up}</b>` : ''}</button>
+       <button type="button" class="rv-act down${v.mine < 0 ? ' on' : ''}" data-act="vote" data-tg="${tg}" data-v="-1" aria-pressed="${v.mine < 0}">${THUMB}<span>Not helpful</span>${v.down ? `<b>${v.down}</b>` : ''}</button>`;
+  return `<li class="rv${fresh ? ' fresh' : ''}${x.mine ? ' mine' : ''}"><div class="rv-top">${starsHTML(x.r)}${authorHTML(x.u, x.name, x.mine)}${x.tc >= 2 ? `<span class="tag outline rv-exp" title="This traveler has taken ${x.tc} trips with MoodTrip">${x.tc} trips</span>` : ''}${x.at ? `<time datetime="${new Date(x.at).toISOString()}">${ago(x.at)}</time>` : ''}</div>${f ? `<span class="tag">Felt ${esc(f.label.toLowerCase())}</span>` : ''}${x.t ? `<p translate="no">${esc(x.t)}</p>` : ''}${x.ph ? `<a class="rv-photo" href="/_blob/${x.ph}" target="_blank" rel="noopener" aria-label="Open this photo in a new tab"><img class="rev-img" src="/_blob/${x.ph}" alt="Photo shared with this review" loading="lazy" decoding="async"></a>` : ''}
+    <div class="rv-acts">${votes}<button type="button" class="rv-act" data-act="thread" data-tg="${tg}" aria-expanded="${open}">${n ? `${n} ${plural(n, 'comment', 'comments')}` : 'Comment'}</button></div>
+    ${open ? threadHTML(x, tg) : ''}</li>`;
 }
 const photosOf = R => R.list.filter(x => x.ph);
 function photoStripHTML(R){
@@ -6827,6 +7581,7 @@ function reviewFormHTML(pid){
     <fieldset><legend class="sr">Your rating</legend><div class="strength rate-pick" role="radiogroup">${STAR_WORDS.map((w, i) => `<label class="opt" data-cursor=""><input type="radio" name="prate" value="${i + 1}" ${i + 1 === rate ? 'checked' : ''}><span class="face"><span class="sr">${i + 1} ${plural(i + 1, 'star', 'stars')}, </span><span class="pnr" aria-hidden="true">${i + 1}<i class="rstar"></i></span><small>${w}</small></span></label>`).join('')}</div></fieldset>
     <fieldset><legend class="label muted">How did it feel? Optional</legend><div class="chips" role="radiogroup"><label class="opt chip" data-cursor=""><input type="radio" name="pfeel" value="" ${feel ? '' : 'checked'}><span class="face">Skip</span></label>${FEEL.map(f => `<label class="opt chip" data-cursor=""><input type="radio" name="pfeel" value="${f.id}" ${f.id === feel ? 'checked' : ''}><span class="face">${f.label}</span></label>`).join('')}</div></fieldset>
     <label class="tfield"><span class="label muted">In your words · optional</span><textarea name="ptext" rows="3" maxlength="240" placeholder="What was it like? A line or two helps the next traveler.">${esc(text)}</textarea><small class="count tnum" id="pcount">${text.length} / 240</small></label>
+    ${postAsHTML('pas', mine ? !!mine.named : !!BE.account)}
     ${BE.canPhoto ? photoFieldHTML(mine) : ''}
     <p class="notice" id="perr" hidden></p>
     <div class="sheet-foot">${mine ? '<button type="button" class="btn btn-ghost btn-sm" data-act="delreview">Delete my review</button>' : ''}<button class="btn btn-primary btn-sm" type="submit" id="psub">${mine ? 'Update my review' : 'Post review'}</button></div>
@@ -6946,9 +7701,15 @@ function paintReviews(){
   const loc = locate(placeId); if (!loc) return;
   const s = S.plan.days[loc[0]].stops[loc[1]], pid = pidOf(s), box = $('#plReviews'); if (!pid || !box) return;
   const R = BE.reviewsFor(pid), others = seenRev ? R.list.filter(x => !x.mine && !seenRev.has(revKey(x))) : [];
-  const scroller = $('.pl-scroll'), top = scroller ? scroller.scrollTop : 0;
-  box.innerHTML = reviewsHTML(pid, s.title);
-  if (scroller) scroller.scrollTop = top;
+  const h = reviewsHTML(pid, s.title);
+  if (box.dataset.h !== h){                              // nothing changed: leave the DOM (and anything being typed) alone
+    const scroller = $('.pl-scroll'), top = scroller ? scroller.scrollTop : 0, act = document.activeElement;
+    const typing = act && act.name === 'ctext' ? { tg:act.dataset.tg, a:act.selectionStart, b:act.selectionEnd } : null;
+    box.dataset.h = h; box.innerHTML = h; FX.bind(box);
+    $$('textarea[name="ctext"]', box).forEach(t => { if (cDrafts.has(t.dataset.tg)) t.value = cDrafts.get(t.dataset.tg); });
+    if (typing){ const t = $$('textarea[name="ctext"]', box).find(x => x.dataset.tg === typing.tg); if (t){ t.focus({ preventScroll:true }); t.setSelectionRange(typing.a, typing.b); } }
+    if (scroller) scroller.scrollTop = top;
+  }
   if (BE.reviewsAt){ if (!seenRev) seenRev = new Set(); R.list.forEach(x => seenRev.add(revKey(x))); }
   const live = $('#plLive'); if (live){ live.classList.toggle('off', !BE.ready); live.lastChild.textContent = BE.ready ? 'Live' : 'Offline'; }
   if (others.length) say(`${others.length} new ${plural(others.length, 'review', 'reviews')} of ${s.title}.`);
@@ -6967,7 +7728,7 @@ async function submitReview(form){
   let ph = photo.remove ? null : oldPh, fresh = null;
   try {
     if (photo.blob){ btn.textContent = 'Uploading photo…'; fresh = await BE.uploadPhoto(photo.blob); ph = fresh; btn.textContent = label; }
-    await BE.submitReview(realPid, { r, t, f, ph, tc:tripsTaken(profile).length });
+    await BE.submitReview(realPid, { r, t, f, ph, tc:tripsTaken(profile).length, named:postAsNamed(form, 'pas') });
     lastPost = Date.now();
     if (oldPh && oldPh !== ph) BE.dropPhoto(oldPh);
     if (placeId === pid) setReviewForm(realPid);
@@ -6983,6 +7744,24 @@ async function deleteReview(btn){
   const mine = BE.myReview(pid);
   try { await BE.removeReview(pid); if (mine && mine.ph) BE.dropPhoto(mine.ph); if (placeId) setReviewForm(pid); paintStopRatings(); toast('Your review was removed.'); }
   catch (e) { toast(BE.explain(e)); btn.disabled = false; }
+}
+
+/* ---------- comments and helpful votes ---------- */
+async function submitComment(form){
+  const tg = form.dataset.tg, ta = form.elements.ctext, text = ta.value.trim(), btn = $('button[type="submit"]', form);
+  if (!text){ ta.focus(); return; }
+  btn.disabled = true;
+  try {
+    const radio = $$('input[type="radio"]', form).find(i => i.checked);
+    await BE.addComment(tg, text, !!BE.account && !!radio && radio.value === 'named');
+    cDrafts.delete(tg); ta.value = ''; toast('Comment posted.');
+  } catch (e) { toast(BE.explain(e)); }
+  btn.disabled = false; paintReviews();
+}
+async function voteReview(el){
+  el.disabled = true;
+  try { await BE.vote(el.dataset.tg, +el.dataset.v); } catch (e) { toast(BE.explain(e)); }
+  el.disabled = false; paintReviews();
 }
 /* features/engage/nudge.js — Engage: one nudge on the start screen, shaped by who is visiting, and a quick "rate your trip" sheet.
 
@@ -7082,6 +7861,151 @@ async function submitRatings(form){
     toast(`Thanks. ${list.length} ${plural(list.length, 'rating is', 'ratings are')} live${d ? ` for the next traveler to ${d.name}` : ''}.`);
   } catch (e) { err.textContent = BE.explain(e); err.hidden = false; btn.disabled = false; }
 }
+/* features/account/account.js — Account: the top-bar button, the sign-in / sign-up sheet and the account menu.
+   No email and no password reset in this prototype: a username and a password (see cloudflare/src/worker.js, "accounts"). */
+const ICON_USER = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="5.5" r="3"/><path d="M2.5 14c.8-2.8 3-4.2 5.5-4.2s4.7 1.4 5.5 4.2" stroke-linecap="round"/></svg>';
+let authMode = 'login';
+function paintAccountBtn(){
+  const b = $('#acctBtn'); if (!b) return;
+  b.hidden = !BE.canAccount;
+  const a = BE.account;
+  const h = `${ICON_USER}${a ? `<span translate="no">${esc(a.name)}</span>` : '<span>Sign in</span>'}`;
+  if (b.dataset.h !== h){ b.dataset.h = h; b.innerHTML = h; }
+  b.setAttribute('aria-label', a ? `Account: ${a.name}` : 'Sign in or create an account');
+  b.classList.toggle('on', !!a);
+}
+function openSheetWith(html){
+  sheetFor = null; sheetOpener = document.activeElement;
+  $('#shBody').innerHTML = html;
+  const wrap = $('#sheet'); wrap.hidden = false;
+  if (FX.on && !FX.reduced){ gsap.fromTo('.sheet-bd', { opacity:0 }, { opacity:1, duration:.3 }); gsap.fromTo('.sheet', { y:50, opacity:0, scale:.97 }, { y:0, opacity:1, scale:1, duration:.55, ease:'power4.out' }); }
+  FX.bind(wrap);
+  const first = $('#shBody input:not([type=hidden]), #shBody textarea'); (first || $('.sheet')).focus();
+}
+function authHTML(){
+  const login = authMode === 'login';
+  return `<div><p class="label accent">Your account</p><h2 class="heading" id="shTitle">${login ? 'Welcome back' : 'Create an account'}</h2>
+    <p class="small muted" style="margin-top:8px">${login ? 'Sign in to see your saved plans and reviews on any device.' : 'Keep plans in your account and post reviews under your name. What you already saved in this browser comes with you.'}</p></div>
+    <div class="seg" role="tablist" aria-label="Sign in or create an account">
+      <button type="button" role="tab" class="seg-b" data-act="authmode" data-m="login" aria-selected="${login}">Sign in</button>
+      <button type="button" role="tab" class="seg-b" data-act="authmode" data-m="signup" aria-selected="${!login}">Create account</button>
+    </div>
+    <form id="authForm" class="rform" novalidate>
+      <label class="tfield"><span class="label muted">Username</span><input class="tinput" name="username" autocomplete="username" autocapitalize="off" spellcheck="false" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_.\\-]{3,24}" placeholder="e.g. yalguun"></label>
+      <label class="tfield"><span class="label muted">Password</span><input class="tinput" type="password" name="password" autocomplete="${login ? 'current-password' : 'new-password'}" required minlength="8" maxlength="200" placeholder="${login ? '' : 'At least 8 characters'}"></label>
+      ${login ? '' : '<p class="fine">There is no email and no password reset in this prototype, so keep your password somewhere safe.</p>'}
+      <p class="notice" id="aerr" hidden></p>
+      <div class="sheet-foot"><button type="button" class="btn btn-ghost" data-act="closesheet">Cancel</button><button class="btn btn-primary" type="submit" id="asub">${login ? 'Sign in' : 'Create account'}</button></div>
+    </form>`;
+}
+function openAuth(mode){ if (mode) authMode = mode; openSheetWith(authHTML()); }
+function accountMenuHTML(){
+  const a = BE.account;
+  return `<div><p class="label accent">Your account</p><h2 class="heading" id="shTitle" translate="no">@${esc(a.name)}</h2>
+    <p class="small muted" style="margin-top:8px">Your plans, reviews and comments are saved to this account.</p></div>
+    <div class="menu-list">
+      <button type="button" class="menu-item" data-act="myplans"><b>My plans</b><small>Open, rename, delete, and review the places you went</small></button>
+      <button type="button" class="menu-item" data-act="logout"><b>Sign out</b><small>This browser starts over as an anonymous traveler</small></button>
+    </div>
+    <div class="sheet-foot"><button type="button" class="btn btn-secondary" data-act="closesheet">Close</button></div>`;
+}
+async function submitAuth(form){
+  const err = $('#aerr'), btn = $('#asub'), u = form.elements.username.value.trim(), p = form.elements.password.value;
+  if (!/^[A-Za-z0-9_.-]{3,24}$/.test(u)){ err.textContent = BE.explain({ code:'bad_username' }); err.hidden = false; form.elements.username.focus(); return; }
+  if (p.length < 8){ err.textContent = BE.explain({ code:'bad_password' }); err.hidden = false; form.elements.password.focus(); return; }
+  btn.disabled = true; err.hidden = true; const label = btn.textContent; btn.textContent = authMode === 'login' ? 'Signing in…' : 'Creating…';
+  try {
+    if (authMode === 'login') await BE.login(u, p); else await BE.signup(u, p);
+    closeSheet(); toast(authMode === 'login' ? `Signed in as ${BE.account.name}.` : `Welcome, ${BE.account.name}. Your account is ready.`);
+  } catch (e) { err.textContent = BE.explain(e); err.hidden = false; btn.disabled = false; btn.textContent = label; }
+}
+/* features/plans/plans.js — My plans: every plan saved to the account, with its places and the traveler's own review of each. */
+let plansBack = 'intro', plansOpen = new Set(), delArm = null, delTimer = 0;
+const STAR_SVG = '<i class="rstar" aria-hidden="true"></i>';
+/* the guide places of a saved plan, in plan order, with the day they are on */
+function planPlaces(d, plan){
+  const byTitle = new Map(catalog(d).map(c => [c.title, c])), seen = new Set(), out = [];
+  plan.days.forEach((day, k) => day.stops.forEach(s => { const c = !s.custom && byTitle.get(s.title); if (c && !seen.has(c.id)){ seen.add(c.id); out.push({ pid:c.id, title:c.title, day:k + 1 }); } }));
+  return out;
+}
+function plansViewHTML(){
+  const a = BE.account;
+  return `<section class="plans-view" aria-labelledby="h1">
+    <header class="head"><button class="btn btn-ghost btn-sm btn-back" data-act="plansback">← Back</button>
+      ${a ? `<p class="label accent" data-fade translate="no">@${esc(a.name)}</p>` : '<p class="label accent" data-fade>Your account</p>'}
+      <h1 class="display-l" id="h1" tabindex="-1" data-split>My plans.</h1>
+      <p class="body-l muted" data-fade>Every plan you saved to your account. Open one to keep editing, or rate its places once you have been.</p></header>
+    <div id="plansList" class="plans-list" aria-live="polite">${a ? '<p class="small muted">Loading your plans…</p>' : signInPromptHTML()}</div>
+  </section>`;
+}
+const signInPromptHTML = () => `<div class="panel empty-panel"><p class="title">Sign in to see your plans</p><p class="small muted">Plans saved to an account follow you to any device, and you can review their places later.</p><div class="row"><button class="btn btn-primary" data-act="signin">Sign in</button></div></div>`;
+function planCardHTML(p){
+  const t = cleanTrip(p.trip); if (!t) return '';
+  const d = destById(t.destId), places = planPlaces(d, t.plan), done = places.filter(x => BE.myReview(x.pid)).length, open = plansOpen.has(p.id);
+  const stops = t.plan.days.reduce((n, day) => n + day.stops.length, 0);
+  return `<article class="plan-card" data-plan="${p.id}" data-mood="${esc(WIN.find(w => w.id === t.window).mood)}">
+    <div class="pc-top">
+      <span class="pc-mark" aria-hidden="true" translate="no">${esc(d.name.charAt(0))}</span>
+      <div class="pc-title">
+        <input class="plan-name" data-plan="${p.id}" value="${esc(p.name)}" maxlength="60" aria-label="Plan name" translate="no">
+        <p class="small muted">${esc(d.name)}, ${esc(d.country)} · ${t.nights} ${plural(t.nights, 'night', 'nights')} · ${MONTH_FULL[t.month]}</p>
+      </div>
+      <time class="fine" datetime="${new Date(p.at).toISOString()}">Saved ${ago(p.at)}</time>
+    </div>
+    <dl class="pc-stats"><div><dt>Days</dt><dd>${t.plan.days.length}</dd></div><div><dt>Stops</dt><dd>${stops}</dd></div><div><dt>Budget</dt><dd>${money(t.budget)}</dd></div><div><dt>Reviewed</dt><dd>${done} / ${places.length}</dd></div></dl>
+    <div class="row">
+      <button class="btn btn-primary btn-sm" data-act="openplan" data-plan="${p.id}">Open plan</button>
+      <button class="btn btn-secondary btn-sm" data-act="planrevs" data-plan="${p.id}" aria-expanded="${open}">${open ? 'Hide places' : 'Review places'}</button>
+      <button class="btn btn-ghost btn-sm pc-del" data-act="delplan" data-plan="${p.id}">${delArm === p.id ? 'Tap again to delete' : 'Delete'}</button>
+    </div>
+    ${open ? `<ul class="pc-places">${places.map(x => { const m = BE.myReview(x.pid); return `<li>
+        <div><span class="fine">Day ${x.day}</span><b>${esc(x.title)}</b>${m ? `<span class="pc-rate">${STAR_SVG}${m.r}${m.t ? ` · <q translate="no">${esc(m.t.length > 60 ? m.t.slice(0, 58) + '…' : m.t)}</q>` : ''}</span>` : '<span class="small muted">Not reviewed yet</span>'}</div>
+        <button class="btn ${m ? 'btn-ghost' : 'btn-secondary'} btn-sm" data-act="revplace" data-pid="${x.pid}" data-plan="${p.id}">${m ? 'Edit review' : 'Write review'}</button></li>`; }).join('')}</ul>` : ''}
+  </article>`;
+}
+async function paintPlans(){
+  const box = $('#plansList'); if (!box || S.stage !== 'plans') return;
+  if (!BE.account){ box.innerHTML = signInPromptHTML(); return; }
+  const list = await BE.loadPlans();
+  if (S.stage !== 'plans' || !$('#plansList')) return;
+  const focus = document.activeElement && document.activeElement.classList.contains('plan-name') ? document.activeElement.dataset.plan : null;
+  box.innerHTML = list.length ? list.map(planCardHTML).join('')
+    : `<div class="panel empty-panel"><p class="title">No saved plans yet</p><p class="small muted">Plan a trip and press “Save plan”. It lands here, on every device you sign in on.</p><div class="row"><button class="btn btn-primary" data-act="start">Start the feeling game</button><button class="btn btn-ghost" data-act="skip">Skip the game</button></div></div>`;
+  FX.bind(box);
+  if (focus){ const i = $(`.plan-name[data-plan="${focus}"]`); if (i) i.focus(); }
+}
+async function renamePlan(input){
+  const name = input.value.trim(); if (!name) { paintPlans(); return; }
+  try { await BE.renamePlan(input.dataset.plan, name); toast('Plan renamed.'); } catch (e) { toast(BE.explain(e)); }
+}
+
+/* ---------- writing or editing a review from a saved plan ---------- */
+let revPid = null;
+function openReviewSheet(pid){
+  const c = DEST.flatMap(catalog).find(x => x.id === pid); if (!c) return;
+  revPid = pid;
+  const mine = BE.myReview(pid), rate = mine ? mine.r : 0, feel = mine && mine.f || '', text = mine ? mine.t : '', named = mine ? !!mine.named : !!BE.account;
+  const d = destById(pid.split(':')[0]);
+  openSheetWith(`<div><p class="label accent">${esc(d.name)} · ${mine ? 'Your review' : 'New review'}</p><h2 class="heading" id="shTitle">${esc(c.title)}</h2></div>
+    ${BE.canPost ? `<form id="revForm" class="rform" novalidate>
+      <fieldset><legend class="label muted">Your rating</legend><div class="strength rate-pick" role="radiogroup">${STAR_WORDS.map((w, i) => `<label class="opt" data-cursor=""><input type="radio" name="rrate" value="${i + 1}" ${i + 1 === rate ? 'checked' : ''}><span class="face"><span class="sr">${i + 1} ${plural(i + 1, 'star', 'stars')}, </span><span class="pnr" aria-hidden="true">${i + 1}<i class="rstar"></i></span><small>${w}</small></span></label>`).join('')}</div></fieldset>
+      <fieldset><legend class="label muted">How did it feel? Optional</legend><div class="chips" role="radiogroup"><label class="opt chip" data-cursor=""><input type="radio" name="rfeel2" value="" ${feel ? '' : 'checked'}><span class="face">Skip</span></label>${FEEL.map(f => `<label class="opt chip" data-cursor=""><input type="radio" name="rfeel2" value="${f.id}" ${f.id === feel ? 'checked' : ''}><span class="face">${f.label}</span></label>`).join('')}</div></fieldset>
+      <label class="tfield"><span class="label muted">In your words · optional</span><textarea name="rtext" rows="4" maxlength="240" placeholder="What was it like? A line or two helps the next traveler.">${esc(text)}</textarea></label>
+      ${postAsHTML('ras', named)}
+      <p class="notice" id="rverr" hidden></p>
+      <div class="sheet-foot">${mine ? '<button type="button" class="btn btn-ghost" data-act="revdelete">Delete review</button>' : '<button type="button" class="btn btn-ghost" data-act="closesheet">Cancel</button>'}<button class="btn btn-primary" type="submit" id="rvsub">${mine ? 'Update review' : 'Post review'}</button></div>
+    </form>` : `<p class="notice">Reviews need the shared version of this page.</p><div class="sheet-foot"><button type="button" class="btn btn-secondary" data-act="closesheet">Close</button></div>`}`);
+}
+async function submitPlanReview(form){
+  const err = $('#rverr'), btn = $('#rvsub'), r = +(form.elements.rrate.value || 0);
+  if (!(r >= 1 && r <= 5)){ err.textContent = 'Pick a star rating first.'; err.hidden = false; return; }
+  btn.disabled = true; err.hidden = true;
+  const old = BE.myReview(revPid);
+  try {
+    await BE.submitReview(revPid, { r, t:form.elements.rtext.value, f:form.elements.rfeel2.value || null, ph:old && old.ph || null, tc:tripsTaken(profile).length, named:postAsNamed(form, 'ras') });
+    closeSheet(); toast('Thanks. Your review is live.'); paintPlans();
+  } catch (e) { err.textContent = BE.explain(e); err.hidden = false; btn.disabled = false; }
+}
 /* features/planner/views.js — Planner: cost, month grid, day cards. */
 /* ---------- planner views ---------- */
 const COST_PARTS = [['Stays', 'stays', 'var(--accent)'], ['Food', 'food', 'var(--glow)'], ['Stops', 'stops', 'color-mix(in srgb,var(--accent) 45%,var(--surface))'], ['Local transport', 'trans', 'color-mix(in srgb,var(--text) 55%,var(--surface))']];
@@ -7101,7 +8025,7 @@ function plannerHTML(){
       <h1 class="display-l" id="h1" tabindex="-1" data-split>${d.name}, ${d.country}</h1>
       <p class="body-l muted" data-fade>${n} ${n === 1 ? 'night' : 'nights'} · ${MONTH_FULL[S.month]} · ${A.name} · ${A.lvl.label.toLowerCase()} energy · ${A.lvl.per} stops a day</p>
     </div>
-    <div class="actions" data-fade><button class="btn btn-secondary btn-sm" data-act="reset">Reset</button><button class="btn btn-secondary btn-sm" data-act="addday">Add a day</button><button class="btn btn-primary btn-sm" data-act="save">Save plan</button></div>
+    <div class="actions" data-fade><button class="btn btn-secondary btn-sm" data-act="reset">Reset</button><button class="btn btn-secondary btn-sm" data-act="addday">Add a day</button>${BE.account ? '<button class="btn btn-ghost btn-sm" data-act="myplans">My plans</button>' : ''}<button class="btn btn-primary btn-sm" data-act="save">${S.planId ? 'Save changes' : 'Save plan'}</button></div>
   </div>
   <div style="display:flex;flex-direction:column;gap:16px;margin-top:32px">
     <div class="panel" data-pop>
@@ -7481,7 +8405,7 @@ ACT.report = el => openReport(el.dataset.id);
 ACT.closesheet = () => closeSheet();
 /* features/planner/index.js — Planner: entry points. */
 VIEWS.planner = () => `<section aria-labelledby="h1"><div id="plan">${plannerHTML()}</div></section>`;
-ACT.plan = el => { S.dest = destById(el.dataset.id); S.plan = genPlan(S.dest, S.nights, energyLevel().per); S.adder = null; go('planner'); };
+ACT.plan = el => { S.dest = destById(el.dataset.id); S.plan = genPlan(S.dest, S.nights, energyLevel().per); S.adder = null; S.planId = null; go('planner'); };
 ACT.reset = () => { S.plan = genPlan(S.dest, S.nights, energyLevel().per); S.adder = null; refreshPlan(); toast('Plan reset to the suggested itinerary.'); };
 ACT.addday = () => addDay();
 ACT.rmday = el => { const k = +el.dataset.day; if (S.plan.days.length < 2) return; S.plan.days.splice(k, 1); S.adder = null; refreshPlan(); say(`Removed day ${k + 1}.`); };
@@ -7501,16 +8425,17 @@ ACT.rmstop = el => {
 ACT.save = async () => {
     const trip = { v:1, window:S.window, energy:S.energy, bag:S.bag, sound:S.sound, feel:S.feel, budget:S.budget, style:S.style, month:S.month, nights:S.nights, destId:S.dest.id, plan:S.plan };
     const where = []; let dbErr = null;
-    if (BE.ready && BE.uid){ try { await BE.saveTrip(trip); where.push('your account'); } catch (e) { dbErr = e; } }
+    if (BE.account){                                        // signed in: one of the account's plans (the same one again on the next save)
+      try { S.planId = await BE.savePlan({ id:S.planId, name:S.planId ? '' : `${S.dest.name} · ${MONTH_FULL[S.month]}`, trip }); where.push('your account'); } catch (e) { dbErr = e; }
+      if (BE.ready && BE.uid) BE.saveTrip(trip).catch(() => {});
+    }
+    else if (BE.ready && BE.uid){ try { await BE.saveTrip(trip); } catch (e) { dbErr = e; } }
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(trip)); where.push('this browser'); } catch (e) {}
     const c = cleanTrip(trip); if (c && where.length){ saved = c; recordTrip(trip); }
-    toast(where.length ? `Plan saved to ${where.join(' and ')}.${dbErr ? ' The shared database could not be reached.' : ''}` : dbErr ? BE.explain(dbErr) : 'This browser blocks saving here. Your plan is still on screen.');
+    if (dbErr && dbErr.code === 'plans_full'){ toast(BE.explain(dbErr)); return; }
+    toast(where.length ? `Plan saved to ${where.join(' and ')}.${dbErr ? ' The shared database could not be reached.' : BE.account ? ' Find it in My plans.' : BE.canAccount ? ' Sign in to keep it in your account.' : ''}` : dbErr ? BE.explain(dbErr) : 'This browser blocks saving here. Your plan is still on screen.');
   };
-ACT.resume = () => {
-    if (!saved) return;
-    const { destId, plan, ...rest } = saved; Object.assign(S, rest, { dest:destById(destId), plan, adder:null, cardSeen:true, reached:3 });
-    picked = true; [1, 2, 3, 4, 5].forEach(n => touched.add(n)); document.documentElement.style.setProperty('--energy', S.energy / 100); go('planner');
-  };
+ACT.resume = () => { if (!saved) return; restoreTrip(saved); go('planner'); };
 /* features/field/index.js — Field: entry points. */
 VIEWS.field = () => `<section class="field-view" aria-labelledby="h1">
     <div class="field-top">
@@ -7546,6 +8471,9 @@ ACT.closeplace = () => closePlace();
 ACT.morerev = () => { revAll = !revAll; paintReviews(); const b = $('[data-act="morerev"]'); if (b) b.focus({ preventScroll:true }); };
 ACT.delreview = el => deleteReview(el);
 ACT.phremove = () => { resetPhoto(); photo.remove = true; paintPhotoField('Photo removed. It stays off your review once you post.'); const b = $('#ppBtn'); if (b) b.focus({ preventScroll:true }); };
+ACT.vote = el => voteReview(el);
+ACT.thread = el => { const tg = el.dataset.tg; if (openThreads.has(tg)) openThreads.delete(tg); else openThreads.add(tg); paintReviews(); if (openThreads.has(tg)){ const t = $$('textarea[name="ctext"]').find(x => x.dataset.tg === tg); if (t) t.focus({ preventScroll:false }); } };
+ACT.delcomment = async el => { el.disabled = true; try { await BE.removeComment(el.dataset.tg, +el.dataset.at); toast('Comment deleted.'); } catch (e) { toast(BE.explain(e)); } paintReviews(); };
 /* features/engage/index.js — Engage: entry points. The nudge lives in #engageSlot on the start screen. */
 AFTER.intro = paintEngage;
 onProfile(() => { if (S.stage === 'intro') paintEngage(); });
@@ -7558,6 +8486,36 @@ ACT.went = async el => {
 };
 ACT.ratetrip = el => { const t = tripOf(el); if (t) openRateSheet(t); };
 ACT.snoozetrip = async el => { const t = tripOf(el); if (!t) return; await snoozeTrip(t, 7); toast('No problem. We will ask again next week.'); };
+/* features/account/index.js — Account: entry points. */
+ACT.account = () => BE.account ? openSheetWith(accountMenuHTML()) : openAuth('login');
+ACT.signin = () => openAuth('login');
+ACT.authmode = el => { authMode = el.dataset.m; $('#shBody').innerHTML = authHTML(); FX.bind($('#shBody')); const i = $('#shBody input'); if (i) i.focus(); };
+ACT.logout = async () => { closeSheet(true); await BE.logout(); toast('Signed out. This browser is a new anonymous traveler now.'); if (S.stage === 'plans') go('intro'); };
+BE.on(paintAccountBtn);
+/* features/plans/index.js — My plans: entry points. */
+VIEWS.plans = plansViewHTML;
+AFTER.plans = () => { paintPlans(); };
+BE.on(() => { if (S.stage === 'plans' && !(document.activeElement && document.activeElement.classList.contains('plan-name'))) paintPlans(); });
+ACT.myplans = () => { closeSheet(true); if (!BE.account){ openAuth('login'); return; } if (S.stage !== 'plans') plansBack = S.stage; go('plans'); };
+ACT.plansback = () => go(plansBack && plansBack !== 'plans' ? plansBack : 'intro');
+ACT.openplan = async el => {
+  const p = (await BE.loadPlans()).find(x => x.id === el.dataset.plan), t = p && cleanTrip(p.trip); if (!t) return;
+  restoreTrip(t); S.planId = p.id; go('planner');
+};
+ACT.planrevs = el => { const id = el.dataset.plan; if (plansOpen.has(id)) plansOpen.delete(id); else plansOpen.add(id); paintPlans(); };
+ACT.delplan = async el => {
+  const id = el.dataset.plan;
+  if (delArm !== id){ delArm = id; clearTimeout(delTimer); delTimer = setTimeout(() => { delArm = null; paintPlans(); }, 4000); paintPlans(); return; }
+  delArm = null; clearTimeout(delTimer);
+  try { await BE.removePlan(id); if (S.planId === id) S.planId = null; toast('Plan deleted.'); } catch (e) { toast(BE.explain(e)); }
+  paintPlans();
+};
+ACT.revplace = el => openReviewSheet(el.dataset.pid);
+ACT.revdelete = async () => {
+  const mine = BE.myReview(revPid);
+  try { await BE.removeReview(revPid); if (mine && mine.ph) BE.dropPhoto(mine.ph); closeSheet(); toast('Your review was removed.'); paintPlans(); }
+  catch (e) { toast(BE.explain(e)); }
+};
 /* core/events.js — Global event delegation: click, change, input, submit, keys. */
 document.addEventListener('click', e => {
   const nav = e.target.closest('[data-nav]');
@@ -7582,9 +8540,11 @@ document.addEventListener('change', e => {
   else if (t.id === 'pfile'){ const f = t.files && t.files[0]; t.value = ''; pickPhoto(f); }
   else if (t.name === 'style'){ S.style = t.value; paintBudget(); }
   else if (t.name === 'month'){ S.month = +t.value; paintBudget(); }
+  else if (t.classList.contains('plan-name')) renamePlan(t);
 });
 document.addEventListener('input', e => {
   if (e.target.id === 'budget'){ S.budget = +e.target.value; paintBudget(); }
+  else if (e.target.name === 'ctext') cDrafts.set(e.target.dataset.tg, e.target.value);
   else if (e.target.name === 'ptext'){ const c = $('#pcount'); if (c) c.textContent = `${e.target.value.length} / 240`; }
 });
 document.addEventListener('error', e => {      // a photo that no longer loads is replaced by a quiet note (error events do not bubble, so capture)
@@ -7599,6 +8559,9 @@ document.addEventListener('error', e => {      // a photo that no longer loads i
 document.addEventListener('submit', e => {
   const rf = e.target.closest('#reportForm'); if (rf){ e.preventDefault(); submitReport(rf); return; }
   const tr = e.target.closest('#rateForm'); if (tr){ e.preventDefault(); submitRatings(tr); return; }
+  const af = e.target.closest('#authForm'); if (af){ e.preventDefault(); submitAuth(af); return; }
+  const rv = e.target.closest('#revForm'); if (rv){ e.preventDefault(); submitPlanReview(rv); return; }
+  const cf = e.target.closest('.cform'); if (cf){ e.preventDefault(); submitComment(cf); return; }
   const pf = e.target.closest('#placeForm'); if (pf){ e.preventDefault(); submitReview(pf); return; }
   const f = e.target.closest('.custom'); if (!f) return; e.preventDefault();
   const title = f.elements.title.value.trim(), cost = clamp(Math.round(+f.elements.cost.value || 0), 0, 9999), k = +f.dataset.day;
@@ -7700,6 +8663,24 @@ BE.init().then(async ok => {
   if (!ok) return;
   const t = cleanTrip(await BE.loadTrip());
   if (t){ saved = t; const slot = $('#resumeSlot'); if (slot){ slot.innerHTML = resumeBtn(); FX.bind(slot); } }
+});
+
+/* signed in or out: a different traveler from now on. Reload what belongs to them, and the first time an account is used in this
+   browser, bring along the plan this browser saved before (unless the account already has the same plan). */
+const sameTrip2 = (a, b) => a && b && a.destId === b.destId && a.month === b.month && JSON.stringify(a.plan.days.map(d => d.stops.map(s => s.title))) === JSON.stringify(b.plan.days.map(d => d.stops.map(s => s.title)));
+async function importBrowserPlan(){
+  if (!BE.account || !saved) return;
+  const list = await BE.loadPlans();
+  if (list.some(p => sameTrip2(cleanTrip(p.trip), saved))) return;
+  try { await BE.savePlan({ name:`${destById(saved.destId).name} · ${MONTH_FULL[saved.month]}`, trip:saved }); toast('The plan saved in this browser is now in your account too.'); } catch (e) {}
+}
+BE.onIdentity(async () => {
+  S.planId = null;
+  await loadProfile();
+  const t = cleanTrip(await BE.loadTrip()); if (t) saved = t;
+  const slot = $('#resumeSlot'); if (slot){ slot.innerHTML = resumeBtn(); FX.bind(slot); }
+  await importBrowserPlan();
+  if (S.stage === 'planner') refreshPlan();
 });
 /* core/boot.js — Boot. */
 /* ---------- boot ---------- */

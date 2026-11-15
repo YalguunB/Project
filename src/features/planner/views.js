@@ -17,7 +17,7 @@ function plannerHTML(){
       <h1 class="display-l" id="h1" tabindex="-1" data-split>${d.name}, ${d.country}</h1>
       <p class="body-l muted" data-fade>${n} ${n === 1 ? 'night' : 'nights'} · ${MONTH_FULL[S.month]} · ${A.name} · ${A.lvl.label.toLowerCase()} energy · ${A.lvl.per} stops a day</p>
     </div>
-    <div class="actions" data-fade><button class="btn btn-secondary btn-sm" data-act="reset">Reset</button><button class="btn btn-secondary btn-sm" data-act="addday">Add a day</button><button class="btn btn-primary btn-sm" data-act="save">Save plan</button></div>
+    <div class="actions" data-fade><button class="btn btn-secondary btn-sm" data-act="reset">Reset</button><button class="btn btn-secondary btn-sm" data-act="addday">Add a day</button>${BE.account ? '<button class="btn btn-ghost btn-sm" data-act="myplans">My plans</button>' : ''}<button class="btn btn-primary btn-sm" data-act="save">${S.planId ? 'Save changes' : 'Save plan'}</button></div>
   </div>
   <div style="display:flex;flex-direction:column;gap:16px;margin-top:32px">
     <div class="panel" data-pop>

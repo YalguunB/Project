@@ -75,7 +75,7 @@ const I18N = (() => {
     const v = n.nodeValue; if (!v || !latin.test(v)) return;
     const p = n.parentElement; if (!p || p.closest(SKIP)) return;
     const core = v.replace(/\s+/g, ' ').trim(); if (!core || CYR.test(core)) return;   // already translated
-    const short = PACKS[lang].short && p.closest('.mcell') && PACKS[lang].short[core];
+    const short = PACKS[lang].short && p.closest('.mcell, input[name="month"] + .face') && PACKS[lang].short[core];
     const out = short || tr(core); if (out == null) { missing.add(core); return; }
     textOrig.set(n, v);
     const lead = /^\s*/.exec(v)[0], trail = /\s*$/.exec(v)[0];
