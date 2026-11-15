@@ -28,7 +28,7 @@ function authHTML(){
       <button type="button" role="tab" class="seg-b" data-act="authmode" data-m="signup" aria-selected="${!login}">Create account</button>
     </div>
     <form id="authForm" class="rform" novalidate>
-      <label class="tfield"><span class="label muted">Username</span><input class="tinput" name="username" autocomplete="username" autocapitalize="off" spellcheck="false" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_.\\-]{3,24}" placeholder="e.g. yalguun"></label>
+      <label class="tfield"><span class="label muted">Username</span><input class="tinput" name="username" autocomplete="username" autocapitalize="off" spellcheck="false" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_.\\-]{3,24}" placeholder="e.g. user"></label>
       <label class="tfield"><span class="label muted">Password</span><input class="tinput" type="password" name="password" autocomplete="${login ? 'current-password' : 'new-password'}" required minlength="8" maxlength="200" placeholder="${login ? '' : 'At least 8 characters'}"></label>
       ${login ? '' : '<p class="fine">There is no email and no password reset in this prototype, so keep your password somewhere safe.</p>'}
       <p class="notice" id="aerr" hidden></p>
