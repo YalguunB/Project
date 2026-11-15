@@ -1,0 +1,150 @@
+/* ===================================================================
+   tokens-primitive.css — raw values only. Nothing here knows about roles.
+   Layer order for the three token files (component.css is unlayered).
+   =================================================================== */
+@layer primitives, brand, semantic;
+
+/* Registered color roles (the page cross-fades between moods).
+   @property initial values must be literals, so they live here. */
+@property --page { syntax: '<color>'; inherits: true; initial-value: #F7F2EA; }
+@property --surface { syntax: '<color>'; inherits: true; initial-value: #FFFFFF; }
+@property --text { syntax: '<color>'; inherits: true; initial-value: #2B2622; }
+@property --muted { syntax: '<color>'; inherits: true; initial-value: #6E6258; }
+@property --accent { syntax: '<color>'; inherits: true; initial-value: #BC5630; }
+@property --accent-text { syntax: '<color>'; inherits: true; initial-value: #FFFFFF; }
+@property --glow { syntax: '<color>'; inherits: true; initial-value: #F6C9A0; }
+@property --border-color { syntax: '<color>'; inherits: true; initial-value: #E6DCCD; }
+@property --positive { syntax: '<color>'; inherits: true; initial-value: #2E7D4F; }
+@property --danger { syntax: '<color>'; inherits: true; initial-value: #B3391B; }
+
+@layer primitives {
+:root {
+  /* color ramps (lightest 50 → darkest 900) */
+  --white: #FFFFFF;
+  --sand-50: #F7F2EA;
+  --sand-200: #E6DCCD;
+  --sand-400: #F6C9A0;
+  --sand-500: #BC5630;
+  --sand-700: #6E6258;
+  --sand-900: #2B2622;
+
+  --sea-50: #F7FCFC;
+  --sea-200: #E5F1F2;
+  --sea-300: #C3DDE0;
+  --sea-400: #8CD3DA;
+  --sea-600: #17798A;
+  --sea-800: #3F646C;
+  --sea-900: #0F3039;
+
+  --violet-50: #F3EEFF;
+  --violet-100: #B4ABD6;
+  --violet-300: #B79CFF;
+  --violet-400: #5A3FB8;
+  --violet-500: #433B72;
+  --violet-600: #2E2850;
+  --violet-800: #231E3B;
+  --violet-900: #1A1433;
+
+  --clay-50: #FFF8F2;
+  --clay-200: #FBE8DA;
+  --clay-300: #EFCFB9;
+  --clay-400: #F8B48A;
+  --clay-600: #C94A22;
+  --clay-800: #8A5A45;
+  --clay-900: #3A1E12;
+
+  --moss-50: #F6FAF2;
+  --moss-200: #E3EBDB;
+  --moss-300: #C5D6BA;
+  --moss-400: #A5CC96;
+  --moss-600: #3A7740;
+  --moss-800: #46604B;
+  --moss-900: #1B2E20;
+
+  --green-50: #7BD9A4;
+  --green-400: #2E7D4F;
+  --green-900: #1F7A4D;
+
+  --red-50: #FF9A86;
+  --red-400: #B3391B;
+  --red-900: #A8260F;
+
+  --cream-100: #F6EFE4;
+  --cocoa-900: #1F1A17;
+  --flame-400: #E98A5C;
+  --graphite-900: #1F1F1F;
+
+  /* type */
+  --font-display: 'Bricolage Grotesque','Helvetica Neue',Arial,system-ui,sans-serif;
+  --font-body: 'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+
+  /* space */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* radius */
+  --radius-small: 10px;
+  --radius-medium: 16px;
+  --radius-large: 24px;
+  --radius-xlarge: 32px;
+  --radius-pill: 999px;
+
+  /* lines and focus */
+  --line-thin: 1px;
+  --line-medium: 1.5px;
+  --line-thick: 2px;
+  --focus-width: 3px;
+  --focus-offset: 3px;
+
+  /* blur */
+  --blur-6: 6px;
+  --blur-8: 8px;
+  --blur-10: 10px;
+  --blur-14: 14px;
+  --blur-16: 16px;
+  --blur-18: 18px;
+  --blur-22: 22px;
+
+  /* motion */
+  --ease-out: cubic-bezier(.2,.8,.2,1);
+  --duration-120: 0.12s;
+  --duration-200: 0.2s;
+  --duration-250: 0.25s;
+  --duration-300: 0.3s;
+  --duration-350: 0.35s;
+  --duration-400: 0.4s;
+  --duration-450: 0.45s;
+  --duration-500: 0.5s;
+  --duration-550: 0.55s;
+  --duration-600: 0.6s;
+  --duration-700: 0.7s;
+  --duration-900: 0.9s;
+  --duration-1100: 1.1s;
+  --duration-1600: 1.6s;
+  --duration-1800: 1.8s;
+  --duration-2200: 2.2s;
+  --duration-2400: 2.4s;
+  --duration-2600: 2.6s;
+
+  /* stacking */
+  --z-sticky: 20;
+  --z-statusbar: 25;
+  --z-tip: 65;
+  --z-sheet: 70;
+  --z-drawer: 72;
+  --z-drag: 75;
+  --z-toast: 80;
+  --z-curtain: 90;
+  --z-loader: 100;
+
+  /* icons */
+  --icon-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z'/%3E%3C/svg%3E");
+}
+}

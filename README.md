@@ -4,9 +4,23 @@ MoodTrip is a travel-planning prototype that starts with how you feel. The brows
 
 ## Project layout
 
-- `src/` — app logic, visuals, styles, and destination data
-- `build.sh` — assembles the source into the Cloudflare static page
-- `cloudflare/` — Worker API, D1 schema, and deployable site
+```
+src/
+├─ styles/            4 CSS files only: tokens-primitive, tokens-brand, tokens-semantic, component
+├─ core/              shared code: model, backend, state, chrome (render/go), events, boot
+├─ data/places/       destination and venue data
+├─ visuals/           3D scene, motion, SVG scenery
+├─ features/          one folder per feature (feel, budget, matches, planner, field, place, reviews)
+│  └─ <feature>/index.js   registers the feature's screens (VIEWS), actions (ACT) and hooks (AFTER)
+├─ components/        page markup split into components (registry, one file per part, overlays.js aggregates, mount.js renders)
+└─ body.html          layout glue + component calls (<div data-component="x"></div>)
+build.sh              concatenates src/ (file order is listed in build.sh) into cloudflare/public/index.html
+cloudflare/           Worker API, D1 schema, and deployable site
+docs/                 css-architecture.md
+delete/               unused files kept here until the team confirms they can be removed
+```
+
+Rules: a feature folder does not call another feature's functions directly; shared code lives in `core/`. CSS follows `docs/css-architecture.md`. After editing anything in `src/`, run `sh build.sh cloudflare`.
 
 ## Run locally
 
