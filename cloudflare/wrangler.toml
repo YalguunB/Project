@@ -3,6 +3,13 @@ name = "moodtrip"
 main = "src/worker.js"
 compatibility_date = "2025-09-01"
 
+# Smart Placement: run the API next to the D1 database instead of next to the visitor.
+# A visitor in Ulaanbaatar talks to a nearby edge either way, but every database query then crosses to the database's home
+# region. With several queries per request that adds up; placed next to the database, each query is a few milliseconds.
+# Static files (public/) are still served from the edge closest to the visitor.
+[placement]
+mode = "smart"
+
 [assets]
 directory = "./public"
 binding = "ASSETS"

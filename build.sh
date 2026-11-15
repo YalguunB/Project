@@ -32,9 +32,12 @@ PARTS="
   src/visuals/fx.js
   src/core/constants.js
   src/core/registry.js
+  src/i18n/mn.js
+  src/core/i18n.js
   src/features/feel/state.js
   src/core/utils.js
   src/core/saved-trip.js
+  src/core/profile.js
   src/core/chrome.js
   src/core/view-parts.js
   src/features/matches/crowd.js
@@ -46,6 +49,7 @@ PARTS="
   src/features/place/maps-google.js
   src/features/place/panel.js
   src/features/reviews/actions.js
+  src/features/engage/nudge.js
   src/features/planner/views.js
   src/features/planner/stops.js
   src/features/budget/budget.js
@@ -59,6 +63,7 @@ PARTS="
   src/features/field/index.js
   src/features/place/index.js
   src/features/reviews/index.js
+  src/features/engage/index.js
   src/core/events.js
   src/features/planner/drag.js
   src/core/backend-sync.js
@@ -67,7 +72,7 @@ PARTS="
 CSS="src/styles/tokens-primitive.css src/styles/tokens-brand.css src/styles/tokens-semantic.css src/styles/component.css"
 FONTS='<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&display=swap">'
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&family=Manrope:wght@400..800&display=swap">'
 LIBS='<script>setTimeout(function(){var l=document.getElementById("loader");if(l)l.hidden=true;},9000);</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>'

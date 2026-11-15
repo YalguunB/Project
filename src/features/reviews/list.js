@@ -15,7 +15,7 @@ const starsHTML = v => `<span class="stars" style="--p:${Math.round(v / 5 * 100)
 const revKey = x => x.uid + '|' + x.pid + '|' + x.at;
 function revItemHTML(x, fresh){
   const f = x.f && FEEL.find(k => k.id === x.f);
-  return `<li class="rv${fresh ? ' fresh' : ''}${x.mine ? ' mine' : ''}"><div class="rv-top">${starsHTML(x.r)}<b>${esc(x.name)}${x.mine ? ' · you' : ''}</b>${x.at ? `<time datetime="${new Date(x.at).toISOString()}">${ago(x.at)}</time>` : ''}</div>${f ? `<span class="tag">Felt ${esc(f.label.toLowerCase())}</span>` : ''}${x.t ? `<p>${esc(x.t)}</p>` : ''}${x.ph ? `<a class="rv-photo" href="/_blob/${x.ph}" target="_blank" rel="noopener" aria-label="Open this photo in a new tab"><img class="rev-img" src="/_blob/${x.ph}" alt="Photo shared with this review" loading="lazy" decoding="async"></a>` : ''}</li>`;
+  return `<li class="rv${fresh ? ' fresh' : ''}${x.mine ? ' mine' : ''}"><div class="rv-top">${starsHTML(x.r)}<b>${esc(x.name)}${x.mine ? ' · you' : ''}</b>${x.tc >= 2 ? `<span class="tag outline rv-exp" title="This traveler has taken ${x.tc} trips with MoodTrip">${x.tc} trips</span>` : ''}${x.at ? `<time datetime="${new Date(x.at).toISOString()}">${ago(x.at)}</time>` : ''}</div>${f ? `<span class="tag">Felt ${esc(f.label.toLowerCase())}</span>` : ''}${x.t ? `<p>${esc(x.t)}</p>` : ''}${x.ph ? `<a class="rv-photo" href="/_blob/${x.ph}" target="_blank" rel="noopener" aria-label="Open this photo in a new tab"><img class="rev-img" src="/_blob/${x.ph}" alt="Photo shared with this review" loading="lazy" decoding="async"></a>` : ''}</li>`;
 }
 const photosOf = R => R.list.filter(x => x.ph);
 function photoStripHTML(R){

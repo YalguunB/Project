@@ -4,7 +4,7 @@
 <meta name="theme-color" content="#F7F2EA">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&family=Manrope:wght@400..800&display=swap">
 <style>
 /* ===================================================================
    tokens-primitive.css — raw values only. Nothing here knows about roles.
@@ -83,8 +83,8 @@
   --graphite-900: #1F1F1F;
 
   /* type */
-  --font-display: 'Bricolage Grotesque','Helvetica Neue',Arial,system-ui,sans-serif;
-  --font-body: 'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-display: 'Bricolage Grotesque','Manrope','Helvetica Neue',Arial,system-ui,sans-serif;
+  --font-body: 'DM Sans','Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
 
   /* space */
   --space-1: 4px;
@@ -2214,7 +2214,7 @@ input[type=range]::-moz-range-thumb {
     transition: left var(--duration-500);
   }
   & .mark::after {
-    content: "Budget";
+    content: var(--t-budget, "Budget");
     position: absolute;
     top: -18px;
     left: 50%;
@@ -3236,6 +3236,35 @@ html.pl-open body {
   color: var(--text);
   font: 500 14px/1.45 var(--font-body);
 }
+/* === language switch === */
+.langbtn {
+  min-width: 48px;
+  justify-content: center;
+  letter-spacing: .04em;
+}
+
+/* === feature: engage === */
+.engage-slot:empty {
+  display: none;
+}
+.nudge {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 560px;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-large);
+  border: var(--border);
+  border-left: var(--line-thick) solid var(--accent);
+  background: var(--surface-a78);
+  & .row {
+    margin-top: var(--space-2);
+  }
+}
+.rv-exp {
+  margin-left: var(--space-2);
+}
+
 @media (max-width:760px) {
   .place-wrap {
     align-items: flex-end;
@@ -3599,6 +3628,16 @@ html.pl-open body {
   }
   .detail {
     max-width: none;
+  }
+}
+@media (max-width:480px) {
+  /* the language switch needs the room: the logo stays, the word goes (the button keeps its aria-label) */
+  .wordmark {
+    display: none;
+  }
+  .langbtn {
+    min-width: 40px;
+    padding: 0 10px;
   }
 }
 @media (max-width:440px) {
@@ -3971,7 +4010,7 @@ html.pl-open body {
     const s = String(path).split('/');
     let coll, id;
     if (s.length === 2 && (s[0] === 'feelings' || s[0] === 'cards' || s[0] === 'reviews')){ coll = s[0]; id = s[1]; }
-    else if (s.length === 4 && s[0] === 'data' && s[1] === 'users' && s[3] === 'trip'){ coll = 'trip'; id = s[2]; }
+    else if (s.length === 4 && s[0] === 'data' && s[1] === 'users' && (s[3] === 'trip' || s[3] === 'profile')){ coll = s[3]; id = s[2]; }
     else throw { code:'invalid_argument' };
     const p = coll + '/' + encodeURIComponent(id);
     return {
@@ -3999,9 +4038,10 @@ COMPONENTS['brand'] = () => `    <button class="brand" id="brand" type="button" 
       <svg class="logo" viewBox="0 0 28 28" aria-hidden="true"><defs><clipPath id="lg"><circle cx="14" cy="14" r="14"/></clipPath></defs><circle class="l1" cx="14" cy="14" r="14"/><path class="l2" clip-path="url(#lg)" d="M0 17q7-5 14 0t14 0v12H0z"/></svg>
       <span class="wordmark">MoodTrip</span>
     </button>`;
-/* components/top-right.js — Meta line and the Field button. */
+/* components/top-right.js — Meta line, the language switch and the Field button. */
 COMPONENTS['top-right'] = () => `    <div class="top-r">
       <p class="meta" id="meta"></p>
+      <button class="fieldbtn langbtn" id="langBtn" type="button" data-act="lang" translate="no" lang="mn" aria-label="Монгол хэл рүү шилжих">МН</button>
       <button class="fieldbtn" id="fieldBtn" type="button" data-act="field"><span class="fb-dot" aria-hidden="true"></span><span>Field</span><b id="fieldCount" hidden></b></button>
     </div>`;
 /* components/tooltip.js — Floating tooltip. */
@@ -4685,6 +4725,7 @@ const BE = (() => {
     const w = WIN.find(x => x.id === data.w), f = FEEL.find(x => x.id === data.f), lvl = energyLevel(e);
     return { id:'u' + uid, uid, w:data.w, f:data.f, e, s:SOUND_IDS.includes(data.s) ? data.s : 'lofi', d:DEST_IDS.includes(data.d) ? data.d : null,
              bag:Array.isArray(data.bag) ? data.bag.filter(b => BAG_IDS.includes(b)).slice(0, 3) : [], mood:w.mood,
+             at:Math.min(Math.max(0, +data.at || 0), Date.now() + 60000),
              name:`${lvl.pace}-${w.noun} ${f.role}`, mine:uid === st.uid };
   }
   /* Reviews are free text from other people: strip control and direction-override characters, collapse spaces, cap the length.
@@ -4697,12 +4738,12 @@ const BE = (() => {
       const x = items[pid]; if (!PLACE_IDS.has(pid) || !x || typeof x !== 'object') return;
       const r = Math.round(+x.r); if (!(r >= 1 && r <= 5)) return;
       const w = WIN.find(k => k.id === x.w) || WIN[0], f = FEEL.find(k => k.id === x.f) || null, e = clampN(x.e, 0, 100, 35), lvl = energyLevel(e);
-      out.set(pid, { pid, uid, r, t:cleanText(x.t), f:f ? f.id : null, w:w.id, e, ph:typeof x.ph === 'string' && PH_RE.test(x.ph) ? x.ph : null, at:Math.min(Math.max(0, +x.at || 0), Date.now() + 60000),
+      out.set(pid, { pid, uid, r, t:cleanText(x.t), f:f ? f.id : null, w:w.id, e, ph:typeof x.ph === 'string' && PH_RE.test(x.ph) ? x.ph : null, tc:clampN(x.tc, 0, 99, 0), at:Math.min(Math.max(0, +x.at || 0), Date.now() + 60000),
                      name:`${lvl.pace}-${w.noun} ${f ? f.role : 'traveler'}`, mine:uid === st.uid });
     });
     return out;
   }
-  const packReview = it => ({ r:it.r, t:it.t, f:it.f, w:it.w, e:it.e, at:it.at, ...(it.ph ? { ph:it.ph } : {}) });
+  const packReview = it => ({ r:it.r, t:it.t, f:it.f, w:it.w, e:it.e, at:it.at, ...(it.tc ? { tc:it.tc } : {}), ...(it.ph ? { ph:it.ph } : {}) });
   function reindexReviews(){
     st.rIndex = new Map();
     st.reviews.forEach(m => m.forEach(it => { if (!st.rIndex.has(it.pid)) st.rIndex.set(it.pid, []); st.rIndex.get(it.pid).push(it); }));
@@ -4775,6 +4816,7 @@ const BE = (() => {
       return { n:list.length, avg:list.length ? sum / list.length : 0, dist, list };
     },
     myReview(pid){ const m = st.uid && st.reviews.get(st.uid); return m && m.get(pid) || null; },
+    myReviewCount(){ const m = st.uid && st.reviews.get(st.uid); return m ? m.size : 0; },
     reviewCount(){ let n = 0; st.reviews.forEach(m => { n += m.size; }); return n; },
     reportCount(){ let n = 0; st.feelings.forEach(r => { n += Object.keys(r).length; }); return n; },
 
@@ -4786,13 +4828,28 @@ const BE = (() => {
         st.feelings.set(st.uid, cleanReports({ reports:mine })); recompute(); emit();
       });
     },
-    submitReview(pid, { r, t, f, ph }){
+    submitReview(pid, { r, t, f, ph, tc }){
       return queue(async () => {
         if (!PLACE_IDS.has(pid)) throw { code:'invalid' };
         const mine = st.reviews.get(st.uid) || new Map();
         if (!mine.has(pid) && mine.size >= MAX_REVIEWS) throw { code:'limit' };
         const items = {}; mine.forEach((it, k) => { items[k] = packReview(it); });
-        items[pid] = { r:clampN(r, 1, 5, 3), t:cleanText(t), f:FEEL_IDS.includes(f) ? f : null, w:S.window, e:S.energy, at:Date.now(), ...(typeof ph === 'string' && PH_RE.test(ph) ? { ph } : {}) };
+        items[pid] = { r:clampN(r, 1, 5, 3), t:cleanText(t), f:FEEL_IDS.includes(f) ? f : null, w:S.window, e:S.energy, at:Date.now(), ...(tc > 0 ? { tc:clampN(tc, 0, 99, 0) } : {}), ...(typeof ph === 'string' && PH_RE.test(ph) ? { ph } : {}) };
+        await st.db.doc('reviews/' + st.uid).set({ v:1, items });
+        st.reviews.set(st.uid, cleanReviews({ items }, st.uid)); reindexReviews(); st.reviewsAt = Date.now(); emit();
+      });
+    },
+    /* several star ratings at once (the "how was your trip?" sheet): one write instead of one per place */
+    submitRatings(list, tc){
+      return queue(async () => {
+        const mine = st.reviews.get(st.uid) || new Map();
+        const items = {}; mine.forEach((it, k) => { items[k] = packReview(it); });
+        list.forEach(({ pid, r }) => {
+          if (!PLACE_IDS.has(pid)) return;
+          const old = items[pid];
+          items[pid] = { ...(old || {}), r:clampN(r, 1, 5, 3), t:old ? old.t : '', f:old ? old.f : null, w:old ? old.w : S.window, e:old ? old.e : S.energy, at:Date.now(), ...(tc > 0 ? { tc:clampN(tc, 0, 99, 0) } : {}) };
+        });
+        if (Object.keys(items).length > MAX_REVIEWS) throw { code:'limit' };
         await st.db.doc('reviews/' + st.uid).set({ v:1, items });
         st.reviews.set(st.uid, cleanReviews({ items }, st.uid)); reindexReviews(); st.reviewsAt = Date.now(); emit();
       });
@@ -4829,6 +4886,15 @@ const BE = (() => {
     saveTrip(trip){
       if (!st.ready || !st.uid) return Promise.reject({ code:'unavailable' });
       return queue(() => st.db.doc('data/users/' + st.uid + '/trip').set(trip));
+    },
+    /* the traveler's private profile: visits and the trips they planned or took (see core/profile.js) */
+    async loadProfile(){
+      if (!st.ready || !st.uid) return null;
+      try { const d = await st.db.doc('data/users/' + st.uid + '/profile').get(); return d.exists ? d.data() : null; } catch (e) { return null; }
+    },
+    saveProfile(p){
+      if (!st.ready || !st.uid) return Promise.reject({ code:'unavailable' });
+      return queue(() => st.db.doc('data/users/' + st.uid + '/profile').set(p));
     }
   };
   return api;
@@ -5400,6 +5466,901 @@ let prevStage = 'intro';
 const VIEWS = {};
 const AFTER = {};
 const ACT = {};
+/* i18n/mn.js — Mongolian strings for core/i18n.js.
+
+   MN_STRINGS: English text as it appears on the page -> Mongolian.
+     - A key with {0}, {1}… is a template: the parts in braces are matched in the English text and are themselves translated
+       ("How was {0}?" turns "How was Kyoto?" into "Киото ямар байсан бэ?").
+     - Lists joined with " · " or ", " are translated part by part, so they need no entry of their own.
+     - {0:gen} {0:dat} {0:acc} add the Mongolian case ending to a name: Киотогийн / Киотод / Киотог, Хойаны / Хойанд / Хойаныг.
+   MN_RULES: patterns a plain template cannot express (clock times, durations, the generated traveler names).
+
+   Adding a string: copy the English exactly as it shows on the page (DevTools > Console: MT_I18N.missing() lists the ones
+   seen without a translation), and add it here. Guide notes for each place (the long "about" and "tip" text) stay in English. */
+const MN_STRINGS = {
+  /* ---------- chrome, loader, navigation ---------- */
+  "MoodTrip, back to the start": "MoodTrip, эхлэл рүү буцах",
+  "Loading MoodTrip": "MoodTrip ачаалж байна",
+  "Reading the room": "Уур амьсгалыг уншиж байна",
+  "Field": "Талбар",
+  "The field": "Талбар",
+  "The field, {0} card floating": "Талбар, {0} карт хөвж байна",
+  "The field, {0} cards floating": "Талбар, {0} карт хөвж байна",
+  "Prototype · five places, made-up prices": "Прототип · таван газар, зохиомол үнэ",
+  "Live · anonymous": "Шууд · нэргүй",
+  "{0} of 5 answered": "5-аас {0} хариулсан",
+  "Feel": "Мэдрэмж",
+  "Budget": "Төсөв",
+  "Matches": "Тохирол",
+  "Plan": "Төлөвлөгөө",
+  "The game": "Тоглоом",
+  "Your feeling": "Таны мэдрэмж",
+  "Budget & timing": "Төсөв ба хугацаа",
+  "Your matches": "Тохирох газрууд",
+  "Your plan": "Таны төлөвлөгөө",
+  "Trip progress": "Аяллын явц",
+  "Play": "Тоглох",
+  "Go": "Явах",
+  "Drag": "Чирэх",
+  "Open": "Нээх",
+  "Close": "Хаах",
+  "Add": "Нэмэх",
+  "Back": "Буцах",
+  "Cancel": "Болих",
+  "Skip": "Алгасах",
+  "Later": "Дараа",
+  "Live": "Шууд",
+  "Offline": "Офлайн",
+
+  /* ---------- start screen ---------- */
+  "The core concept": "Гол санаа",
+  "Plan your trip around": "Аяллаа",
+  "how you feel.": "мэдрэмждээ тулгуурлан төлөвлө.",
+  "Travel sites start with “where to?” and “what dates?”. People travel to feel something: rested, inspired, free. MoodTrip reads your mood and energy in a one-minute game, then shapes your matches, your month and a plan that moves at your pace.": "Аяллын сайтууд “хаашаа?”, “хэдэнд?” гэж эхэлдэг. Харин хүмүүс ямар нэг зүйл мэдрэхийн тулд аялдаг: амрах, урам авах, эрх чөлөөтэй байх. MoodTrip нэг минутын тоглоомоор таны сэтгэл санаа, эрч хүчийг уншаад, тохирох газар, сар, таны хэмнэлд нийцсэн төлөвлөгөөг гаргана.",
+  "Start the feeling game": "Мэдрэмжийн тоглоом эхлүүлэх",
+  "Skip the game": "Тоглоомыг алгасах",
+  "Continue your {0} plan": "{0:gen} төлөвлөгөөгөө үргэлжлүүлэх",
+  "Who it’s for": "Хэнд зориулсан бэ",
+  "Solo travelers": "Ганцаараа аялагчид",
+  "Couples": "Хосууд",
+  "Burnt-out professionals": "Ажилдаа ядарсан мэргэжилтнүүд",
+  "What makes it different": "Юугаараа ялгаатай вэ",
+  "Feelings first. Honest numbers after.": "Эхлээд мэдрэмж. Дараа нь шударга тоо.",
+  "Feeling first, as a game": "Мэдрэмж эхэнд, тоглоом хэлбэрээр",
+  "Five quick rounds read your mood and energy. The page and 3D orb respond to every answer.": "Таван богино шат таны сэтгэл санаа, эрч хүчийг уншина. Хуудас болон 3D бөмбөлөг хариулт бүрт хариу үзүүлнэ.",
+  "Real feelings from travelers": "Аялагчдын бодит мэдрэмж",
+  "Anyone can add an anonymous note on how a place felt. Notes blend into the matches, and you can float your own card in the shared field.": "Хэн ч газар ямар мэдрэмж төрүүлснийг нэргүйгээр тэмдэглэж болно. Тэмдэглэлүүд тохиролд нөлөөлж, та өөрийн картаа нийтийн талбарт хөвүүлж болно.",
+  "Honest planning": "Шударга төлөвлөлт",
+  "Budget and best-time estimates sit right beside the plan, so you see the trade-offs early.": "Төсөв болон хамгийн тохиромжтой цагийн тооцоо төлөвлөгөөний хажууд байгаа тул сонголтын үр дагаврыг эрт харна.",
+  "How it could grow.": "Цаашид хэрхэн өсөх вэ.",
+  "Free planning first, then partner bookings, travel-brand partnerships, or a premium tier with deeper personalization.": "Эхлээд үнэгүй төлөвлөлт, дараа нь түнш захиалга, аяллын брэндтэй хамтын ажиллагаа эсвэл илүү хувийн тохиргоотой premium багц.",
+  "How it works": "Хэрхэн ажилладаг вэ",
+  "Feeling game": "Мэдрэмжийн тоглоом",
+  "Five rounds, about a minute": "Таван шат, нэг минут орчим",
+  "What you’d spend, and when": "Хэдийг, хэзээ зарцуулах",
+  "Top three, scored": "Шилдэг гурав, оноотой",
+  "Planner": "Төлөвлөгч",
+  "Day by day, editable": "Өдөр өдрөөр, засварлаж болно",
+  "Prototype limits.": "Прототипын хязгаар.",
+  "Five destinations with made-up prices and best months. Costs exclude flights. Place notes are hand-written guides, not live listings. Traveler notes, reviews and field cards come from real visitors, so they start empty. No real map and no AI planner yet.": "Зохиомол үнэ, сартай таван газар. Зардалд нислэг ороогүй. Газрын тайлбар гараар бичсэн хөтөч бөгөөд бодит жагсаалт биш. Аялагчдын тэмдэглэл, сэтгэгдэл, талбарын картууд бодит зочдоос ирдэг тул эхэндээ хоосон. Бодит газрын зураг болон AI төлөвлөгч хараахан алга.",
+
+  /* ---------- start screen: the engage nudge ---------- */
+  "Welcome back": "Эргэн тавтай морил",
+  "Your next trip": "Таны дараагийн аялал",
+  "Seasoned traveler · {0} trips": "Туршлагатай аялагч · {0} аялал",
+  "Did you make it to {0} in {1}?": "{1:dat} {0:dat} очсон уу?",
+  "Tell us and we will ask how the places on your plan were. It helps the next traveler going there.": "Хэлээрэй, тэгвэл төлөвлөгөөнд байсан газрууд ямар байсныг асууя. Дараагийн аялагчид тустай.",
+  "Yes, I went": "Тийм, очсон",
+  "No, not this time": "Үгүй, энэ удаад очоогүй",
+  "Your take on {0} carries weight": "{0:gen} талаарх таны үнэлгээ үнэ цэнэтэй",
+  "How was {0}?": "{0} ямар байсан бэ?",
+  "{0} place from your plan is waiting for a rating. Stars only, a few taps.": "Төлөвлөгөөний тань {0} газар үнэлгээ хүлээж байна. Зөвхөн од, хэдхэн товшилт.",
+  "{0} places from your plan are waiting for a rating. Stars only, a few taps.": "Төлөвлөгөөний тань {0} газар үнэлгээ хүлээж байна. Зөвхөн од, хэдхэн товшилт.",
+  "{0} place from your plan is waiting for a rating. Stars only, a few taps. The next traveler heading there will see them.": "Төлөвлөгөөний тань {0} газар үнэлгээ хүлээж байна. Зөвхөн од, хэдхэн товшилт. Тийшээ явах дараагийн аялагч харах болно.",
+  "{0} places from your plan are waiting for a rating. Stars only, a few taps. The next traveler heading there will see them.": "Төлөвлөгөөний тань {0} газар үнэлгээ хүлээж байна. Зөвхөн од, хэдхэн товшилт. Тийшээ явах дараагийн аялагч харах болно.",
+  "{0} place from your plan is waiting for a rating. Stars only, a few taps. Your reviews carry a “{1} trips” badge, so readers know they come from experience.": "Төлөвлөгөөний тань {0} газар үнэлгээ хүлээж байна. Зөвхөн од, хэдхэн товшилт. Таны сэтгэгдэлд “{1} аялал” тэмдэг гарах тул уншигчид туршлагаас гарсныг мэднэ.",
+  "{0} places from your plan are waiting for a rating. Stars only, a few taps. Your reviews carry a “{1} trips” badge, so readers know they come from experience.": "Төлөвлөгөөний тань {0} газар үнэлгээ хүлээж байна. Зөвхөн од, хэдхэн товшилт. Таны сэтгэгдэлд “{1} аялал” тэмдэг гарах тул уншигчид туршлагаас гарсныг мэднэ.",
+  "Rate my {0} stops": "{0:gen} газруудаа үнэлэх",
+  "Not now": "Одоо биш",
+  "{0} in {1} days": "{0}, {1} хоногийн дараа",
+  "{0} in {1} day": "{0}, {1} хоногийн дараа",
+  "{0} in {1} weeks": "{0}, {1} долоо хоногийн дараа",
+  "{0} in {1} months": "{0}, {1} сарын дараа",
+  "{0} this month": "{0}, энэ сард",
+  "{0} is one of the best and busiest months there, so stays tend to fill early.": "{0} бол тэнд хамгийн сайхан бөгөөд хамгийн ачаалалтай сар тул байр эрт дүүрдэг.",
+  "{0} other travelers picked {1} in the field this week.": "Энэ долоо хоногт өөр {0} аялагч талбарт {1:acc} сонгосон.",
+  "First trip planned with us? Your plan, budget and best-time notes are saved, so come back to them anytime.": "Манайхаар анх удаа аялал төлөвлөж байна уу? Төлөвлөгөө, төсөв, тохиромжтой цагийн тэмдэглэл хадгалагдсан тул хүссэн үедээ эргэж ороорой.",
+  "Your {0}-night plan is saved.": "Таны {0} шөнийн төлөвлөгөө хадгалагдсан.",
+  "Open my {0} plan": "{0:gen} төлөвлөгөөгөө нээх",
+  "Somewhere new this time?": "Энэ удаад шинэ газар уу?",
+  "Ready for trip number two?": "Хоёр дахь аялалдаа бэлэн үү?",
+  "You have not been to {0} yet.": "Та {0:dat} хараахан очоогүй байна.",
+  "You have not been to {0} yet. You know how it works, so skip the game and go straight to your budget.": "Та {0:dat} хараахан очоогүй байна. Та аль хэдийн мэддэг тул тоглоомыг алгасаад шууд төсөв рүүгээ ороорой.",
+  "You have been to every place here. Go back with a different mood?": "Та энд байгаа бүх газарт очсон байна. Өөр сэтгэл санаагаар дахин очих уу?",
+  "You have been to every place here. Go back with a different mood? You know how it works, so skip the game and go straight to your budget.": "Та энд байгаа бүх газарт очсон байна. Өөр сэтгэл санаагаар дахин очих уу? Тоглоомыг алгасаад шууд төсөв рүүгээ ороорой.",
+  "Skip to budget": "Төсөв рүү шууд орох",
+  "Good to see you again": "Дахин уулзсандаа баяртай байна",
+  "The feeling game takes about a minute, and nothing gets booked here, so plan freely.": "Мэдрэмжийн тоглоом нэг минут орчим үргэлжилнэ, энд юу ч захиалагдахгүй тул чөлөөтэй төлөвлөөрэй.",
+  "Your {0} trip · {1}": "Таны {0:gen} аялал · {1}",
+  "How were these places?": "Эдгээр газар ямар байсан бэ?",
+  "Rate the ones you remember and leave the rest. You can add words later from any place in your plan.": "Санаж байгаагаа үнэлээд бусдыг нь орхиорой. Дараа нь төлөвлөгөөнийхөө аль ч газраас үгээр нэмж бичиж болно.",
+  "Post ratings": "Үнэлгээ нийтлэх",
+  "Ratings need the shared version of this page.": "Үнэлгээ өгөхөд энэ хуудасны нийтийн хувилбар хэрэгтэй.",
+  "Tap a star rating on at least one place.": "Дор хаяж нэг газарт од дарна уу.",
+  "You have rated every place from {0}. Thank you.": "Та {0:gen} бүх газрыг үнэлсэн байна. Баярлалаа.",
+  "Thanks. {0} rating is live for the next traveler to {1}.": "Баярлалаа. {1} руу явах дараагийн аялагчид {0} үнэлгээ харагдаж байна.",
+  "Thanks. {0} ratings are live for the next traveler to {1}.": "Баярлалаа. {1} руу явах дараагийн аялагчид {0} үнэлгээ харагдаж байна.",
+  "Got it. Plans change. Your saved plan is still here when you want it.": "Ойлголоо. Төлөвлөгөө өөрчлөгддөг. Хадгалсан төлөвлөгөө тань хэрэгтэй үед энд байгаа.",
+  "No problem. We will ask again next week.": "Зүгээр. Ирэх долоо хоногт дахин асууя.",
+  "{0} trips": "{0} аялал",
+  "This traveler has taken {0} trips with MoodTrip": "Энэ аялагч MoodTrip-ээр {0} удаа аялсан",
+
+  /* ---------- the feeling game ---------- */
+  "The feeling game": "Мэдрэмжийн тоглоом",
+  "Tell us how you want to": "Хэрхэн",
+  "feel.": "мэдрэхийг хүсэж байгаагаа хэлээрэй.",
+  "Five quick rounds on one page. Answer in any order and jump around with the steps below. The orb changes with every answer, and anything you skip gets a sensible default.": "Нэг хуудсанд таван богино шат. Дурын дарааллаар хариулж, доорх алхмуудаар үсэрч болно. Бөмбөлөг хариулт бүрт өөрчлөгдөж, алгассан зүйлд боломжийн анхны утга өгнө.",
+  "Start over": "Дахин эхлэх",
+  "Game progress": "Тоглоомын явц",
+  "Rounds answered": "Хариулсан шат",
+  "Reveal my card": "Картаа харах",
+  "Round {0} of 5": "{0}/5-р шат",
+  "Round {0}, {1}": "{0}-р шат, {1}",
+  "Round {0}, {1}, answered": "{0}-р шат, {1}, хариулсан",
+  "Round {0} answered. {1} of 5 done.": "{0}-р шат хариулагдлаа. 5-аас {1} дууссан.",
+  "Answered": "Хариулсан",
+  "Next round": "Дараагийн шат",
+  "Keep this and continue": "Үүнийг сонгоод үргэлжлүүлэх",
+  "Skip this round": "Энэ шатыг алгасах",
+  "All five rounds answered. Ready when you are.": "Таван шат бүгд хариулагдлаа. Бэлэн болмогц үргэлжлүүлээрэй.",
+  "Nothing answered yet. You can still go on, and we will use sensible defaults.": "Хараахан юу ч хариулаагүй. Үргэлжлүүлж болно, бид боломжийн анхны утга ашиглана.",
+  "{0} of 5 rounds answered. Anything you skipped uses a sensible default.": "5-аас {0} шат хариулагдсан. Алгассан зүйлд боломжийн анхны утга ашиглана.",
+  "{0} of 5 rounds answered": "5-аас {0} шат хариулагдсан",
+  "Reveal my feeling card": "Мэдрэмжийн картаа харах",
+  "See my feeling card": "Мэдрэмжийн картаа үзэх",
+  "Window": "Цонх",
+  "Battery": "Батарей",
+  "Bag": "Цүнх",
+  "Sound": "Дуу",
+  "Feeling": "Мэдрэмж",
+  "Pick a window.": "Цонхоо сонго.",
+  "Which view would you want to wake up to?": "Ямар үзэмжтэй сэрмээр байна?",
+  "Window view": "Цонхны үзэмж",
+  "Drag your battery level.": "Батарейгаа чирж тохируул.",
+  "How much energy do you have for this trip? Drag the battery, or use the arrow keys.": "Энэ аялалд хэр их эрч хүч байна вэ? Батарейг чирэх эсвэл сумтай товч ашигла.",
+  "Energy level": "Эрч хүчний түвшин",
+  "Low energy gives 2 stops a day · high energy gives 4": "Бага эрч хүч өдөрт 2 газар · их эрч хүч 4 газар",
+  "Plans about {0} stops a day": "Өдөрт {0} орчим газар төлөвлөнө",
+  "What goes in your bag?": "Цүнхэндээ юу хийх вэ?",
+  "Pick up to three things.": "Гурав хүртэл зүйл сонго.",
+  "Bag items, pick up to three": "Цүнхний зүйлс, гурав хүртэл сонго",
+  "Your bag is full. Unpack one first.": "Цүнх дүүрсэн. Эхлээд нэгийг гарга.",
+  "Nothing packed yet · pick up to three": "Юу ч хийгээгүй · гурав хүртэл сонго",
+  "1 of 3 packed · room for two more": "3-аас 1 · хоёрын зай бий",
+  "2 of 3 packed · room for one more": "3-аас 2 · нэгийн зай бий",
+  "3 of 3 packed · you travel light": "3-аас 3 · та хөнгөн аялдаг",
+  "A suggested bag · change it or keep it": "Санал болгосон цүнх · өөрчил эсвэл хэвээр үлдээ",
+  "default": "анхны утга",
+  "· default": "· анхны утга",
+  "{0} percent, {1}": "{0} хувь, {1}",
+  "Pick a soundtrack.": "Аяллын хөгжмөө сонго.",
+  "What would be playing in your headphones?": "Чихэвчинд тань юу эгшиглэх вэ?",
+  "Finish the sentence.": "Өгүүлбэрийг гүйцээ.",
+  "Choose the feeling you want to bring home.": "Гэртээ авчрахыг хүссэн мэдрэмжээ сонго.",
+  "I want to come home feeling": "Гэртээ иймэрхүү мэдрэмжтэй ирмээр байна:",
+
+  /* window, bag, sound, feeling, style, energy */
+  "Sea-facing": "Далай руу харсан",
+  "Salt air, slow mornings": "Давслаг агаар, удаан өглөө",
+  "Salt air": "Давслаг агаар",
+  "Mountain": "Уул",
+  "Thin air, big views": "Цэнгэг агаар, өргөн үзэмж",
+  "Thin air": "Цэнгэг агаар",
+  "City at night": "Шөнийн хот",
+  "Neon, noise, late dinners": "Неон, шуугиан, оройтсон оройн хоол",
+  "Night lights": "Шөнийн гэрэл",
+  "Forest edge": "Ойн зах",
+  "Birdsong, green quiet": "Шувууны жиргээ, ногоон нам гүм",
+  "Green quiet": "Ногоон нам гүм",
+  "Journal": "Тэмдэглэлийн дэвтэр",
+  "Quiet hours": "Нам гүм цаг",
+  "Swimsuit": "Усны хувцас",
+  "Salt & sun": "Давс ба нар",
+  "Paperback": "Ном",
+  "One slow read": "Нэг удаан ном",
+  "Camera": "Камер",
+  "Catch moments": "Мөчийг барих",
+  "Trail shoes": "Явган аяллын гутал",
+  "Move a lot": "Их хөдлөх",
+  "Headphones": "Чихэвч",
+  "Own soundtrack": "Өөрийн хөгжим",
+  "Sketchbook": "Зургийн дэвтэр",
+  "Look closely": "Анхааралтай ажиглах",
+  "Party shirt": "Үдэшлэгийн цамц",
+  "Meet people": "Хүмүүстэй танилцах",
+  "Low-tide lo-fi": "Намуухан lo-fi",
+  "Soft loops, slow waves": "Зөөлөн давталт, удаан долгион",
+  "Street-band brass": "Гудамжны үлээвэр хөгжим",
+  "Loud, warm, spontaneous": "Чанга, дулаан, санаандгүй",
+  "Rain on the roof": "Дээвэр дээрх бороо",
+  "Quiet, close, cosy": "Нам гүм, дотно, тухтай",
+  "Night-drive synths": "Шөнийн замын синт",
+  "Neon and an open road": "Неон ба нээлттэй зам",
+  "Rested": "Амарсан",
+  "Inspired": "Урам авсан",
+  "Free": "Эрх чөлөөтэй",
+  "Close to someone": "Хэн нэгэнтэй дотно",
+  "Alive": "Амьд",
+  "Lighter": "Хөнгөрсөн",
+  "Curious": "Сониуч",
+  "Proud": "Бахархсан",
+  "Backpacker": "Хямд аялагч",
+  "Hostels, street food, buses": "Хостел, гудамжны хоол, автобус",
+  "Comfortable": "Тухтай",
+  "Boutique stays, good dinners, the odd taxi": "Бутик зочид буудал, сайн оройн хоол, хааяа такси",
+  "Treat myself": "Өөрийгөө эрхлүүлэх",
+  "Design hotels, tasting menus, private guides": "Дизайн зочид буудал, амталгааны цэс, хувийн хөтөч",
+  "Slow": "Удаан",
+  "Unhurried": "Яаралгүй",
+  "Low": "Бага",
+  "low": "бага",
+  "Steady": "Тогтвортой",
+  "steady": "тогтвортой",
+  "Easygoing": "Тайван",
+  "Bright": "Цоглог",
+  "Full of go": "Эрч дүүрэн",
+  "High": "Их",
+  "high": "их",
+  "Drained": "Ядарсан",
+  "Running low": "Багассан",
+  "Charged up": "Цэнэгтэй",
+  "Buzzing": "Догдолсон",
+
+  /* ---------- feeling card ---------- */
+  "Your five answers, added up": "Таны таван хариулт нэгтгэсэн дүн",
+  "Your answers, added up": "Таны хариултууд нэгтгэсэн дүн",
+  "Next we’ll weigh this against what you can spend and when you can go, then match it to places that fit.": "Дараа нь үүнийг таны төсөв, явах боломжтой хугацаатай харьцуулж, тохирох газруудтай тааруулна.",
+  "Nothing, very light": "Юу ч үгүй, маш хөнгөн",
+  "Soundtrack": "Хөгжим",
+  "Come home feeling": "Гэртээ ирэх мэдрэмж",
+  "MoodTrip · feeling card": "MoodTrip · мэдрэмжийн карт",
+  "Energy": "Эрч хүч",
+  "{0} stops a day": "өдөрт {0} газар",
+  "Set budget & timing": "Төсөв ба хугацаа тохируулах",
+  "Share card": "Карт хуваалцах",
+  "Change my answers": "Хариултаа өөрчлөх",
+  "Feeling card text, ready to copy": "Мэдрэмжийн картын текст, хуулахад бэлэн",
+  "Copied your feeling card as text.": "Мэдрэмжийн картаа текстээр хууллаа.",
+  "Copy blocked here. The text is selected, so you can copy it yourself.": "Энд хуулах боломжгүй байна. Текст сонгогдсон тул өөрөө хуулаарай.",
+
+  /* ---------- budget ---------- */
+  "Step 2 of 4": "4-өөс 2-р алхам",
+  "Budget and timing.": "Төсөв ба хугацаа.",
+  "Set what you’d spend and when you can go. Everything is per person, and flights are not included.": "Хэдийг зарцуулах, хэзээ явж болохоо тохируул. Бүгд нэг хүнд ногдох бөгөөд нислэг ороогүй.",
+  "per person · flights not included": "нэг хүнд · нислэг ороогүй",
+  "Total budget in US dollars": "Нийт төсөв, ам.доллараар",
+  "Travel style": "Аяллын хэв маяг",
+  "When": "Хэзээ",
+  "One fewer night": "Нэг шөнө хасах",
+  "One more night": "Нэг шөнө нэмэх",
+  "Your trip so far": "Таны аялал одоогоор",
+  "Trip length": "Аяллын урт",
+  "Style": "Хэв маяг",
+  "About": "Ойролцоогоор",
+  "See my matches": "Тохирох газруудаа харах",
+  "Back to my feeling card": "Мэдрэмжийн карт руугаа буцах",
+  "{0} nights": "{0} шөнө",
+  "{0} night": "{0} шөнө",
+  "≈ {0} a day": "≈ өдөрт {0}",
+  "a day": "өдөрт",
+  "{0} averages {1} a day across our five places, so you have room to spare.": "{0} манай таван газарт өдөрт дунджаар {1} тул танд илүү зай бий.",
+  "{0} averages {1} a day here. That covers some of our five places, not all.": "{0} энд өдөрт дунджаар {1}. Энэ нь таван газрын заримд хүрэлцэх ч бүгдэд биш.",
+  "{0} averages {1} a day here. Try a lighter style, fewer nights or a bigger budget.": "{0} энд өдөрт дунджаар {1}. Хөнгөн хэв маяг, цөөн шөнө эсвэл илүү төсөв туршаад үз.",
+
+  /* ---------- matches ---------- */
+  "Step 3 of 4": "4-өөс 3-р алхам",
+  "Three places that feel like you.": "Танд тохирох гурван газар.",
+  "Matched on your feeling, {0}, and a {1} budget.": "Таны мэдрэмж, {0}, {1}-ын төсөвт тааруулсан.",
+  "How the match is weighed": "Тохирлыг хэрхэн жигнэдэг вэ",
+  "50% feeling": "50% мэдрэмж",
+  "25% month": "25% сар",
+  "25% budget": "25% төсөв",
+  "Change budget or timing": "Төсөв эсвэл хугацаа өөрчлөх",
+  "Prototype data: prices and best months are illustrative. Costs exclude flights. Traveler notes come from other visitors.": "Прототипын өгөгдөл: үнэ болон тохиромжтой сар жишээ төдий. Зардалд нислэг ороогүй. Аялагчдын тэмдэглэл бусад зочдоос ирдэг.",
+  "#{0} · Best match": "#{0} · Хамгийн тохирох",
+  "Month": "Сар",
+  "{0}, best": "{0}, хамгийн сайн",
+  "{0}, good": "{0}, сайн",
+  "{0}, off season": "{0}, улирлын бус",
+  "Est. cost · {0}": "Тооцоолсон зардал · {0}",
+  "{0} under budget": "төсвөөс {0} хэмнэлттэй",
+  "{0} over budget": "төсвөөс {0} хэтэрсэн",
+  "Plan this trip": "Энэ аяллыг төлөвлөх",
+  "{0} is a best month here": "{0} энд хамгийн тохиромжтой сар",
+  "{0} is a good month here": "{0} энд сайн сар",
+  "{0} is off season here": "{0} энд улирлын бус сар",
+  "best {0}": "хамгийн сайн нь {0}",
+  "Feeling score: {0} from your answers, {1} with their notes blended in.": "Мэдрэмжийн оноо: таны хариултаар {0}, тэдний тэмдэглэлтэй нийлүүлбэл {1}.",
+  "No traveler notes for {0} yet.": "{0:gen} талаар аялагчдын тэмдэглэл хараахан алга.",
+  "Traveler notes show up in the shared version of this page.": "Аялагчдын тэмдэглэл энэ хуудасны нийтийн хувилбарт харагдана.",
+  "Edit my note": "Тэмдэглэлээ засах",
+  "Been here? Share how it felt": "Очиж байсан уу? Ямар мэдрэмж төрснөө хуваалц",
+  "Traveler note · anonymous": "Аялагчийн тэмдэглэл · нэргүй",
+  "How did {0} make you feel?": "{0} танд ямар мэдрэмж төрүүлсэн бэ?",
+  "One note per place. Only the feeling and how strongly you felt it are shared, nothing else. You can change it later.": "Нэг газарт нэг тэмдэглэл. Зөвхөн мэдрэмж болон түүний хүч хуваалцагдана, өөр юу ч биш. Дараа нь өөрчилж болно.",
+  "The feeling": "Мэдрэмж",
+  "How strongly": "Хэр хүчтэй",
+  "A hint": "Бага зэрэг",
+  "Mild": "Сул",
+  "Clearly": "Тодорхой",
+  "Strong": "Хүчтэй",
+  "Deeply": "Гүнзгий",
+  "Update my note": "Тэмдэглэлээ шинэчлэх",
+  "Send my note": "Тэмдэглэл илгээх",
+  "Pick a feeling and how strongly you felt it.": "Мэдрэмж болон түүний хүчийг сонгоно уу.",
+  "Adding notes is switched off for your access level. Ask the owner for Contributor access.": "Таны эрхийн түвшинд тэмдэглэл нэмэх хаалттай. Эзэмшигчээс Contributor эрх хүсээрэй.",
+  "Notes need the shared version of this page.": "Тэмдэглэлд энэ хуудасны нийтийн хувилбар хэрэгтэй.",
+  "Thanks. Your note on {0} is in, with {1} traveler so far.": "Баярлалаа. {0:gen} талаарх тэмдэглэл тань нэмэгдлээ, одоогоор {1} аялагч.",
+  "Thanks. Your note on {0} is in, with {1} travelers so far.": "Баярлалаа. {0:gen} талаарх тэмдэглэл тань нэмэгдлээ, одоогоор {1} аялагч.",
+
+  /* ---------- planner ---------- */
+  "← Back to matches": "← Тохирол руу буцах",
+  "Step 4 of 4 · your plan": "4-өөс 4-р алхам · таны төлөвлөгөө",
+  "{0} energy": "{0} эрч хүч",
+  "Reset": "Шинэчлэх",
+  "Add a day": "Өдөр нэмэх",
+  "＋ Add a day": "＋ Өдөр нэмэх",
+  "＋ Add a stop": "＋ Газар нэмэх",
+  "Save plan": "Төлөвлөгөө хадгалах",
+  "Estimated cost · per person": "Тооцоолсон зардал · нэг хүнд",
+  "of 5 answered": "5-аас хариулсан",
+  "Over budget · {0} over": "Төсвөөс хэтэрсэн · {0}",
+  "Within budget, but tight · {0} left": "Төсөвт багтсан, гэхдээ бага зайтай · {0} үлдсэн",
+  "Within budget · {0} left": "Төсөвт багтсан · {0} үлдсэн",
+  "Stays": "Байр",
+  "Food": "Хоол",
+  "Stops": "Үзэх газар",
+  "Local transport": "Орон нутгийн тээвэр",
+  "Cost split: {0}": "Зардлын хуваарилалт: {0}",
+  "Flights not included. Stops are priced for the “{0}” style. Prototype data is illustrative.": "Нислэг ороогүй. Газрын үнэ “{0}” хэв маягаар тооцогдсон. Прототипын өгөгдөл жишээ төдий.",
+  "Best time to go · {0}": "Явах хамгийн тохиромжтой үе · {0}",
+  "Travel month": "Аяллын сар",
+  "Tap a month to try it": "Сар дээр дарж туршаарай",
+  "Off": "Бус",
+  "Good": "Сайн",
+  "Best": "Шилдэг",
+  "{0} is one of the best months for {1}.": "{0} бол {1:dat} хамгийн тохиромжтой саруудын нэг.",
+  "{0} is a good month for {1}, with the best weather in {2}.": "{0} бол {1:dat} сайн сар, хамгийн сайхан цаг агаар {2}.",
+  "{0} is a good month for {1}.": "{0} бол {1:dat} сайн сар.",
+  "{0} is off season for {1}. Best time: {2}.": "{0} бол {1:dat} улирлын бус сар. Хамгийн тохиромжтой үе: {2}.",
+  "{0} is off season for {1}.": "{0} бол {1:dat} улирлын бус сар.",
+  "What travelers felt here": "Аялагчид энд юу мэдэрсэн бэ",
+  "Notes from other visitors on {0}": "{0:gen} талаар бусад зочдын тэмдэглэл",
+  "No stops yet. Add one below, or drag one in.": "Газар алга. Доороос нэмэх эсвэл чирж оруул.",
+  "Day {0}": "{0}-р өдөр",
+  "Day {0}: {1}": "{0}-р өдөр: {1}",
+  "Remove day {0}": "{0}-р өдрийг хасах",
+  "Best in the {0}": "{0} хамгийн тохиромжтой",
+  "Move {0}. Drag, or use the up and down arrow keys.": "{0:acc} зөөх. Чирэх эсвэл дээш доош сум ашигла.",
+  "Remove {0}": "{0:acc} хасах",
+  "{0}. Open place details": "{0}. Газрын дэлгэрэнгүйг нээх",
+  "Add from {0} ideas": "{0:gen} санаанаас нэмэх",
+  "All the ideas are already in your plan.": "Бүх санаа аль хэдийн төлөвлөгөөнд тань байна.",
+  "Or add your own": "Эсвэл өөрийнхөө газрыг нэм",
+  "What’s the stop?": "Ямар газар вэ?",
+  "Stop name": "Газрын нэр",
+  "Cost in dollars": "Үнэ, доллараар",
+  "before flights": "нислэгээс бусад",
+  "match": "тохирол",
+  "$ cost": "$ үнэ",
+  "Plan reset to the suggested itinerary.": "Төлөвлөгөөг санал болгосон маршрут руу буцаалаа.",
+  "Plan saved to {0}.": "Төлөвлөгөө {0} хадгалагдлаа.",
+  "Plan saved to {0}. The shared database could not be reached.": "Төлөвлөгөө {0} хадгалагдлаа. Нийтийн мэдээллийн санд холбогдож чадсангүй.",
+  "your account and this browser": "таны бүртгэл болон энэ хөтчид",
+  "your account": "таны бүртгэлд",
+  "this browser": "энэ хөтчид",
+  "This browser blocks saving here. Your plan is still on screen.": "Энэ хөтөч хадгалахыг хориглож байна. Төлөвлөгөө тань дэлгэц дээр хэвээр.",
+  "Removed day {0}.": "{0}-р өдрийг хаслаа.",
+  "Removed {0}.": "{0:acc} хаслаа.",
+  "Added day {0}.": "{0}-р өдөр нэмлээ.",
+  "Added {0} to day {1}.": "{0:acc} {1}-р өдөрт нэмлээ.",
+  "Added {0} to day {1}, position {2}.": "{0:acc} {1}-р өдрийн {2}-р байрт нэмлээ.",
+  "Moved {0} to day {1}.": "{0:acc} {1}-р өдөр рүү зөөлөө.",
+  "Moved {0} to day {1}, position {2}.": "{0:acc} {1}-р өдрийн {2}-р байр руу зөөлөө.",
+  "{0} out of 5 from {1} traveler": "{1} аялагчаас 5-аас {0}",
+  "{0} out of 5 from {1} travelers": "{1} аялагчаас 5-аас {0}",
+  "morning": "өглөө", "midday": "үд", "afternoon": "үдээс хойш", "evening": "орой",
+  "Morning": "Өглөө", "Midday": "Үд", "Afternoon": "Үдээс хойш", "Evening": "Орой",
+
+  /* ---------- place panel and reviews ---------- */
+  "Close place details": "Газрын дэлгэрэнгүйг хаах",
+  "Cost": "Үнэ",
+  "Usually": "Ихэвчлэн",
+  "Best time": "Тохиромжтой цаг",
+  "Your own stop": "Таны өөрийн газар",
+  "You added this stop yourself, so there is no guide entry or traveler reviews for it. You can still move it or remove it in your plan.": "Та энэ газрыг өөрөө нэмсэн тул хөтчийн тайлбар, аялагчдын сэтгэгдэл алга. Төлөвлөгөөндөө зөөх эсвэл хасах боломжтой.",
+  "Local tip": "Нутгийн зөвлөгөө",
+  "A hand-written guide note for this prototype, not a live listing. Times and prices are typical, so check hours and tickets before you go.": "Энэ прототипт зориулж гараар бичсэн хөтчийн тэмдэглэл, бодит жагсаалт биш. Цаг, үнэ ердийнх тул явахаасаа өмнө ажиллах цаг, тасалбараа шалгаарай.",
+  "{0}. Place details and traveler reviews.": "{0}. Газрын дэлгэрэнгүй ба аялагчдын сэтгэгдэл.",
+  "{0}. Place details.": "{0}. Газрын дэлгэрэнгүй.",
+  "Traveler reviews": "Аялагчдын сэтгэгдэл",
+  "Our pick": "Бидний сонголт",
+  "Open on Google Maps": "Google Maps дээр нээх",
+  "Search Google Maps": "Google Maps-аас хайх",
+  "Opens this exact place in a new tab. Its Google reviews, photos and opening hours live there, not in this page.": "Яг энэ газрыг шинэ табад нээнэ. Google-ийн сэтгэгдэл, зураг, ажиллах цаг тэнд байгаа, энэ хуудсанд биш.",
+  "Opens a text search in a new tab. Search results can include ads, so check the name before you go.": "Шинэ табад текстээр хайна. Хайлтын үр дүнд зар байж болох тул нэрийг нь шалгаарай.",
+  "Loading Google Maps details…": "Google Maps-ийн мэдээллийг ачаалж байна…",
+  "Google Maps details are not available right now. The button above still opens the place.": "Google Maps-ийн мэдээлэл одоогоор алга. Дээрх товч газрыг нээсээр байна.",
+  "Opening hours": "Ажиллах цаг",
+  "See all reviews and photos": "Бүх сэтгэгдэл, зургийг харах",
+  "Report this review": "Энэ сэтгэгдлийг мэдээлэх",
+  "Reviews need the shared version of this page. Once it is connected, what travelers say about this place appears here as they post it.": "Сэтгэгдэлд энэ хуудасны нийтийн хувилбар хэрэгтэй. Холбогдмогц аялагчдын бичсэн зүйл энд шууд гарна.",
+  "Connecting to the live reviews…": "Шууд сэтгэгдэлд холбогдож байна…",
+  "No reviews yet": "Сэтгэгдэл хараахан алга",
+  "Nobody has reviewed {0} so far. Been there? Be the first to tell the next traveler what it is really like.": "{0:gen} талаар одоогоор хэн ч сэтгэгдэл бичээгүй. Очиж байсан уу? Дараагийн аялагчид анхны хүн нь болж хэлээрэй.",
+  "{0} review": "{0} сэтгэгдэл",
+  "{0} reviews": "{0} сэтгэгдэл",
+  "latest {0}": "сүүлийнх {0}",
+  "just now": "саяхан",
+  "{0} min ago": "{0} минутын өмнө",
+  "{0} h ago": "{0} цагийн өмнө",
+  "{0} day ago": "{0} өдрийн өмнө",
+  "{0} days ago": "{0} өдрийн өмнө",
+  "Rating breakdown": "Үнэлгээний задаргаа",
+  "Show fewer reviews": "Цөөн сэтгэгдэл харуулах",
+  "Show all {0} reviews": "Бүх {0} сэтгэгдлийг харах",
+  "{0} out of 5": "5-аас {0}",
+  "you": "та",
+  "Felt {0}": "{0} мэдрэмж төрсөн",
+  "Traveler photos · {0}": "Аялагчдын зураг · {0}",
+  "Traveler photo": "Аялагчийн зураг",
+  "Photo shared with this review": "Энэ сэтгэгдэлтэй хуваалцсан зураг",
+  "Open this photo in a new tab": "Энэ зургийг шинэ табад нээх",
+  "Open a traveler photo in a new tab": "Аялагчийн зургийг шинэ табад нээх",
+  "Photo unavailable": "Зураг алга",
+  "Poor": "Муу",
+  "Fair": "Дунд",
+  "Great": "Маш сайн",
+  "Superb": "Гайхалтай",
+  "{0} star,": "{0} од,",
+  "{0} stars,": "{0} од,",
+  "Your rating": "Таны үнэлгээ",
+  "Your review": "Таны сэтгэгдэл",
+  "Been here? Add yours": "Очиж байсан уу? Өөрийнхөөг нэм",
+  "How did it feel? Optional": "Ямар мэдрэмж төрсөн бэ? Заавал биш",
+  "In your words · optional": "Өөрийн үгээр · заавал биш",
+  "What was it like? A line or two helps the next traveler.": "Ямар байсан бэ? Нэг хоёр мөр дараагийн аялагчид тусална.",
+  "A photo · optional": "Зураг · заавал биш",
+  "Add a photo": "Зураг нэмэх",
+  "Change photo": "Зураг солих",
+  "Remove photo": "Зураг хасах",
+  "Your photo": "Таны зураг",
+  "JPEG, PNG, WebP or GIF. It is shrunk to fit before it is uploaded.": "JPEG, PNG, WebP эсвэл GIF. Байршуулахаас өмнө жижигрүүлнэ.",
+  "Pick a JPEG, PNG, WebP or GIF image.": "JPEG, PNG, WebP эсвэл GIF зураг сонгоно уу.",
+  "That file is very large. Pick a smaller photo.": "Файл хэт том байна. Жижиг зураг сонгоно уу.",
+  "Preparing your photo…": "Зургийг бэлтгэж байна…",
+  "Ready · {0} KB. It uploads when you post.": "Бэлэн · {0} KB. Нийтлэх үед байршина.",
+  "Could not read that image. Try a JPEG or PNG.": "Зургийг уншиж чадсангүй. JPEG эсвэл PNG туршаад үз.",
+  "Photo removed. It stays off your review once you post.": "Зураг хасагдлаа. Нийтэлсний дараа сэтгэгдэлд тань гарахгүй.",
+  "Delete my review": "Сэтгэгдлээ устгах",
+  "Update my review": "Сэтгэгдлээ шинэчлэх",
+  "Post review": "Сэтгэгдэл нийтлэх",
+  "Uploading photo…": "Зураг байршуулж байна…",
+  "Pick a star rating first.": "Эхлээд од сонгоно уу.",
+  "One moment, you just posted. Try again in a few seconds.": "Түр хүлээнэ үү, та саяхан нийтэлсэн. Хэдэн секундын дараа дахин оролдоорой.",
+  "Thanks. Your review of {0} is live.": "Баярлалаа. {0:gen} талаарх сэтгэгдэл тань нийтлэгдлээ.",
+  "Your review was removed.": "Сэтгэгдэл тань устгагдлаа.",
+  "Posting reviews is switched off for your access level. Ask the owner for Contributor access.": "Таны эрхийн түвшинд сэтгэгдэл нийтлэх хаалттай. Эзэмшигчээс Contributor эрх хүсээрэй.",
+  "Reviews need the shared version of this page.": "Сэтгэгдэлд энэ хуудасны нийтийн хувилбар хэрэгтэй.",
+  "{0} new review of {1}.": "{1:gen} талаар {0} шинэ сэтгэгдэл.",
+  "{0} new reviews of {1}.": "{1:gen} талаар {0} шинэ сэтгэгдэл.",
+
+  /* ---------- the field ---------- */
+  "Feeling cards in the field": "Талбар дахь мэдрэмжийн картууд",
+  "Everyone’s feeling, floating.": "Хүн бүрийн мэдрэмж хөвж байна.",
+  "Your card": "Таны карт",
+  "A traveler": "Нэг аялагч",
+  "Eyeing": "Сонирхож буй",
+  "Wants to feel": "Мэдрэхийг хүссэн",
+  "The shared field lives in the signed-in version of this page. The rest of MoodTrip works on its own.": "Нийтийн талбар энэ хуудасны нэвтэрсэн хувилбарт байдаг. MoodTrip-ийн бусад хэсэг бие даан ажиллана.",
+  "Nobody has added a feeling card yet. Add yours and it floats here as an anonymous orb that others can hover and read.": "Хараахан хэн ч мэдрэмжийн карт нэмээгүй байна. Өөрийнхөө картыг нэмбэл бусад хүмүүс уншиж болох нэргүй бөмбөлөг болж энд хөвнө.",
+  "{0} traveler is floating right now. Hover an orb to see their mood, click one to read their card.": "Одоо {0} аялагч хөвж байна. Сэтгэл санааг нь харахын тулд бөмбөлөг дээр очиж, картыг нь уншихын тулд дарна уу.",
+  "{0} travelers are floating right now. Hover an orb to see their mood, click one to read their card.": "Одоо {0} аялагч хөвж байна. Сэтгэл санааг нь харахын тулд бөмбөлөг дээр очиж, картыг нь уншихын тулд дарна уу.",
+  "Back to my trip": "Аялал руугаа буцах",
+  "You can look around, but adding a card is switched off for your access level. Ask the owner for Contributor access.": "Та үзэж болно, гэхдээ таны эрхийн түвшинд карт нэмэх хаалттай. Эзэмшигчээс Contributor эрх хүсээрэй.",
+  "Play the feeling game first, so your card says something true about you.": "Картаа таныг үнэнээр илэрхийлэхийн тулд эхлээд мэдрэмжийн тоглоомоо тоглоорой.",
+  "Play the game": "Тоглоом тоглох",
+  "Update my card": "Картаа шинэчлэх",
+  "Remove my card": "Картаа хасах",
+  "Add my card to the field": "Картаа талбарт нэмэх",
+  "Shares your window, energy, up to three bag items, soundtrack, feeling and the place you’re eyeing. No name, no email. Remove it any time.": "Таны цонх, эрч хүч, цүнхний гурав хүртэл зүйл, хөгжим, мэдрэмж, сонирхож буй газрыг хуваалцана. Нэр, имэйл үгүй. Хүссэн үедээ хасаж болно.",
+  "Your card is floating in the field.": "Таны карт талбарт хөвж байна.",
+  "Your card was removed from the field.": "Таны карт талбараас хасагдлаа.",
+  "{0}% energy": "{0}% эрч хүч",
+  "wants to feel {0}": "{0} мэдрэмж хүсэж байна",
+  "eyeing {0}": "{0:acc} сонирхож байна",
+  "{0} (you): {1}": "{0} (та): {1}",
+  "energy {0}": "эрч хүч {0}",
+  "{0}: {1}, energy {2}%": "{0}: {1}, эрч хүч {2}%",
+  "{0} (you): {1}, energy {2}%": "{0} (та): {1}, эрч хүч {2}%",
+
+  /* ---------- errors from the shared database ---------- */
+  "This link is view-only for you, so posting is switched off. Ask the owner for Contributor access.": "Энэ холбоос танд зөвхөн харах эрхтэй тул нийтлэх хаалттай. Эзэмшигчээс Contributor эрх хүсээрэй.",
+  "The shared database is full, so nothing more can be added right now.": "Нийтийн мэдээллийн сан дүүрсэн тул одоогоор юу ч нэмэх боломжгүй.",
+  "Too many requests at once. Give it a moment and try again.": "Хэт олон хүсэлт нэг дор ирлээ. Түр хүлээгээд дахин оролдоорой.",
+  "You have reviewed the maximum of {0} places. Remove an older review first.": "Та дээд хязгаар болох {0} газрыг үнэлсэн байна. Эхлээд хуучин сэтгэгдлээ устгаарай.",
+  "Your access changed while the page was open. Reload to continue.": "Хуудас нээлттэй байхад таны эрх өөрчлөгдсөн. Үргэлжлүүлэхийн тулд дахин ачаална уу.",
+  "That photo is too large to upload.": "Зураг байршуулахад хэт том байна.",
+  "That file could not be used as a photo. Try a JPEG or PNG.": "Энэ файлыг зураг болгон ашиглах боломжгүй. JPEG эсвэл PNG туршаад үз.",
+  "The shared storage is full, so the photo could not be added. You can post the review without it.": "Нийтийн сан дүүрсэн тул зураг нэмэгдсэнгүй. Сэтгэгдлээ зураггүй нийтэлж болно.",
+  "Photos are not available for your access level. You can post the review without one.": "Таны эрхийн түвшинд зураг нэмэх боломжгүй. Сэтгэгдлээ зураггүй нийтэлж болно.",
+  "The photo could not be uploaded just now. Try again, or post the review without it.": "Зураг одоогоор байршсангүй. Дахин оролдох эсвэл зураггүй нийтлээрэй.",
+  "Could not reach the shared database. Try again in a moment.": "Нийтийн мэдээллийн санд холбогдож чадсангүй. Хэсэг хугацааны дараа дахин оролдоорой.",
+
+  /* ---------- months ---------- */
+  "January": "1-р сар", "February": "2-р сар", "March": "3-р сар", "April": "4-р сар", "May": "5-р сар", "June": "6-р сар",
+  "July": "7-р сар", "August": "8-р сар", "September": "9-р сар", "October": "10-р сар", "November": "11-р сар", "December": "12-р сар",
+  "Jan": "1-р", "Feb": "2-р", "Mar": "3-р", "Apr": "4-р", "Jun": "6-р", "Jul": "7-р", "Aug": "8-р", "Sep": "9-р", "Oct": "10-р", "Nov": "11-р", "Dec": "12-р",
+
+  /* ---------- places: name, country, one-line blurb, day themes, guide categories ---------- */
+  "Hoi An": "Хойан", "Vietnam": "Вьетнам", "Lantern-lit river town": "Дэнлүүгээр гэрэлтсэн голын хот",
+  "Lisbon": "Лиссабон", "Portugal": "Португал", "Hillside tiles, trams and the Tagus": "Толгодын хавтан, трамвай, Тахо гол",
+  "Oaxaca": "Оахака", "Mexico": "Мексик", "Mezcal, markets and painted walls": "Мескаль, зах, будагтай хана",
+  "Kyoto": "Киото", "Japan": "Япон", "Temple gardens and tea-house lanes": "Сүмийн цэцэрлэг, цайны газрын гудамж",
+  "Reykjavik": "Рейкьявик", "Iceland": "Исланд", "Hot pools, harbour light and long skies": "Халуун усан сан, боомтын гэрэл, уудам тэнгэр",
+  "Arrive & unwind": "Ирж, тайвшрах", "Slow start": "Удаан эхлэл", "Green & quiet": "Ногоон, нам гүм", "Beach day": "Далайн эргийн өдөр",
+  "On the water": "Усан дээр", "Hands-on": "Гар урлал", "Open day": "Чөлөөт өдөр", "Last light": "Сүүлчийн гэрэл",
+  "River day": "Голын өдөр", "Sintra": "Синтра", "Seaside": "Далайн эрэг", "Slow Lisbon": "Удаан Лиссабон",
+  "Market morning": "Захын өглөө", "Ancient ruins": "Эртний балгас", "Slow day": "Удаан өдөр", "Out of town": "Хотоос гадна",
+  "Temple day": "Сүмийн өдөр", "Nara day trip": "Нара руу өдрийн аялал", "Golden Circle": "Алтан тойрог", "Blue & black": "Цэнхэр ба хар",
+  "Whales & waves": "Халим ба давалгаа", "Slow city": "Удаан хот",
+  "Relax": "Амралт", "Culture": "Соёл", "Transit": "Тээвэр", "Shopping": "Худалдаа", "Water": "Ус", "Views": "Үзэмж", "Nightlife": "Шөнийн амьдрал", "Nature": "Байгаль",
+  "half a day": "хагас өдөр", "full day": "бүтэн өдөр",
+
+  /* ---------- places: every stop in the five day plans ---------- */
+  "Riverside check-in & walk": "Голын эрэгт байрлаад алхах",
+  "Lantern-lit Old Town stroll": "Дэнлүүтэй Хуучин хотоор зугаалах",
+  "Iced coffee in a courtyard café": "Хашаан доторх кафед мөстэй кофе",
+  "Airport pickup & scenic drive from Da Nang": "Онгоцны буудлаас тосох, Да Нангаас үзэсгэлэнт зам",
+  "Sunrise tai chi, An Bang Beach": "Нар мандахад тай чи, Ан Банг эрэг",
+  "Market visit & cooking class": "Зах үзэх ба хоол хийх хичээл",
+  "Banh mi at the central market": "Төв захад бань ми",
+  "Candle release on the river": "Гол руу лаа хөвүүлэх",
+  "Bicycle through rice paddies": "Будааны талбайгаар дугуй унах",
+  "Tailor fitting over tea": "Цай уунгаа оёдолчинд хэмжүүлэх",
+  "Water-coconut grove lunch": "Усан наргилын төгөлд үдийн хоол",
+  "Quiet dinner in a garden house": "Цэцэрлэгтэй байшинд нам гүм оройн хоол",
+  "Lazy morning on the sand": "Элсэн дээр залхуу өглөө",
+  "Cao lau lunch crawl": "Као лау үдийн хоолны аялал",
+  "Sunbed & fresh coconut": "Наран ор ба шинэхэн наргил",
+  "Seafood by the shore": "Эрэг дээр далайн хоол",
+  "Basket-boat paddle": "Сагсан завиар сэлүүрдэх",
+  "Rooftop sunset drinks": "Дээвэр дээр нар жаргах үеийн ундаа",
+  "Coconut-forest lunch": "Наргилын ойд үдийн хоол",
+  "Lantern-making workshop": "Дэнлүү хийх сургалт",
+  "Pottery village workshop": "Ваарны тосгоны сургалт",
+  "Spa afternoon": "Спа үдээс хойш",
+  "Street-food walking tour": "Гудамжны хоолны явган аялал",
+  "Night-market browse": "Шөнийн захаар зугаалах",
+  "Rice-paper & noodle-making visit": "Будааны цаас, гоймон хийцтэй танилцах",
+  "Thu Bon river ferry": "Ту Бон голын гатлага",
+  "Vegetarian lunch in a quiet lane": "Нам гүм гудамжинд цагаан хоолтны үдийн хоол",
+  "Live folk music night": "Ардын хөгжмийн амьд тоглолтын орой",
+  "Final coffee by the river": "Голын эрэгт сүүлчийн кофе",
+  "Airport transfer": "Онгоцны буудал руу хүргэлт",
+  "Last stroll through the Old Town": "Хуучин хотоор сүүлчийн зугаалга",
+  "Souvenir silk & lanterns": "Дурсгалын торго, дэнлүү",
+  "Tram 28 ride to your Alfama stay": "28-р трамвайгаар Алфама дахь байр руу",
+  "Fado dinner in a tiny tavern": "Жижиг таверанд фадо дуутай оройн хоол",
+  "Miradouro viewpoint at golden hour": "Алтан цагт Мирадоуро ажиглалтын цэг",
+  "Airport metro & coffee in Chiado": "Онгоцны буудлаас метро, Шиадод кофе",
+  "Pastel de nata at a corner bakery": "Булангийн талх нарийн боовны газарт паштел де ната",
+  "Wander Alfama’s back lanes": "Алфамагийн арын гудамжаар тэнэх",
+  "Time Out Market lunch": "Time Out Market-д үдийн хоол",
+  "Rooftop sunset in Bairro Alto": "Байрру Алтуд дээвэр дээрх нар жаргалт",
+  "Belém Tower & the river path": "Белем цамхаг ба голын зам",
+  "Pastéis de Belém & MAAT": "Паштейш де Белем ба MAAT",
+  "LX Factory lunch & bookshop": "LX Factory-д үдийн хоол ба номын дэлгүүр",
+  "Sunset sail on the Tagus": "Тахо гол дээр нар жаргах үеийн дарвуулт аялал",
+  "Train to Sintra": "Синтра руу галт тэргээр",
+  "Quinta da Regaleira wells": "Кинта да Регалейрагийн худаг",
+  "Pena Palace gardens": "Пена ордны цэцэрлэг",
+  "Cascais seafood dinner": "Кашкайшт далайн хоолны оройн зоог",
+  "Train to Cascais & coastal walk": "Кашкайш руу галт тэрэг ба эргийн алхалт",
+  "Sunbathe at Carcavelos": "Каркавелошт наранд шарах",
+  "Beach lunch at Guincho": "Гиншугийн эрэгт үдийн хоол",
+  "Sunset at Cabo da Roca": "Кабу да Рокад нар жаргалт",
+  "Azulejo tile museum": "Азулежу хавтангийн музей",
+  "Secondhand shops in Príncipe Real": "Принсипе Реалын хуучин эдлэлийн дэлгүүрүүд",
+  "Petiscos lunch in Graça": "Грасад петишкуш үдийн хоол",
+  "Ginjinha & live jazz": "Жинжиня ба амьд жааз",
+  "Sleep in & a long breakfast": "Удаан унтаж, удаан өглөөний цай",
+  "Gulbenkian garden afternoon": "Гулбенкианы цэцэрлэгт үдээс хойш",
+  "Sardine lunch in Alcântara": "Алкантарад сардин загасны үдийн хоол",
+  "Farewell dinner at a family kitchen": "Гэр бүлийн гал тогоонд үдэлтийн оройн хоол",
+  "Final bica at a standing bar": "Зогсоо баарт сүүлчийн бика кофе",
+  "Last walk along the Tagus": "Тахо голын дагуу сүүлчийн алхалт",
+  "Tins & tiles to take home": "Гэртээ авах лаазан хоол, хавтан",
+  "Zócalo stroll & fresh nieve": "Сокалогоор зугаалах ба шинэхэн ньеве",
+  "Mezcal tasting in a courtyard bar": "Хашаан доторх баарт мескаль амтлах",
+  "Nap in a shady patio": "Сүүдэртэй хашаанд дугхийх",
+  "Colectivo from the airport": "Онгоцны буудлаас колективо",
+  "Mercado 20 de Noviembre breakfast": "Меркадо 20 де Новиембрэд өглөөний цай",
+  "Tlayuda & hot-chocolate lesson": "Тлаюда ба халуун шоколадны хичээл",
+  "Walk Calle Alcalá to Santo Domingo": "Кайе Алкалагаар Санто Доминго хүртэл алхах",
+  "Live music in the plaza": "Талбай дээр амьд хөгжим",
+  "Monte Albán at opening time": "Монте Албан нээгдэх цагт",
+  "Rooftop dinner with city lights": "Хотын гэрэл харсан дээвэр дээрх оройн хоол",
+  "Lunch in Xoxocotlán": "Шошокотланд үдийн хоол",
+  "Barro negro pottery village": "Барро негро ваарны тосгон",
+  "Zapotec weaving in Teotitlán": "Теотитланд сапотек нэхмэл",
+  "Mole class with a local cook": "Нутгийн тогоочтой моле хийх хичээл",
+  "Hierve el Agua viewpoint": "Иерве эль Агуа ажиглалтын цэг",
+  "Taco crawl on the avenue": "Өргөн чөлөөгөөр тако амтлах аялал",
+  "Late coffee & a book in the patio": "Хашаанд оройтсон кофе ба ном",
+  "Sunset at Cerro del Fortín": "Серро дель Фортинд нар жаргалт",
+  "Botanical garden guided walk": "Ботаникийн цэцэрлэгт хөтөчтэй алхалт",
+  "Quesillo & memelas lunch": "Кесийо ба мемелас үдийн хоол",
+  "Mezcal distillery in Matatlán": "Мататланы мескалийн үйлдвэр",
+  "Artisan workshops in Arrazola": "Арасолагийн гар урлалын урланууд",
+  "Lunch under the giant Tule tree": "Аварга Туле модны дор үдийн хоол",
+  "Casual dinner with a view": "Үзэмжтэй энгийн оройн хоол",
+  "Sunrise yoga in the botanical garden": "Ботаникийн цэцэрлэгт нар мандахад йог",
+  "Farewell dinner of seven moles": "Долоон моле бүхий үдэлтийн оройн хоол",
+  "Textile shopping with no plan": "Төлөвлөгөөгүйгээр нэхмэл худалдан авах",
+  "Street-corn & fruit-water lunch": "Гудамжны эрдэнэ шиш ба жимсний ус",
+  "Final cup of Oaxacan chocolate": "Оахакагийн шоколадны сүүлчийн аяга",
+  "Airport colectivo": "Онгоцны буудал руу колективо",
+  "Last Zócalo loop": "Сокалогоор сүүлчийн тойрог",
+  "Mezcal & chocolate gifts": "Мескаль ба шоколад бэлэг",
+  "Check in to a machiya near Gion": "Гионы ойролцоох мачияд байрлах",
+  "Pontocho alley dinner": "Понточогийн гудамжинд оройн хоол",
+  "Walk the edge of the Philosopher’s Path": "Философичийн замын захаар алхах",
+  "Haruka express from Kansai Airport": "Кансай онгоцны буудлаас Харука экспресс",
+  "Early Fushimi Inari gates": "Өглөө эрт Фушими Инарийн хаалганууд",
+  "Tea ceremony in Gion": "Гионд цайны ёслол",
+  "Kyoto-style udon lunch": "Киото маягийн удон үдийн хоол",
+  "Evening stroll down Hanamikoji": "Ханамикожигоор оройн зугаалга",
+  "Arashiyama bamboo grove at dawn": "Үүрээр Арашиямагийн хулсан төгөл",
+  "Riverside izakaya": "Голын эрэг дээрх изакая",
+  "Tenryu-ji garden & moss walk": "Тэнрюү-жи цэцэрлэг ба хөвдний алхалт",
+  "Tofu lunch by the river": "Голын эрэгт тофу үдийн хоол",
+  "Kinkaku-ji in morning light": "Өглөөний гэрэлд Кинкаку-жи",
+  "Nishiki Market tasting": "Нишики захад амтлах",
+  "Ryoan-ji rock garden": "Рёан-жигийн чулуун цэцэрлэг",
+  "Quiet kaiseki-style dinner": "Нам гүм кайсэки маягийн оройн хоол",
+  "Matcha-making workshop": "Матча хийх сургалт",
+  "Indigo dyeing class": "Индиго будгийн хичээл",
+  "Obanzai lunch": "Обанзай үдийн хоол",
+  "Sento public bath": "Сэнто нийтийн халуун ус",
+  "Train to Nara": "Нара руу галт тэргээр",
+  "Ramen back at Kyoto Station": "Киото өртөөнд буцаж ирээд рамен",
+  "Deer park & Todai-ji": "Бугын парк ба Тодай-жи",
+  "Kasuga Taisha lantern path": "Касүга Тайшагийн дэнлүүтэй зам",
+  "Slow breakfast at a kissaten": "Киссатэнд удаан өглөөний цай",
+  "Sunset on the Kamo river bank": "Камо голын эрэгт нар жаргалт",
+  "Bookshops & ceramic studios": "Номын дэлгүүр ба керамикийн урлан",
+  "Soba lunch": "Соба үдийн хоол",
+  "Final matcha at a tea house": "Цайны газарт сүүлчийн матча",
+  "Last look at the river": "Гол руу сүүлчийн харц",
+  "Tea & sweets to bring home": "Гэртээ авах цай ба амттан",
+  "Flybus & check in downtown": "Flybus ба хотын төвд байрлах",
+  "Hot dog at Bæjarins Beztu": "Байярийнс Бэзтүд хот-дог",
+  "Harbour walk": "Боомтоор алхах",
+  "Coffee on Laugavegur": "Лёйгавегюр гудамжинд кофе",
+  "Laugardalslaug hot pools": "Лёйгардальслёйг халуун усан сан",
+  "Hallgrímskirkja tower view": "Хадльгримскиркья цамхгаас харах",
+  "Sun Voyager sculpture walk": "Sun Voyager баримал хүртэл алхах",
+  "Fish-soup lunch at the harbour": "Боомтод загасны шөлтэй үдийн хоол",
+  "Þingvellir & Geysir day tour": "Тингвеллир ба Гейсир өдрийн аялал",
+  "Dinner at a farm restaurant": "Фермийн ресторанд оройн хоол",
+  "Gullfoss waterfall": "Гюдльфосс хүрхрээ",
+  "Secret Lagoon soak": "Secret Lagoon-д дэвтэх",
+  "Blue Lagoon soak": "Blue Lagoon-д дэвтэх",
+  "Seafood supper in the old harbour": "Хуучин боомтод далайн хоолны оройн зоог",
+  "Reykjanes lava-field drive": "Рейкьянесийн лаавын талбайгаар машинаар",
+  "Lagoon-side lunch": "Нуурын эрэгт үдийн хоол",
+  "Whale-watching from the Old Harbour": "Хуучин боомтоос халим ажиглах",
+  "Craft-beer flight": "Гар урлалын шар айрагны амталгаа",
+  "Sea-view lunch": "Далай харсан үдийн хоол",
+  "Viðey Island ferry & walk": "Видэй арал руу гатлага ба алхалт",
+  "Late breakfast & a book": "Оройтсон өглөөний цай ба ном",
+  "Sunset geothermal soak": "Нар жаргах үед газрын гүний халуун усанд дэвтэх",
+  "National Museum": "Үндэсний музей",
+  "Bakery snack": "Талх нарийн боовны газарт зууш",
+  "Sunrise coast walk": "Нар мандахад эргээр алхах",
+  "Aurora chase, season permitting": "Улирал зөвшөөрвөл туйлын туяа хөөх",
+  "Perlan observation deck": "Перлан ажиглалтын тавцан",
+  "Bakery lunch": "Талх нарийн боовны газарт үдийн хоол",
+  "Final skyr breakfast": "Сүүлчийн скир өглөөний цай",
+  "Airport Flybus": "Онгоцны буудал руу Flybus",
+  "Last harbour stroll": "Боомтоор сүүлчийн зугаалга",
+  "Wool shop, one last browse": "Ноосон бүтээгдэхүүний дэлгүүрт сүүлчийн удаа"
+};
+
+/* the planner's month cells use short names */
+const MN_SHORT = { Jan:'1-р', Feb:'2-р', Mar:'3-р', Apr:'4-р', May:'5-р', Jun:'6-р', Jul:'7-р', Aug:'8-р', Sep:'9-р', Oct:'10-р', Nov:'11-р', Dec:'12-р' };
+
+/* rules: [pattern, (match, tr) => text]. tr(x) translates a part, or returns it unchanged. */
+const MN_RULES = [
+  // 10:00 am -> 10:00, 4:00 pm -> 16:00
+  [/^(\d{1,2}):(\d\d) ?(am|pm)$/i, m => { let h = +m[1] % 12; if (/pm/i.test(m[3])) h += 12; return `${h}:${m[2]}`; }],
+  // durations: "1–2 h", "45 min", "45 min–1 h", "45 min each way"
+  [/^[\d.–\- ]+(h|min)\b[\d.–\- hmin]*( each way)?$/, m => m[0].replace(/\bmin\b/g, 'мин').replace(/\bh\b/g, 'цаг').replace(' each way', ' нэг талдаа')],
+  // month ranges: "Feb–Apr" -> "2–4-р сар"
+  [/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)–(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/, m => {
+    const i = x => ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(x) + 1; return `${i(m[1])}–${i(m[2])}-р сар`; }],
+  // generated traveler names: "Slow-tide seeker"
+  [/^(Slow|Steady|Bright)-(tide|ridge|neon|moss) (seeker|dreamer|wanderer|companion|chaser|drifter|explorer|climber|traveler)$/, m =>
+    `${{ Slow:'Тайван', Steady:'Тогтуун', Bright:'Цоглог' }[m[1]]} ${{ tide:'далайн', ridge:'уулын', neon:'неоны', moss:'ойн' }[m[2]]} ${{ seeker:'эрэлчин', dreamer:'мөрөөдөгч', wanderer:'тэнүүлчин', companion:'хамтрагч', chaser:'адал явдал хөөгч', drifter:'хөвөгч', explorer:'судлаач', climber:'авирагч', traveler:'аялагч' }[m[3]]}`],
+  // the card headline: "A slow, salty kind of trip."
+  [/^A (slow|easy|lively), (salty|high-air|neon-lit|green) kind of trip\.$/, m =>
+    `${{ slow:'Удаан', easy:'Тайван', lively:'Сэргэлэн' }[m[1]]}, ${{ salty:'далайн давслаг', 'high-air':'уулын цэнгэг агаартай', 'neon-lit':'неон гэрэлтэй', green:'ногоон' }[m[2]]} аялал.`],
+  // a stop button's label: "Airport transfer, 4:00 pm, $12. Open place details and reviews" (the title can itself contain commas)
+  [/^(.+), (\d{1,2}:\d\d [ap]m), (\$[\d,]+|free)\. Open place details and reviews$/, (m, tr) => `${tr(m[1])}, ${tr(m[2])}, ${m[3] === 'free' ? 'үнэгүй' : m[3]}. Газрын дэлгэрэнгүй ба сэтгэгдлийг нээх`],
+  // "of $1,800" (the budget beside the plan's cost)
+  [/^of (\$[\d,]+)$/, m => `${m[1]}-аас`],
+  // "Stays $735" in the cost split
+  [/^([A-Za-z][A-Za-z ]+) (\$[\d,]+)$/, (m, tr) => `${tr(m[1])} ${m[2]}`],
+  // "Day 1 · 10:00 am"
+  [/^Day (\d+) · (.+)$/, (m, tr) => `${m[1]}-р өдөр · ${tr(m[2])}`],
+];
+/* core/i18n.js — Language switch (English / Mongolian) without touching every template.
+
+   The page is written in English. When another language is on:
+     - screens are translated as HTML before they are put on the page (I18N.html, used by render), so headings that FX splits into
+       words are translated whole, not word by word;
+     - everything else the page changes later (toasts, sheets, review lists, labels set with textContent) is translated by a
+       MutationObserver right after it changes, before the browser paints.
+   Only text nodes and the attributes people read (aria-label, placeholder, title, alt, aria-valuetext, data-cursor) change.
+   Elements marked translate="no" and form fields are left alone, and so is anything that has no translation.
+
+   Strings live in src/i18n/<lang>.js. In the console, MT_I18N.missing() lists English seen on the page without a translation. */
+const I18N = (() => {
+  const KEY = 'moodtrip:lang';
+  const PACKS = { mn:{ strings:typeof MN_STRINGS !== 'undefined' ? MN_STRINGS : {}, rules:typeof MN_RULES !== 'undefined' ? MN_RULES : [],
+                       short:typeof MN_SHORT !== 'undefined' ? MN_SHORT : null } };
+  const ATTRS = ['aria-label', 'placeholder', 'title', 'alt', 'aria-valuetext', 'data-cursor'];
+  const SKIP = 'script,style,textarea,input,select,[translate="no"],[contenteditable]';
+  let lang = 'en';
+  try { lang = localStorage.getItem(KEY) || (/^mn\b/i.test(navigator.language || '') ? 'mn' : 'en'); } catch (e) {}
+  if (lang !== 'en' && !PACKS[lang]) lang = 'en';
+
+  /* ---------- the dictionary: exact keys, case-insensitive keys, templates with {0}, rules ---------- */
+  let exact, lower, tpls, rules, memo;
+  const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  function compile(){
+    exact = new Map(); lower = new Map(); tpls = []; memo = new Map();
+    const p = PACKS[lang]; rules = p ? p.rules : [];
+    if (!p) return;
+    Object.entries(p.strings).forEach(([k, v]) => {
+      if (/\{\d\}/.test(k)) {
+        const re = new RegExp('^' + reEsc(k).replace(/\\\{(\d)\\\}/g, '((?:(?! · ).)+?)') + '$');
+        tpls.push({ re, out:v, lit:k.replace(/\{\d\}/g, '').length, order:[...k.matchAll(/\{(\d)\}/g)].map(m => +m[1]) });
+      } else { exact.set(k, v); lower.set(k.toLowerCase(), v); }
+    });
+    tpls.sort((a, b) => b.lit - a.lit);                 // the most specific template wins
+  }
+  /* Mongolian case endings for a name that was put into a sentence: genitive, dative, accusative */
+  const VOWEL = /[аэиоуөүяеёюы]$/i;
+  function ending(word, c){
+    if (!/[а-яөүё]/i.test(word)) return word + { gen:'-ийн', dat:'-д', acc:'-г' }[c];   // still in English: keep it readable
+    const w = word.replace(/\s+$/, '');
+    if (c === 'gen') return w + (VOWEL.test(w) ? 'гийн' : /н$/i.test(w) ? 'ы' : 'ийн');
+    if (c === 'dat') return w + (VOWEL.test(w) || /[нмлр]$/i.test(w) ? 'д' : /[дт]$/i.test(w) ? 'ад' : 'т');
+    return w + (VOWEL.test(w) ? 'г' : /н$/i.test(w) ? 'ыг' : 'ийг');
+  }
+  const plain = v => /^[\d\s$€%.,:+–\-/#≈()]*$/.test(v);
+  const part = (v, d) => plain(v) ? v : (tr(v, d + 1) ?? v);
+  function tr(s, d = 0){
+    if (!s || d > 4) return null;
+    if (memo.has(s)) return memo.get(s);
+    let out = null;
+    if (exact.has(s)) out = exact.get(s);
+    else if (lower.has(s.toLowerCase())) { const v = lower.get(s.toLowerCase()); out = /^[a-z]/.test(s) ? v.charAt(0).toLowerCase() + v.slice(1) : v; }
+    if (out == null) for (const [re, fn] of rules) { const m = re.exec(s); if (m) { out = fn(m, x => part(x, d)); break; } }
+    if (out == null) for (const t of tpls) {
+      const m = t.re.exec(s); if (!m) continue;
+      const vals = {}; t.order.forEach((n, i) => { vals[n] = m[i + 1]; });
+      out = t.out.replace(/\{(\d)(?::(gen|dat|acc))?\}/g, (_, n, c) => { const v = part(vals[n], d); return c ? ending(v, c) : v; });
+      break;
+    }
+    if (out == null) for (const sep of [' · ', ', ', ' and ']) {           // lists: translate each part
+      if (!s.includes(sep)) continue;
+      const bits = s.split(sep), got = bits.map(b => tr(b.trim(), d + 1));
+      if (got.some(x => x != null)) { out = bits.map((b, i) => got[i] ?? b).join(sep === ' and ' ? ', ' : sep); break; }
+    }
+    if (out == null) { const m = /^(.*?)([.!?:,]+)$/.exec(s); if (m && m[1]) { const t = tr(m[1], d + 1); if (t != null) out = t + m[2]; } }
+    memo.set(s, out);
+    return out;
+  }
+
+  /* ---------- applying it to the page ---------- */
+  const textOrig = new WeakMap(), attrOrig = new WeakMap(), missing = new Set();
+  const latin = /[A-Za-z]/, CYR = /[а-яёөү]/i;
+  function doText(n){
+    const v = n.nodeValue; if (!v || !latin.test(v)) return;
+    const p = n.parentElement; if (!p || p.closest(SKIP)) return;
+    const core = v.replace(/\s+/g, ' ').trim(); if (!core || CYR.test(core)) return;   // already translated
+    const short = PACKS[lang].short && p.closest('.mcell') && PACKS[lang].short[core];
+    const out = short || tr(core); if (out == null) { missing.add(core); return; }
+    textOrig.set(n, v);
+    const lead = /^\s*/.exec(v)[0], trail = /\s*$/.exec(v)[0];
+    n.nodeValue = lead + out + trail;
+  }
+  function doAttrs(el){
+    if (el.closest(SKIP) && !el.matches('input,textarea')) return;      // a field's placeholder and label still count
+    for (const a of ATTRS) {
+      const v = el.getAttribute(a); if (!v || !latin.test(v) || CYR.test(v)) continue;
+      const out = tr(v.trim()); if (out == null) { missing.add(v.trim()); continue; }
+      const o = attrOrig.get(el) || {}; o[a] = v; attrOrig.set(el, o);
+      el.setAttribute(a, out);
+    }
+  }
+  function walk(root){
+    if (lang === 'en' || !root) return;
+    if (root.nodeType === 3) { doText(root); return; }
+    if (root.nodeType === 1) doAttrs(root);
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+    let n; while ((n = w.nextNode())) { if (n.nodeType === 3) doText(n); else doAttrs(n); }
+  }
+  function restore(root){
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+    let n; while ((n = w.nextNode())) {
+      if (n.nodeType === 3) { const o = textOrig.get(n); if (o != null) { n.nodeValue = o; textOrig.delete(n); } }
+      else { const o = attrOrig.get(n); if (o) { Object.entries(o).forEach(([a, v]) => n.setAttribute(a, v)); attrOrig.delete(n); } }
+    }
+  }
+  let obs = null;
+  function observe(){
+    if (obs) obs.disconnect();
+    if (lang === 'en') return;
+    obs = new MutationObserver(list => {
+      obs.disconnect();                                  // our own edits must not wake the observer again
+      for (const m of list) {
+        if (m.type === 'childList') m.addedNodes.forEach(walk);
+        else if (m.type === 'characterData') doText(m.target);
+        else if (m.type === 'attributes') doAttrs(m.target);
+      }
+      obs.observe(document.body, { childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:ATTRS });
+    });
+    obs.observe(document.body, { childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:ATTRS });
+  }
+  function paintSwitch(){
+    const b = document.getElementById('langBtn'); if (!b) return;
+    b.textContent = lang === 'en' ? 'МН' : 'EN';
+    b.setAttribute('lang', lang === 'en' ? 'mn' : 'en');
+    b.setAttribute('aria-label', lang === 'en' ? 'Монгол хэл рүү шилжих' : 'Switch to English');
+    b.title = b.getAttribute('aria-label');
+  }
+
+  /* words that CSS draws with content: they read a custom property, set here */
+  function cssWords(){ document.documentElement.style.setProperty('--t-budget', JSON.stringify(api.tr('Budget'))); }
+  compile();
+  const api = {
+    get lang(){ return lang; },
+    tr:s => lang === 'en' ? s : (tr(s) ?? s),
+    /* translate a screen's HTML before it goes on the page */
+    html(h){
+      if (lang === 'en') return h;
+      const t = document.createElement('template'); t.innerHTML = h; walk(t.content); return t.innerHTML;
+    },
+    start(){ document.documentElement.lang = lang; cssWords(); walk(document.body); observe(); paintSwitch(); },
+    set(next, rerender){
+      if (next === lang || (next !== 'en' && !PACKS[next])) return;
+      if (obs) obs.disconnect();
+      restore(document.body);                            // back to English first, so every language starts from the same text
+      lang = next; compile();
+      try { localStorage.setItem(KEY, lang); } catch (e) {}
+      document.documentElement.lang = lang; cssWords();
+      if (rerender) rerender();                          // the current screen is rebuilt in the new language
+      walk(document.body); observe(); paintSwitch();
+    },
+    missing:() => [...missing].sort()
+  };
+  window.MT_I18N = { missing:api.missing, lang:() => lang };
+  return api;
+})();
 /* features/feel/state.js — Feel: the five rounds and what has been answered. */
 /* ---------- the game: five rounds on one page ---------- */
 const ROUNDS = [
@@ -5447,6 +6408,111 @@ function loadSaved(){
 }
 let saved = loadSaved();
 const resumeBtn = () => saved ? `<button class="btn btn-secondary" data-act="resume">Continue your ${esc(destById(saved.destId).name)} plan</button>` : '';
+/* core/profile.js — The traveler's profile: visits and trips, which segment they are in, and what to ask them next.
+
+   Stored in two places, like the saved trip: this browser (localStorage) and, when the shared database is there, the traveler's
+   private document data/users/<id>/profile (Cloudflare: /api/db/profile/<id>, readable only with the traveler's secret).
+
+   Shape (also the shape to write by hand, see docs/engagement.md and cloudflare/seed/):
+   {
+     v: 1,
+     first: 1730000000000,          // first visit, ms since 1970
+     last:  1731600000000,          // latest visit
+     visits: 4,                     // a new visit = back after SESSION_GAP or more
+     trips: [{
+       dest: 'kyoto', month: 3, year: 2026, nights: 5,   // month is 0-11 (3 = April)
+       saved: 1730500000000,        // when the plan was saved
+       went: true,                  // true = went, false = did not go, null = not asked yet
+       pids: ['kyoto:0:1', ...],    // the guide places in that plan, so we can ask for reviews of exactly those
+       snooze: 0                    // "not now": no asks about this trip until this time
+     }]
+   }
+
+   Segments (segmentOf): 'new' = no trip taken yet (first-timer), 'once' = exactly one, 'seasoned' = two or more. */
+const PROFILE_KEY = 'moodtrip:profile:v1';
+const SESSION_GAP = 30 * 60 * 1000;
+const DAY_MS = 864e5;
+let profile = null;
+const profileSubs = new Set();
+const onProfile = f => { profileSubs.add(f); return () => profileSubs.delete(f); };
+const profileChanged = () => profileSubs.forEach(f => { try { f(); } catch (e) {} });
+
+function cleanProfile(v){
+  if (!v || typeof v !== 'object') return null;
+  const now = Date.now(), n = (x, a, b, d) => { x = Math.round(+x); return isFinite(x) ? Math.max(a, Math.min(b, x)) : d; };
+  const trips = (Array.isArray(v.trips) ? v.trips : []).slice(-30).map(t => {
+    const d = t && destById(t.dest); if (!d) return null;
+    const ids = new Set(catalog(d).map(c => c.id));
+    return { dest:d.id, month:n(t.month, 0, 11, 0), year:n(t.year, 2020, 2100, new Date().getFullYear()), nights:n(t.nights, 1, 30, 7),
+             saved:n(t.saved, 0, now + 6e4, now), went:t.went === true ? true : t.went === false ? false : null,
+             pids:[...new Set((Array.isArray(t.pids) ? t.pids : []).filter(p => ids.has(p)))].slice(0, 60), snooze:n(t.snooze, 0, now + 365 * DAY_MS, 0) };
+  }).filter(Boolean);
+  return { v:1, first:n(v.first, 0, now + 6e4, now), last:n(v.last, 0, now + 6e4, now), visits:n(v.visits, 0, 1e6, 0), trips };
+}
+const freshProfile = () => ({ v:1, first:Date.now(), last:0, visits:0, trips:[] });
+
+/* ---------- reading the profile ---------- */
+const tripStart = t => new Date(t.year, t.month, 1).getTime();
+const tripOver = t => Date.now() >= new Date(t.year, t.month + 1, 1).getTime() + t.nights * DAY_MS;   // we know the month, not the day
+const tripsTaken = p => p ? p.trips.filter(t => t.went === true) : [];
+function segmentOf(p){
+  const n = tripsTaken(p).length;
+  return n === 0 ? 'new' : n === 1 ? 'once' : 'seasoned';
+}
+/* the one thing worth asking right now, most useful first */
+function nextAsk(p){
+  if (!p) return null;
+  const now = Date.now(), recent = p.trips.slice().reverse().filter(t => t.snooze <= now);
+  const unsure = recent.find(t => t.went === null && tripOver(t));
+  if (unsure) return { kind:'went', trip:unsure };
+  if (BE.reviewsAt){                                    // only once the reviews are loaded, or every place would look unreviewed
+    for (const t of recent) if (t.went){ const left = t.pids.filter(pid => !BE.myReview(pid)); if (left.length) return { kind:'review', trip:t, left }; }
+  }
+  const soon = p.trips.filter(t => t.went === null && !tripOver(t)).sort((a, b) => tripStart(a) - tripStart(b))[0];
+  if (soon) return { kind:'upcoming', trip:soon };
+  return null;
+}
+const sameTrip = (a, b) => a.dest === b.dest && a.month === b.month && a.year === b.year;
+
+/* ---------- writing the profile ---------- */
+function persistProfile(){
+  if (!profile) return Promise.resolve();
+  try { localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); } catch (e) {}
+  profileChanged();
+  return BE.ready && BE.uid ? BE.saveProfile(profile).catch(() => {}) : Promise.resolve();
+}
+/* called once the shared database has answered (or not): picks the newer copy and counts the visit */
+async function loadProfile(){
+  let local = null; try { local = cleanProfile(JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null')); } catch (e) {}
+  const remote = cleanProfile(await BE.loadProfile());
+  profile = remote && (!local || remote.last >= local.last) ? remote : local || freshProfile();
+  const now = Date.now();
+  if (now - profile.last >= SESSION_GAP){ profile.visits++; profile.last = now; await persistProfile(); }
+  else { profile.last = now; profileChanged(); }
+}
+/* the guide places in a plan, by title (the same rule pidOf uses in the planner) */
+function planPids(d, plan){
+  const byTitle = new Map(catalog(d).map(c => [c.title, c.id]));
+  return [...new Set(plan.days.flatMap(day => day.stops.filter(s => !s.custom).map(s => byTitle.get(s.title))).filter(Boolean))];
+}
+/* a saved plan becomes a trip: the same place, month and year updates the one already there */
+function recordTrip(trip){
+  const d = destById(trip.destId); if (!d) return Promise.resolve();
+  if (!profile) profile = freshProfile();
+  const now = new Date(), year = trip.month >= now.getMonth() ? now.getFullYear() : now.getFullYear() + 1;
+  const t = { dest:d.id, month:trip.month, year, nights:trip.nights, saved:Date.now(), went:null, pids:planPids(d, trip.plan), snooze:0 };
+  const i = profile.trips.findIndex(x => sameTrip(x, t) && x.went === null);
+  if (i >= 0) profile.trips[i] = t; else profile.trips = [...profile.trips, t].slice(-30);
+  return persistProfile();
+}
+function markWent(trip, went){
+  const t = profile && profile.trips.find(x => sameTrip(x, trip)); if (!t) return Promise.resolve();
+  t.went = !!went; return persistProfile();
+}
+function snoozeTrip(trip, days = 7){
+  const t = profile && profile.trips.find(x => sameTrip(x, trip)); if (!t) return Promise.resolve();
+  t.snooze = Date.now() + days * DAY_MS; return persistProfile();
+}
 /* core/chrome.js — Chrome: mood, 3D scene sync, stage nav, render and go(). */
 /* ---------- chrome: mood, 3D scene sync, stage nav ---------- */
 function moodFor(stage){
@@ -5507,7 +6573,7 @@ function render(stage, opts = {}){
     document.documentElement.classList.toggle('in-game', stage === 'game');
     document.documentElement.dataset.mood = moodFor(stage);
     syncGL(stage); paintHorizon(); paintChrome();
-    stageEl.innerHTML = VIEWS[stage]();
+    stageEl.innerHTML = I18N.html(VIEWS[stage]());
     window.scrollTo(0, 0);
     if (AFTER[stage]) AFTER[stage]();
     FX.bind(stageEl);
@@ -5675,7 +6741,7 @@ const starsHTML = v => `<span class="stars" style="--p:${Math.round(v / 5 * 100)
 const revKey = x => x.uid + '|' + x.pid + '|' + x.at;
 function revItemHTML(x, fresh){
   const f = x.f && FEEL.find(k => k.id === x.f);
-  return `<li class="rv${fresh ? ' fresh' : ''}${x.mine ? ' mine' : ''}"><div class="rv-top">${starsHTML(x.r)}<b>${esc(x.name)}${x.mine ? ' · you' : ''}</b>${x.at ? `<time datetime="${new Date(x.at).toISOString()}">${ago(x.at)}</time>` : ''}</div>${f ? `<span class="tag">Felt ${esc(f.label.toLowerCase())}</span>` : ''}${x.t ? `<p>${esc(x.t)}</p>` : ''}${x.ph ? `<a class="rv-photo" href="/_blob/${x.ph}" target="_blank" rel="noopener" aria-label="Open this photo in a new tab"><img class="rev-img" src="/_blob/${x.ph}" alt="Photo shared with this review" loading="lazy" decoding="async"></a>` : ''}</li>`;
+  return `<li class="rv${fresh ? ' fresh' : ''}${x.mine ? ' mine' : ''}"><div class="rv-top">${starsHTML(x.r)}<b>${esc(x.name)}${x.mine ? ' · you' : ''}</b>${x.tc >= 2 ? `<span class="tag outline rv-exp" title="This traveler has taken ${x.tc} trips with MoodTrip">${x.tc} trips</span>` : ''}${x.at ? `<time datetime="${new Date(x.at).toISOString()}">${ago(x.at)}</time>` : ''}</div>${f ? `<span class="tag">Felt ${esc(f.label.toLowerCase())}</span>` : ''}${x.t ? `<p>${esc(x.t)}</p>` : ''}${x.ph ? `<a class="rv-photo" href="/_blob/${x.ph}" target="_blank" rel="noopener" aria-label="Open this photo in a new tab"><img class="rev-img" src="/_blob/${x.ph}" alt="Photo shared with this review" loading="lazy" decoding="async"></a>` : ''}</li>`;
 }
 const photosOf = R => R.list.filter(x => x.ph);
 function photoStripHTML(R){
@@ -5901,7 +6967,7 @@ async function submitReview(form){
   let ph = photo.remove ? null : oldPh, fresh = null;
   try {
     if (photo.blob){ btn.textContent = 'Uploading photo…'; fresh = await BE.uploadPhoto(photo.blob); ph = fresh; btn.textContent = label; }
-    await BE.submitReview(realPid, { r, t, f, ph });
+    await BE.submitReview(realPid, { r, t, f, ph, tc:tripsTaken(profile).length });
     lastPost = Date.now();
     if (oldPh && oldPh !== ph) BE.dropPhoto(oldPh);
     if (placeId === pid) setReviewForm(realPid);
@@ -5917,6 +6983,104 @@ async function deleteReview(btn){
   const mine = BE.myReview(pid);
   try { await BE.removeReview(pid); if (mine && mine.ph) BE.dropPhoto(mine.ph); if (placeId) setReviewForm(pid); paintStopRatings(); toast('Your review was removed.'); }
   catch (e) { toast(BE.explain(e)); btn.disabled = false; }
+}
+/* features/engage/nudge.js — Engage: one nudge on the start screen, shaped by who is visiting, and a quick "rate your trip" sheet.
+
+   Every line here is true for this traveler: their own trip dates, the month's real season score, and counts of real cards in the
+   shared field. Nothing is invented ("only 2 left!") because nothing is sold here; a made-up deadline would cost trust the first
+   time someone noticed. Urgency comes from the traveler's own calendar instead. */
+const WEEK_MS = 7 * DAY_MS;
+const tripKey = t => `${t.dest}|${t.month}|${t.year}`;
+const tripOf = el => { const [dest, m, y] = String(el.dataset.trip || '').split('|'); return profile && profile.trips.find(t => t.dest === dest && t.month === +m && t.year === +y) || null; };
+const pickedThisWeek = destId => BE.cards().filter(c => c.d === destId && !c.mine && c.at > Date.now() - WEEK_MS).length;
+const notYet = p => { const been = new Set(tripsTaken(p).map(t => t.dest)); return DEST.filter(d => !been.has(d.id)); };
+const listNames = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' or ' + a[a.length - 1];
+function whenText(t){
+  const ms = tripStart(t) - Date.now();
+  if (ms <= 0) return 'this month';
+  const days = Math.round(ms / DAY_MS); if (days < 14) return `in ${days} ${plural(days, 'day', 'days')}`;
+  const w = Math.round(ms / WEEK_MS); if (w < 9) return `in ${w} weeks`;
+  const m = Math.round(ms / (30.4 * DAY_MS)); return `in ${m} months`;
+}
+
+function nudgeHTML(){
+  const p = profile; if (!p) return '';
+  const seg = segmentOf(p), n = tripsTaken(p).length, ask = nextAsk(p);
+  const label = seg === 'seasoned' ? `Seasoned traveler · ${n} trips` : seg === 'once' || p.visits > 1 ? 'Welcome back' : 'Your next trip';
+  let title, body, btns = '';
+
+  if (ask && ask.kind === 'went'){
+    const d = destById(ask.trip.dest), k = tripKey(ask.trip);
+    title = `Did you make it to ${d.name} in ${MONTH_FULL[ask.trip.month]}?`;
+    body = 'Tell us and we will ask how the places on your plan were. It helps the next traveler going there.';
+    btns = `<button class="btn btn-primary btn-sm" data-act="went" data-v="1" data-trip="${k}">Yes, I went</button><button class="btn btn-ghost btn-sm" data-act="went" data-v="0" data-trip="${k}">No, not this time</button>`;
+  }
+  else if (ask && ask.kind === 'review'){
+    const d = destById(ask.trip.dest), k = ask.left.length;
+    title = seg === 'seasoned' ? `Your take on ${d.name} carries weight` : `How was ${d.name}?`;
+    body = `${k} ${plural(k, 'place', 'places')} from your plan ${k === 1 ? 'is' : 'are'} waiting for a rating. Stars only, a few taps.`
+      + (n >= 2 ? ` Your reviews carry a “${n} trips” badge, so readers know they come from experience.` : ' The next traveler heading there will see them.');
+    btns = `<button class="btn btn-primary btn-sm" data-act="ratetrip" data-trip="${tripKey(ask.trip)}">Rate my ${esc(d.name)} stops</button><button class="btn btn-ghost btn-sm" data-act="snoozetrip" data-trip="${tripKey(ask.trip)}">Not now</button>`;
+  }
+  else if (ask && ask.kind === 'upcoming'){
+    const t = ask.trip, d = destById(t.dest), crowd = pickedThisWeek(d.id), busy = mlevel(d.months[t.month]) === 2;
+    title = `${d.name} ${whenText(t)}`;
+    body = [busy ? `${MONTH_FULL[t.month]} is one of the best and busiest months there, so stays tend to fill early.` : '',
+            crowd >= 2 ? `${crowd} other travelers picked ${d.name} in the field this week.` : '',
+            seg === 'new' ? 'First trip planned with us? Your plan, budget and best-time notes are saved, so come back to them anytime.' : ''].filter(Boolean).join(' ')
+      || `Your ${t.nights}-night plan is saved.`;
+    btns = saved && saved.destId === t.dest ? `<button class="btn btn-primary btn-sm" data-act="resume">Open my ${esc(d.name)} plan</button>` : '';
+  }
+  else if (seg !== 'new'){
+    const fresh = notYet(p).map(d => d.name);
+    title = seg === 'seasoned' ? 'Somewhere new this time?' : 'Ready for trip number two?';
+    body = (fresh.length ? `You have not been to ${listNames(fresh.slice(0, 3))} yet.` : 'You have been to every place here. Go back with a different mood?')
+      + (seg === 'seasoned' ? ' You know how it works, so skip the game and go straight to your budget.' : '');
+    btns = seg === 'seasoned' ? '<button class="btn btn-primary btn-sm" data-act="skip">Skip to budget</button>' : '';
+  }
+  else if (p.visits > 1){
+    title = 'Good to see you again';
+    body = 'The feeling game takes about a minute, and nothing gets booked here, so plan freely.';
+  }
+  else return '';                                       // a first visit: the page itself is the welcome
+  return `<aside class="nudge nudge-${seg}" data-seg="${seg}"><p class="label accent">${esc(label)}</p><p class="title">${esc(title)}</p><p class="small muted">${esc(body)}</p>${btns ? `<div class="row">${btns}</div>` : ''}</aside>`;
+}
+function paintEngage(){
+  const slot = $('#engageSlot'); if (!slot) return;
+  const h = nudgeHTML(); if (slot.dataset.h === h) return;
+  slot.dataset.h = h; slot.innerHTML = h; FX.bind(slot);
+}
+
+/* ---------- "how was your trip?": star every unreviewed place from the plan in one sheet, saved in one write ---------- */
+let rateTrip = null;
+function openRateSheet(trip){
+  const d = destById(trip.dest); if (!d) return;
+  const titles = new Map(catalog(d).map(c => [c.id, c.title])), left = trip.pids.filter(pid => !BE.myReview(pid) && titles.has(pid));
+  if (!left.length){ toast(`You have rated every place from ${d.name}. Thank you.`); return; }
+  rateTrip = trip; sheetFor = null; sheetOpener = document.activeElement;
+  $('#shBody').innerHTML = `
+    <div><p class="label accent">Your ${esc(d.name)} trip · ${MONTH_FULL[trip.month]}</p><h2 class="heading" id="shTitle">How were these places?</h2>
+    <p class="small muted" style="margin-top:8px">Rate the ones you remember and leave the rest. You can add words later from any place in your plan.</p></div>
+    ${BE.canPost ? `<form id="rateForm" class="rform" novalidate>
+      ${left.map((pid, i) => `<fieldset><legend class="label muted">${esc(titles.get(pid))}</legend><div class="strength rate-pick" role="radiogroup">${STAR_WORDS.map((w, s) => `<label class="opt" data-cursor=""><input type="radio" name="tr${i}" value="${s + 1}" data-pid="${pid}"><span class="face"><span class="sr">${s + 1} ${plural(s + 1, 'star', 'stars')}, </span><span class="pnr" aria-hidden="true">${s + 1}<i class="rstar"></i></span><small>${w}</small></span></label>`).join('')}</div></fieldset>`).join('')}
+      <p class="notice" id="trerr" hidden></p>
+      <div class="sheet-foot"><button type="button" class="btn btn-ghost" data-act="closesheet">Later</button><button class="btn btn-primary" type="submit" id="trsub">Post ratings</button></div>
+    </form>` : `<p class="notice">Ratings need the shared version of this page.</p><div class="sheet-foot"><button type="button" class="btn btn-secondary" data-act="closesheet">Close</button></div>`}`;
+  const wrap = $('#sheet'); wrap.hidden = false;
+  if (FX.on && !FX.reduced){ gsap.fromTo('.sheet-bd', { opacity:0 }, { opacity:1, duration:.3 }); gsap.fromTo('.sheet', { y:50, opacity:0, scale:.97 }, { y:0, opacity:1, scale:1, duration:.55, ease:'power4.out' }); }
+  FX.bind(wrap); $('.sheet').focus();
+}
+async function submitRatings(form){
+  const err = $('#trerr'), btn = $('#trsub');
+  const list = $$('input[type="radio"]:checked', form).map(i => ({ pid:i.dataset.pid, r:+i.value }));
+  if (!list.length){ err.textContent = 'Tap a star rating on at least one place.'; err.hidden = false; return; }
+  btn.disabled = true; err.hidden = true;
+  try {
+    await BE.submitRatings(list, tripsTaken(profile).length);
+    const d = rateTrip && destById(rateTrip.dest);
+    closeSheet(); paintEngage();
+    toast(`Thanks. ${list.length} ${plural(list.length, 'rating is', 'ratings are')} live${d ? ` for the next traveler to ${d.name}` : ''}.`);
+  } catch (e) { err.textContent = BE.explain(e); err.hidden = false; btn.disabled = false; }
 }
 /* features/planner/views.js — Planner: cost, month grid, day cards. */
 /* ---------- planner views ---------- */
@@ -6166,6 +7330,8 @@ ACT.back = () => go(ORDER[ORDER.indexOf(S.stage) - 1]);
 ACT.restart = () => go('game', { force:true, before:resetAnswers });
 ACT.change = () => go('game');
 ACT.tomatches = () => go('matches');
+/* language switch: the current screen is rebuilt in the new language, already in place (no entrance animation) */
+ACT.lang = () => I18N.set(I18N.lang === 'en' ? 'mn' : 'en', () => { const tl = render(S.stage, { focus:false }); if (tl) tl.progress(1); });
 /* features/feel/index.js — Feel: entry points (screens, actions, after-render hooks). */
 VIEWS.intro = () => `
   <section class="intro" aria-labelledby="h1">
@@ -6178,6 +7344,7 @@ VIEWS.intro = () => `
         <button class="btn btn-ghost" data-act="skip">Skip the game</button>
         <span id="resumeSlot">${resumeBtn()}</span>
       </div>
+      <div id="engageSlot" class="engage-slot" aria-live="polite"></div>
       <div class="who" data-fade><span class="label muted">Who it’s for</span><span class="tag outline">Solo travelers</span><span class="tag outline">Couples</span><span class="tag outline">Burnt-out professionals</span></div>
     </div>
     <div class="marquee" aria-hidden="true"><div class="track">${marq}${marq}</div></div>
@@ -6336,7 +7503,7 @@ ACT.save = async () => {
     const where = []; let dbErr = null;
     if (BE.ready && BE.uid){ try { await BE.saveTrip(trip); where.push('your account'); } catch (e) { dbErr = e; } }
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(trip)); where.push('this browser'); } catch (e) {}
-    const c = cleanTrip(trip); if (c && where.length) saved = c;
+    const c = cleanTrip(trip); if (c && where.length){ saved = c; recordTrip(trip); }
     toast(where.length ? `Plan saved to ${where.join(' and ')}.${dbErr ? ' The shared database could not be reached.' : ''}` : dbErr ? BE.explain(dbErr) : 'This browser blocks saving here. Your plan is still on screen.');
   };
 ACT.resume = () => {
@@ -6379,6 +7546,18 @@ ACT.closeplace = () => closePlace();
 ACT.morerev = () => { revAll = !revAll; paintReviews(); const b = $('[data-act="morerev"]'); if (b) b.focus({ preventScroll:true }); };
 ACT.delreview = el => deleteReview(el);
 ACT.phremove = () => { resetPhoto(); photo.remove = true; paintPhotoField('Photo removed. It stays off your review once you post.'); const b = $('#ppBtn'); if (b) b.focus({ preventScroll:true }); };
+/* features/engage/index.js — Engage: entry points. The nudge lives in #engageSlot on the start screen. */
+AFTER.intro = paintEngage;
+onProfile(() => { if (S.stage === 'intro') paintEngage(); });
+BE.on(() => { if (S.stage === 'intro') paintEngage(); });
+ACT.went = async el => {
+  const t = tripOf(el); if (!t) return;
+  const yes = el.dataset.v === '1';
+  await markWent(t, yes);
+  if (yes) openRateSheet(t); else toast('Got it. Plans change. Your saved plan is still here when you want it.');
+};
+ACT.ratetrip = el => { const t = tripOf(el); if (t) openRateSheet(t); };
+ACT.snoozetrip = async el => { const t = tripOf(el); if (!t) return; await snoozeTrip(t, 7); toast('No problem. We will ask again next week.'); };
 /* core/events.js — Global event delegation: click, change, input, submit, keys. */
 document.addEventListener('click', e => {
   const nav = e.target.closest('[data-nav]');
@@ -6419,6 +7598,7 @@ document.addEventListener('error', e => {      // a photo that no longer loads i
 }, true);
 document.addEventListener('submit', e => {
   const rf = e.target.closest('#reportForm'); if (rf){ e.preventDefault(); submitReport(rf); return; }
+  const tr = e.target.closest('#rateForm'); if (tr){ e.preventDefault(); submitRatings(tr); return; }
   const pf = e.target.closest('#placeForm'); if (pf){ e.preventDefault(); submitReview(pf); return; }
   const f = e.target.closest('.custom'); if (!f) return; e.preventDefault();
   const title = f.elements.title.value.trim(), cost = clamp(Math.round(+f.elements.cost.value || 0), 0, 9999), k = +f.dataset.day;
@@ -6516,6 +7696,7 @@ BE.on(() => {
 });
 BE.init().then(async ok => {
   updateFieldCount();
+  await loadProfile();                       // works without the database too (this browser only)
   if (!ok) return;
   const t = cleanTrip(await BE.loadTrip());
   if (t){ saved = t; const slot = $('#resumeSlot'); if (slot){ slot.innerHTML = resumeBtn(); FX.bind(slot); } }
@@ -6525,6 +7706,7 @@ BE.init().then(async ok => {
 $('#horizon').innerHTML = Object.entries(HORIZON).map(([k, v]) => v.replace('<svg ', `<svg data-scene="${k}" `)).join('');
 if (GL.ok) document.documentElement.classList.add('gl');
 document.documentElement.style.setProperty('--energy', S.energy / 100);
+I18N.start();
 const introTl = render('intro', { focus:false });
 FX.loader(() => { if (introTl) gsap.delayedCall(.3, () => introTl.play()); }, () => { const h = $('#h1'); if (h) h.focus({ preventScroll:true }); });
 let rsz;

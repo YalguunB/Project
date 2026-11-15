@@ -1,0 +1,19 @@
+{
+  "v": 1,
+  "window": "mountain", "energy": 40, "bag": ["journal", "paperback"], "sound": "rain", "feel": "rested",
+  "budget": 1800, "style": "comfy", "month": 3, "nights": 4, "destId": "kyoto",
+  "plan": { "days": [
+    { "title": "Arrive & unwind", "stops": [
+      { "id": "kyoto:0:0", "part": "m", "title": "Check in to a machiya near Gion", "cost": 0 },
+      { "id": "kyoto:0:1", "part": "e", "title": "Pontocho alley dinner", "cost": 32 } ] },
+    { "title": "Slow start", "stops": [
+      { "id": "kyoto:1:0", "part": "a", "title": "Early Fushimi Inari gates", "cost": 0 },
+      { "id": "kyoto:1:1", "part": "p", "title": "Tea ceremony in Gion", "cost": 28 } ] },
+    { "title": "Green & quiet", "stops": [
+      { "id": "kyoto:2:0", "part": "a", "title": "Arashiyama bamboo grove at dawn", "cost": 0 },
+      { "id": "kyoto:2:2", "part": "p", "title": "Tenryu-ji garden & moss walk", "cost": 7 } ] },
+    { "title": "Temple day", "stops": [
+      { "id": "kyoto:3:0", "part": "a", "title": "Kinkaku-ji in morning light", "cost": 4 },
+      { "id": "kyoto:3:2", "part": "m", "title": "Ryoan-ji rock garden", "cost": 5 } ] }
+  ] }
+}

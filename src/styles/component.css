@@ -1942,7 +1942,7 @@ input[type=range]::-moz-range-thumb {
     transition: left var(--duration-500);
   }
   & .mark::after {
-    content: "Budget";
+    content: var(--t-budget, "Budget");
     position: absolute;
     top: -18px;
     left: 50%;
@@ -2964,6 +2964,35 @@ html.pl-open body {
   color: var(--text);
   font: 500 14px/1.45 var(--font-body);
 }
+/* === language switch === */
+.langbtn {
+  min-width: 48px;
+  justify-content: center;
+  letter-spacing: .04em;
+}
+
+/* === feature: engage === */
+.engage-slot:empty {
+  display: none;
+}
+.nudge {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 560px;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-large);
+  border: var(--border);
+  border-left: var(--line-thick) solid var(--accent);
+  background: var(--surface-a78);
+  & .row {
+    margin-top: var(--space-2);
+  }
+}
+.rv-exp {
+  margin-left: var(--space-2);
+}
+
 @media (max-width:760px) {
   .place-wrap {
     align-items: flex-end;
@@ -3327,6 +3356,16 @@ html.pl-open body {
   }
   .detail {
     max-width: none;
+  }
+}
+@media (max-width:480px) {
+  /* the language switch needs the room: the logo stays, the word goes (the button keeps its aria-label) */
+  .wordmark {
+    display: none;
+  }
+  .langbtn {
+    min-width: 40px;
+    padding: 0 10px;
   }
 }
 @media (max-width:440px) {

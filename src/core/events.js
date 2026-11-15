@@ -38,6 +38,7 @@ document.addEventListener('error', e => {      // a photo that no longer loads i
 }, true);
 document.addEventListener('submit', e => {
   const rf = e.target.closest('#reportForm'); if (rf){ e.preventDefault(); submitReport(rf); return; }
+  const tr = e.target.closest('#rateForm'); if (tr){ e.preventDefault(); submitRatings(tr); return; }
   const pf = e.target.closest('#placeForm'); if (pf){ e.preventDefault(); submitReview(pf); return; }
   const f = e.target.closest('.custom'); if (!f) return; e.preventDefault();
   const title = f.elements.title.value.trim(), cost = clamp(Math.round(+f.elements.cost.value || 0), 0, 9999), k = +f.dataset.day;

@@ -21,6 +21,7 @@ const BE = (() => {
     const w = WIN.find(x => x.id === data.w), f = FEEL.find(x => x.id === data.f), lvl = energyLevel(e);
     return { id:'u' + uid, uid, w:data.w, f:data.f, e, s:SOUND_IDS.includes(data.s) ? data.s : 'lofi', d:DEST_IDS.includes(data.d) ? data.d : null,
              bag:Array.isArray(data.bag) ? data.bag.filter(b => BAG_IDS.includes(b)).slice(0, 3) : [], mood:w.mood,
+             at:Math.min(Math.max(0, +data.at || 0), Date.now() + 60000),
              name:`${lvl.pace}-${w.noun} ${f.role}`, mine:uid === st.uid };
   }
   /* Reviews are free text from other people: strip control and direction-override characters, collapse spaces, cap the length.
@@ -33,12 +34,12 @@ const BE = (() => {
       const x = items[pid]; if (!PLACE_IDS.has(pid) || !x || typeof x !== 'object') return;
       const r = Math.round(+x.r); if (!(r >= 1 && r <= 5)) return;
       const w = WIN.find(k => k.id === x.w) || WIN[0], f = FEEL.find(k => k.id === x.f) || null, e = clampN(x.e, 0, 100, 35), lvl = energyLevel(e);
-      out.set(pid, { pid, uid, r, t:cleanText(x.t), f:f ? f.id : null, w:w.id, e, ph:typeof x.ph === 'string' && PH_RE.test(x.ph) ? x.ph : null, at:Math.min(Math.max(0, +x.at || 0), Date.now() + 60000),
+      out.set(pid, { pid, uid, r, t:cleanText(x.t), f:f ? f.id : null, w:w.id, e, ph:typeof x.ph === 'string' && PH_RE.test(x.ph) ? x.ph : null, tc:clampN(x.tc, 0, 99, 0), at:Math.min(Math.max(0, +x.at || 0), Date.now() + 60000),
                      name:`${lvl.pace}-${w.noun} ${f ? f.role : 'traveler'}`, mine:uid === st.uid });
     });
     return out;
   }
-  const packReview = it => ({ r:it.r, t:it.t, f:it.f, w:it.w, e:it.e, at:it.at, ...(it.ph ? { ph:it.ph } : {}) });
+  const packReview = it => ({ r:it.r, t:it.t, f:it.f, w:it.w, e:it.e, at:it.at, ...(it.tc ? { tc:it.tc } : {}), ...(it.ph ? { ph:it.ph } : {}) });
   function reindexReviews(){
     st.rIndex = new Map();
     st.reviews.forEach(m => m.forEach(it => { if (!st.rIndex.has(it.pid)) st.rIndex.set(it.pid, []); st.rIndex.get(it.pid).push(it); }));
@@ -111,6 +112,7 @@ const BE = (() => {
       return { n:list.length, avg:list.length ? sum / list.length : 0, dist, list };
     },
     myReview(pid){ const m = st.uid && st.reviews.get(st.uid); return m && m.get(pid) || null; },
+    myReviewCount(){ const m = st.uid && st.reviews.get(st.uid); return m ? m.size : 0; },
     reviewCount(){ let n = 0; st.reviews.forEach(m => { n += m.size; }); return n; },
     reportCount(){ let n = 0; st.feelings.forEach(r => { n += Object.keys(r).length; }); return n; },
 
@@ -122,13 +124,28 @@ const BE = (() => {
         st.feelings.set(st.uid, cleanReports({ reports:mine })); recompute(); emit();
       });
     },
-    submitReview(pid, { r, t, f, ph }){
+    submitReview(pid, { r, t, f, ph, tc }){
       return queue(async () => {
         if (!PLACE_IDS.has(pid)) throw { code:'invalid' };
         const mine = st.reviews.get(st.uid) || new Map();
         if (!mine.has(pid) && mine.size >= MAX_REVIEWS) throw { code:'limit' };
         const items = {}; mine.forEach((it, k) => { items[k] = packReview(it); });
-        items[pid] = { r:clampN(r, 1, 5, 3), t:cleanText(t), f:FEEL_IDS.includes(f) ? f : null, w:S.window, e:S.energy, at:Date.now(), ...(typeof ph === 'string' && PH_RE.test(ph) ? { ph } : {}) };
+        items[pid] = { r:clampN(r, 1, 5, 3), t:cleanText(t), f:FEEL_IDS.includes(f) ? f : null, w:S.window, e:S.energy, at:Date.now(), ...(tc > 0 ? { tc:clampN(tc, 0, 99, 0) } : {}), ...(typeof ph === 'string' && PH_RE.test(ph) ? { ph } : {}) };
+        await st.db.doc('reviews/' + st.uid).set({ v:1, items });
+        st.reviews.set(st.uid, cleanReviews({ items }, st.uid)); reindexReviews(); st.reviewsAt = Date.now(); emit();
+      });
+    },
+    /* several star ratings at once (the "how was your trip?" sheet): one write instead of one per place */
+    submitRatings(list, tc){
+      return queue(async () => {
+        const mine = st.reviews.get(st.uid) || new Map();
+        const items = {}; mine.forEach((it, k) => { items[k] = packReview(it); });
+        list.forEach(({ pid, r }) => {
+          if (!PLACE_IDS.has(pid)) return;
+          const old = items[pid];
+          items[pid] = { ...(old || {}), r:clampN(r, 1, 5, 3), t:old ? old.t : '', f:old ? old.f : null, w:old ? old.w : S.window, e:old ? old.e : S.energy, at:Date.now(), ...(tc > 0 ? { tc:clampN(tc, 0, 99, 0) } : {}) };
+        });
+        if (Object.keys(items).length > MAX_REVIEWS) throw { code:'limit' };
         await st.db.doc('reviews/' + st.uid).set({ v:1, items });
         st.reviews.set(st.uid, cleanReviews({ items }, st.uid)); reindexReviews(); st.reviewsAt = Date.now(); emit();
       });
@@ -165,6 +182,15 @@ const BE = (() => {
     saveTrip(trip){
       if (!st.ready || !st.uid) return Promise.reject({ code:'unavailable' });
       return queue(() => st.db.doc('data/users/' + st.uid + '/trip').set(trip));
+    },
+    /* the traveler's private profile: visits and the trips they planned or took (see core/profile.js) */
+    async loadProfile(){
+      if (!st.ready || !st.uid) return null;
+      try { const d = await st.db.doc('data/users/' + st.uid + '/profile').get(); return d.exists ? d.data() : null; } catch (e) { return null; }
+    },
+    saveProfile(p){
+      if (!st.ready || !st.uid) return Promise.reject({ code:'unavailable' });
+      return queue(() => st.db.doc('data/users/' + st.uid + '/profile').set(p));
     }
   };
   return api;
