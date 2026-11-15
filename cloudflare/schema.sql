@@ -20,3 +20,20 @@ CREATE TABLE IF NOT EXISTS hits (     -- write counts per visitor and minute, fo
   n      INTEGER NOT NULL,
   PRIMARY KEY (k, bucket)
 );
+
+CREATE TABLE IF NOT EXISTS accounts (  -- a username and password, linked to one traveler id
+  name    TEXT PRIMARY KEY,           -- the username in lower case (unique, case-insensitive)
+  display TEXT    NOT NULL,           -- the username as the traveler typed it
+  id      TEXT    NOT NULL UNIQUE,    -- the traveler id whose documents this account owns
+  salt    TEXT    NOT NULL,
+  hash    TEXT    NOT NULL,           -- PBKDF2-SHA256 of the password, never the password
+  created INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS sessions (  -- a signed-in browser: a hash of its token, never the token
+  hash    TEXT PRIMARY KEY,
+  id      TEXT    NOT NULL,
+  name    TEXT    NOT NULL,
+  expires INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS sessions_by_id ON sessions (id);

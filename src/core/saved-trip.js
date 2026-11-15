@@ -25,4 +25,10 @@ function loadSaved(){
   try { return cleanTrip(JSON.parse(localStorage.getItem(SAVE_KEY) || 'null')); } catch (e) { return null; }
 }
 let saved = loadSaved();
+/* put a saved trip back on screen: answers, budget and the plan itself */
+function restoreTrip(t){
+  const { destId, plan, ...rest } = t;
+  Object.assign(S, rest, { dest:destById(destId), plan, adder:null, cardSeen:true, reached:3, planId:null });
+  picked = true; [1, 2, 3, 4, 5].forEach(n => touched.add(n)); document.documentElement.style.setProperty('--energy', S.energy / 100);
+}
 const resumeBtn = () => saved ? `<button class="btn btn-secondary" data-act="resume">Continue your ${esc(destById(saved.destId).name)} plan</button>` : '';

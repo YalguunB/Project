@@ -13,6 +13,8 @@ src/
 ├─ visuals/           3D scene, motion, SVG scenery
 ├─ features/          one folder per feature (feel, budget, matches, planner, field, place, reviews)
 │  ├─ engage/          start-screen nudge per segment (new / once / seasoned), "rate your trip" sheet
+│  ├─ account/         sign in / create account sheet, account menu
+│  ├─ plans/           My plans: saved plans on the account, review their places
 │  └─ <feature>/index.js   registers the feature's screens (VIEWS), actions (ACT) and hooks (AFTER)
 ├─ components/        page markup split into components (registry, one file per part, overlays.js aggregates, mount.js renders)
 └─ body.html          layout glue + component calls (<div data-component="x"></div>)

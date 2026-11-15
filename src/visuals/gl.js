@@ -215,7 +215,7 @@ const GL = (() => {
   let feelScale = 1;
 
   function resize(){
-    const w = innerWidth, h = innerHeight, dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+    const w = innerWidth, h = innerHeight, dpr = Math.min(window.devicePixelRatio || 1, matchMedia('(pointer: coarse)').matches ? 1.5 : 1.75);
     renderer.setPixelRatio(dpr); renderer.setSize(w, h, false);
     camera.aspect = w / h; camera.updateProjectionMatrix();
     V.w = w; V.h = h; V.wh = 2 * Math.tan(T.MathUtils.degToRad(camera.fov / 2)) * camera.position.z; V.ww = V.wh * camera.aspect;
@@ -324,12 +324,19 @@ const GL = (() => {
   let last = performance.now();
   function ease(dt, k){ return 1 - Math.exp(-dt * k); }
 
+  /* frame budget: full rate while something is moving (activeUntil), 30 fps when the scene is only drifting, and 15 fps while
+     a sheet or the place panel covers it. The scene's slow wobble looks the same; the GPU and battery do a lot less. */
+  const sheetEl = document.getElementById('sheet'), rootEl = document.documentElement;
+  const covered = () => rootEl.classList.contains('pl-open') || (sheetEl && !sheetEl.hidden);
   function frame(now){
     requestAnimationFrame(frame);
     if (hidden) return;
+    const busy = now < activeUntil || fieldOn, gap = covered() ? 64 : busy ? 0 : 31;
+    if (gap && now - last < gap) return;
     const raw = (now - last) / 1000, dt = Math.min(.05, raw); last = now;
     if (REDUCED && now > activeUntil) return;
-    if (raw < .25){                                   // adaptive quality: slow machines render fewer pixels
+    if (raw < .25 && busy && !gap){                  // only measure speed at full rate
+                                   // adaptive quality: slow machines render fewer pixels
       perf.t += raw; perf.n++;
       if (perf.n >= 90){ const avg = perf.t / perf.n; perf.t = 0; perf.n = 0; if (avg > .036 && perf.q > .8){ perf.q = Math.max(.75, perf.q - .3); resize(); } }
     }

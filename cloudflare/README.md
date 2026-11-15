@@ -46,6 +46,25 @@ How the key is protected: it lives only on the server (a Worker secret) and neve
 
 Google's terms are followed in the page: Google content is not stored or cached (the Worker sends `Cache-Control: no-store` and keeps nothing), every review and photo shows its author with a link, a "Google Maps" mark is shown, translated reviews offer the original, and there is a link to see everything on Google Maps. If you change the page, keep those.
 
+## Accounts
+
+Travelers can stay anonymous, or create an account with a username and a password (no email, no password reset). Signing up
+links the browser's anonymous traveler to the account, so what it already saved comes along; signing in on another device gets
+a session token for that same traveler.
+
+- Passwords are hashed with PBKDF2-SHA256 (100,000 rounds, random salt). Session tokens are stored only as hashes and last 30 days.
+- Sign-up and sign-in attempts are limited to 8 per minute per address.
+- A review or comment shows a username only if a signed-in author chose it; the server writes the name, so it cannot be faked.
+- Signed-in travelers keep up to 30 plans (`/api/db/plans/<id>`, private), rate reviews helpful or not, and comment on reviews.
+
+**Updating an existing deployment:** the accounts need two new tables. Run the schema once against the live database (it only
+adds what is missing):
+
+```sh
+npx wrangler d1 execute moodtrip-db --remote --file=schema.sql
+npm run deploy
+```
+
 ## Moderation
 
 Anyone can post a review, so you may need to remove one. Create a token once:

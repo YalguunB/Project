@@ -22,9 +22,11 @@ document.addEventListener('change', e => {
   else if (t.id === 'pfile'){ const f = t.files && t.files[0]; t.value = ''; pickPhoto(f); }
   else if (t.name === 'style'){ S.style = t.value; paintBudget(); }
   else if (t.name === 'month'){ S.month = +t.value; paintBudget(); }
+  else if (t.classList.contains('plan-name')) renamePlan(t);
 });
 document.addEventListener('input', e => {
   if (e.target.id === 'budget'){ S.budget = +e.target.value; paintBudget(); }
+  else if (e.target.name === 'ctext') cDrafts.set(e.target.dataset.tg, e.target.value);
   else if (e.target.name === 'ptext'){ const c = $('#pcount'); if (c) c.textContent = `${e.target.value.length} / 240`; }
 });
 document.addEventListener('error', e => {      // a photo that no longer loads is replaced by a quiet note (error events do not bubble, so capture)
@@ -39,6 +41,9 @@ document.addEventListener('error', e => {      // a photo that no longer loads i
 document.addEventListener('submit', e => {
   const rf = e.target.closest('#reportForm'); if (rf){ e.preventDefault(); submitReport(rf); return; }
   const tr = e.target.closest('#rateForm'); if (tr){ e.preventDefault(); submitRatings(tr); return; }
+  const af = e.target.closest('#authForm'); if (af){ e.preventDefault(); submitAuth(af); return; }
+  const rv = e.target.closest('#revForm'); if (rv){ e.preventDefault(); submitPlanReview(rv); return; }
+  const cf = e.target.closest('.cform'); if (cf){ e.preventDefault(); submitComment(cf); return; }
   const pf = e.target.closest('#placeForm'); if (pf){ e.preventDefault(); submitReview(pf); return; }
   const f = e.target.closest('.custom'); if (!f) return; e.preventDefault();
   const title = f.elements.title.value.trim(), cost = clamp(Math.round(+f.elements.cost.value || 0), 0, 9999), k = +f.dataset.day;

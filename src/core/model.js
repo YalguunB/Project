@@ -132,7 +132,7 @@ const S = {
   stage:'intro', reached:-1, cardSeen:false,
   ...ANSWER_DEFAULTS, bag:ANSWER_DEFAULTS.bag.slice(),
   budget:1800, style:'comfy', month:2, nights:7,
-  dest:null, plan:null, adder:null
+  dest:null, plan:null, adder:null, planId:null   // planId: which of the account's saved plans is on screen
 };
 const ORDER = ['intro','game','card','budget','matches','planner'];
 
