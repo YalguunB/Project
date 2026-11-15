@@ -19,7 +19,6 @@ src/
 build.sh              concatenates src/ (file order is listed in build.sh) into cloudflare/public/index.html
 cloudflare/           Worker API, D1 schema, and deployable site
 docs/                 css-architecture.md, i18n.md (language switch), engagement.md (segments, nudges, review asks, why requests were slow)
-delete/               unused files kept here until the team confirms they can be removed
 ```
 
 Rules: a feature folder does not call another feature's functions directly; shared code lives in `core/`. CSS follows `docs/css-architecture.md`. After editing anything in `src/`, run `sh build.sh cloudflare`.
