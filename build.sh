@@ -1,81 +1,81 @@
 #!/bin/sh
 # Builds two pages from the same source:
 #   sh build.sh              -> moodtrip.html                (the claude.ai artifact; the platform supplies the backend)
-#   sh build.sh cloudflare   -> cloudflare/public/index.html (standalone site; cloudflare/src/worker.js supplies the backend)
+#   sh build.sh cloudflare   -> frontend/public/index.html   (standalone site; backend/worker.js supplies the API)
 cd "$(dirname "$0")"
 PARTS="
-  src/components/registry.js
-  src/components/gl-canvas.js
-  src/components/backdrop.js
-  src/components/brand.js
-  src/components/top-right.js
-  src/components/tooltip.js
-  src/components/sheet.js
-  src/components/place-panel.js
-  src/components/curtain.js
-  src/components/loader.js
-  src/components/toast.js
-  src/components/live-region.js
-  src/components/overlays.js
-  src/components/mount.js
-  src/core/model.js
-  src/data/places/00-head.js
-  src/data/places/hoian.js
-  src/data/places/lisbon.js
-  src/data/places/oaxaca.js
-  src/data/places/kyoto.js
-  src/data/places/reykjavik.js
-  src/data/places/spots.js
-  src/data/places/geo.js
-  src/visuals/scenes.js
-  src/core/backend.js
-  src/visuals/gl.js
-  src/visuals/fx.js
-  src/core/constants.js
-  src/core/registry.js
-  src/i18n/mn.js
-  src/core/i18n.js
-  src/features/feel/state.js
-  src/core/utils.js
-  src/core/saved-trip.js
-  src/core/profile.js
-  src/core/chrome.js
-  src/core/view-parts.js
-  src/features/matches/crowd.js
-  src/features/feel/rounds.js
-  src/features/field/field.js
-  src/features/matches/report.js
-  src/features/reviews/list.js
-  src/features/reviews/photo-form.js
-  src/features/place/maps-google.js
-  src/features/place/panel.js
-  src/features/reviews/actions.js
-  src/features/engage/nudge.js
-  src/features/account/account.js
-  src/features/plans/plans.js
-  src/features/planner/views.js
-  src/features/planner/route-map.js
-  src/features/planner/stops.js
-  src/features/budget/budget.js
-  src/features/feel/game.js
-  src/features/feel/battery.js
-  src/core/flow.js
-  src/features/feel/index.js
-  src/features/budget/index.js
-  src/features/matches/index.js
-  src/features/planner/index.js
-  src/features/field/index.js
-  src/features/place/index.js
-  src/features/reviews/index.js
-  src/features/engage/index.js
-  src/features/account/index.js
-  src/features/plans/index.js
-  src/core/events.js
-  src/features/planner/drag.js
-  src/core/backend-sync.js
-  src/core/boot.js
+  frontend/src/components/registry.js
+  frontend/src/components/gl-canvas.js
+  frontend/src/components/backdrop.js
+  frontend/src/components/brand.js
+  frontend/src/components/top-right.js
+  frontend/src/components/tooltip.js
+  frontend/src/components/sheet.js
+  frontend/src/components/place-panel.js
+  frontend/src/components/curtain.js
+  frontend/src/components/loader.js
+  frontend/src/components/toast.js
+  frontend/src/components/live-region.js
+  frontend/src/components/overlays.js
+  frontend/src/components/mount.js
+  frontend/src/core/model.js
+  frontend/src/data/places/00-head.js
+  frontend/src/data/places/hoian.js
+  frontend/src/data/places/lisbon.js
+  frontend/src/data/places/oaxaca.js
+  frontend/src/data/places/kyoto.js
+  frontend/src/data/places/reykjavik.js
+  frontend/src/data/places/spots.js
+  frontend/src/data/places/geo.js
+  frontend/src/visuals/scenes.js
+  frontend/src/core/backend.js
+  frontend/src/visuals/gl.js
+  frontend/src/visuals/fx.js
+  frontend/src/core/constants.js
+  frontend/src/core/registry.js
+  frontend/src/i18n/mn.js
+  frontend/src/core/i18n.js
+  frontend/src/features/feel/state.js
+  frontend/src/core/utils.js
+  frontend/src/core/saved-trip.js
+  frontend/src/core/profile.js
+  frontend/src/core/chrome.js
+  frontend/src/core/view-parts.js
+  frontend/src/features/matches/crowd.js
+  frontend/src/features/feel/rounds.js
+  frontend/src/features/field/field.js
+  frontend/src/features/matches/report.js
+  frontend/src/features/reviews/list.js
+  frontend/src/features/reviews/photo-form.js
+  frontend/src/features/place/maps-google.js
+  frontend/src/features/place/panel.js
+  frontend/src/features/reviews/actions.js
+  frontend/src/features/engage/nudge.js
+  frontend/src/features/account/account.js
+  frontend/src/features/plans/plans.js
+  frontend/src/features/planner/views.js
+  frontend/src/features/planner/route-map.js
+  frontend/src/features/planner/stops.js
+  frontend/src/features/budget/budget.js
+  frontend/src/features/feel/game.js
+  frontend/src/features/feel/battery.js
+  frontend/src/core/flow.js
+  frontend/src/features/feel/index.js
+  frontend/src/features/budget/index.js
+  frontend/src/features/matches/index.js
+  frontend/src/features/planner/index.js
+  frontend/src/features/field/index.js
+  frontend/src/features/place/index.js
+  frontend/src/features/reviews/index.js
+  frontend/src/features/engage/index.js
+  frontend/src/features/account/index.js
+  frontend/src/features/plans/index.js
+  frontend/src/core/events.js
+  frontend/src/features/planner/drag.js
+  frontend/src/core/backend-sync.js
+  frontend/src/core/boot.js
 "
-CSS="src/styles/tokens-primitive.css src/styles/tokens-brand.css src/styles/tokens-semantic.css src/styles/component.css"
+CSS="frontend/src/styles/tokens-primitive.css frontend/src/styles/tokens-brand.css frontend/src/styles/tokens-semantic.css frontend/src/styles/component.css"
 FONTS='<link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js">
 <link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js">
@@ -87,8 +87,8 @@ LIBS='<script>setTimeout(function(){var l=document.getElementById("loader");if(l
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>'
 
 if [ "$1" = "cloudflare" ]; then
-  OUT=cloudflare/public/index.html
-  mkdir -p cloudflare/public cloudflare/src
+  OUT=frontend/public/index.html
+  mkdir -p frontend/public backend
   {
     echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
     echo '<title>MoodTrip</title>'
@@ -98,11 +98,11 @@ if [ "$1" = "cloudflare" ]; then
     echo '<style>'
     cat $CSS
     echo '</style></head><body>'
-    cat src/body.html
+    cat frontend/src/body.html
     echo "$LIBS"
     echo '<script>window.MT_GOOGLE=true;window.MT_MAP=true;</script>'
     echo '<script>'
-    cat src/core/runtime-cloudflare.js
+    cat frontend/src/core/runtime-cloudflare.js
     echo '</script>'
     echo '<script>'
     echo '(() => { "use strict";'
@@ -113,10 +113,10 @@ if [ "$1" = "cloudflare" ]; then
   # the server only answers for Place IDs that this page actually uses, so the API key cannot be used as an open proxy
   node -e '
     const fs = require("fs");
-    const SPOT = new Function(fs.readFileSync("src/data/places/spots.js", "utf8") + ";return SPOT")();
+    const SPOT = new Function(fs.readFileSync("frontend/src/data/places/spots.js", "utf8") + ";return SPOT")();
     const ids = [...new Set(Object.values(SPOT).flatMap(m => Object.values(m).map(v => v[1])))].sort();
-    fs.writeFileSync("cloudflare/src/spots.json", JSON.stringify(ids, null, 1) + "\n");
-    console.log(ids.length + " Place IDs -> cloudflare/src/spots.json");
+    fs.writeFileSync("backend/spots.json", JSON.stringify(ids, null, 1) + "\n");
+    console.log(ids.length + " Place IDs -> backend/spots.json");
   '
 else
   OUT=moodtrip.html
@@ -127,7 +127,7 @@ else
     echo '<style>'
     cat $CSS
     echo '</style>'
-    cat src/body.html
+    cat frontend/src/body.html
     echo "$LIBS"
     echo '<script>'
     echo '(() => { "use strict";'

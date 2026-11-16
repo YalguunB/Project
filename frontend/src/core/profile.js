@@ -3,7 +3,7 @@
    Stored in two places, like the saved trip: this browser (localStorage) and, when the shared database is there, the traveler's
    private document data/users/<id>/profile (Cloudflare: /api/db/profile/<id>, readable only with the traveler's secret).
 
-   Shape (also the shape to write by hand, see docs/engagement.md and cloudflare/seed/):
+   Shape (also the shape to write by hand, see docs/engagement.md and db/seed/):
    {
      v: 1,
      first: 1730000000000,          // first visit, ms since 1970

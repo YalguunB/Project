@@ -6,11 +6,11 @@
 
 | Хаана | Юу |
 |---|---|
-| `cloudflare/src/worker.js` | `profile` гэсэн хувийн коллекц (зөвхөн эзэн нь уншина), `Server-Timing` header, D1 query-г цөөрүүлсэн |
-| `cloudflare/wrangler.toml` | `[placement] mode = "smart"` |
-| `src/core/profile.js` | Профайл: хэдэн удаа орсон, ямар аялал төлөвлөсөн/явсан. Сегмент тооцоолно |
-| `src/features/engage/` | Нүүр хуудсан дээрх ганц nudge карт, "Аялал ямар байсан бэ?" одоор үнэлэх sheet |
-| `cloudflare/seed/` | Гараар бичсэн жишээ дата: нэг удаа аялсан хүн |
+| `backend/worker.js` | `profile` гэсэн хувийн коллекц (зөвхөн эзэн нь уншина), `Server-Timing` header, D1 query-г цөөрүүлсэн |
+| `wrangler.toml` | `[placement] mode = "smart"` |
+| `frontend/src/core/profile.js` | Профайл: хэдэн удаа орсон, ямар аялал төлөвлөсөн/явсан. Сегмент тооцоолно |
+| `frontend/src/features/engage/` | Нүүр хуудсан дээрх ганц nudge карт, "Аялал ямар байсан бэ?" одоор үнэлэх sheet |
+| `db/seed/` | Гараар бичсэн жишээ дата: нэг удаа аялсан хүн |
 
 ## 2. Сегментүүд
 
@@ -44,7 +44,7 @@ MoodTrip юу ч зардаггүй, тиймээс "2 л үлдлээ" гэх �
 Нэг хүн = 32 тэмдэгттэй `id` + 64 тэмдэгттэй нууц `key`. Анх бичсэн key нь тэр id-г "эзэмшинэ".
 Хоёр document бичнэ:
 
-**`PUT /api/db/profile/<id>`** — хэн бэ (`cloudflare/seed/profile.json`):
+**`PUT /api/db/profile/<id>`** — хэн бэ (`db/seed/profile.json`):
 ```json
 {
   "v": 1,
@@ -62,17 +62,16 @@ MoodTrip юу ч зардаггүй, тиймээс "2 л үлдлээ" гэх �
 ```
 - `month` 0-ээс эхэлнэ: 3 = 4-р сар
 - `went`: `null` = асуугаагүй, `true` = явсан, `false` = яваагүй
-- `pids`: `<газар>:<өдрийн загвар>:<дугаар>`, `src/core/model.js` доторх `DEST[].days`-аас. `kyoto:1:0` = Kyoto-гийн 2-р загвар өдрийн эхний газар (Fushimi Inari)
+- `pids`: `<газар>:<өдрийн загвар>:<дугаар>`, `frontend/src/core/model.js` доторх `DEST[].days`-аас. `kyoto:1:0` = Kyoto-гийн 2-р загвар өдрийн эхний газар (Fushimi Inari)
 
-**`PUT /api/db/trip/<id>`** — төлөвлөгөө өөрөө (`cloudflare/seed/trip.json`).
+**`PUT /api/db/trip/<id>`** — төлөвлөгөө өөрөө (`db/seed/trip.json`).
 
 ### Өөрсдөө гараараа нэг удаа бичиж үзэх
 
 ```sh
-cd cloudflare
 npm run db:local
 npm run dev                         # өөр терминал дээр
-sh seed/one-trip-traveler.sh        # profile + trip-ийг curl-ээр бичнэ
+npm run seed:local        # profile + trip-ийг curl-ээр бичнэ
 ```
 
 Гаралт:

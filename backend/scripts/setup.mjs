@@ -3,20 +3,18 @@
    It is safe to run again: it reuses the database it made, and re-deploys the site.
 
    1. signs in to Cloudflare (a browser window opens the first time)
-   2. creates the D1 database "moodtrip-db" and writes its id into wrangler.toml
-   3. creates the tables from schema.sql
+   2. creates the D1 database "moodtrip-db" (wrangler.toml finds it by name)
+   3. creates the tables from db/schema.sql
    4. deploys the site and its API
    5. optionally stores your Google Places API key and a moderation token as secrets */
 import { spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 import { createInterface } from 'node:readline/promises';
 import { stdin, stdout, env, platform, exit, version } from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const TOML = join(ROOT, 'wrangler.toml');
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const DB_NAME = 'moodtrip-db';
 const BIN = env.WRANGLER_BIN || (platform === 'win32' ? 'npx.cmd' : 'npx');
 const PRE = env.WRANGLER_BIN ? [] : ['wrangler'];
@@ -72,15 +70,10 @@ if (!db) {
   if (!db) die('The database was created but could not be found afterwards. Check the Cloudflare dashboard under Storage & Databases > D1.');
   say('Created.');
 } else say('Already exists, reusing it.');
-const id = db.uuid || db.database_id || db.id;
-if (!/^[0-9a-f-]{36}$/i.test(String(id))) die(`Unexpected database id: ${id}`);
-const toml = readFileSync(TOML, 'utf8');
-if (!/^database_id\s*=\s*"[^"]*"/m.test(toml)) die('wrangler.toml has no database_id line to update.');
-writeFileSync(TOML, toml.replace(/^database_id\s*=\s*"[^"]*"/m, `database_id = "${id}"`));
 
 /* 3 ---------------------------------------------------------------- tables */
 step(3, 'Creating the tables');
-wr(['d1', 'execute', DB_NAME, '--remote', '--file', 'schema.sql', '--yes']);
+wr(['d1', 'execute', DB_NAME, '--remote', '--file', 'db/schema.sql', '--yes']);
 
 /* 4 ---------------------------------------------------------------- deploy */
 step(4, 'Deploying the site');

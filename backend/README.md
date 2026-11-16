@@ -1,12 +1,12 @@
 # MoodTrip on Cloudflare
 
-MoodTrip plans a trip around how you feel. This folder is the whole site as one Cloudflare Worker:
+MoodTrip plans a trip around how you feel. The whole site is one Cloudflare Worker (run every command here from the project root):
 
-- the page (`public/index.html`), served by Cloudflare as a static file
-- a small API (`src/worker.js`) that
+- the page (`frontend/public/index.html`), served by Cloudflare as a static file
+- a small API (`backend/worker.js`) that
   - shows **live Google ratings, photos and reviews** for 34 named venues, using your own Google key kept on the server
   - stores **traveler reviews, feeling cards and saved trips** in a Cloudflare D1 database, so everyone sees each other's reviews
-- no accounts: each browser gets a random anonymous traveler id
+- optional accounts (username and password); without one, each browser is a random anonymous traveler
 
 ## Deploy (about 5 minutes)
 
@@ -19,8 +19,8 @@ npm run setup
 
 `npm run setup` opens a browser window to sign in the first time, then:
 
-1. creates the D1 database `moodtrip-db` and writes its id into `wrangler.toml`
-2. creates the tables from `schema.sql`
+1. creates the D1 database `moodtrip-db` (`wrangler.toml` finds it by name)
+2. creates the tables from `db/schema.sql`
 3. deploys the site and the API
 4. asks (you can press Enter to skip) for a Google Places API key and for a moderation token
 
@@ -57,13 +57,7 @@ a session token for that same traveler.
 - A review or comment shows a username only if a signed-in author chose it; the server writes the name, so it cannot be faked.
 - Signed-in travelers keep up to 30 plans (`/api/db/plans/<id>`, private), rate reviews helpful or not, and comment on reviews.
 
-**Updating an existing deployment:** the accounts need two new tables. Run the schema once against the live database (it only
-adds what is missing):
-
-```sh
-npx wrangler d1 execute moodtrip-db --remote --file=schema.sql
-npm run deploy
-```
+**Updating an existing deployment:** the Worker creates any missing tables itself on first use, so `npm run deploy` is enough.
 
 ## Moderation
 
@@ -97,11 +91,11 @@ npm run dev                       # http://localhost:8787
 sh build.sh cloudflare            # macOS, Linux, or Windows with WSL
 ```
 
-The 34 venues are listed in `src/places/spots.js`. After editing it, rebuild: the build also rewrites `cloudflare/src/spots.json`, which is the list the API accepts. Then run `npm run deploy`.
+The 34 venues are listed in `frontend/src/data/places/spots.js`. After editing it, rebuild: the build also rewrites `backend/spots.json`, which is the list the API accepts. Then run `npm run deploy`.
 
 ## Deploy from Git instead
 
-Run `npm run setup` once (it fills in `database_id` in `wrangler.toml`), commit this folder to GitHub or GitLab, then in the dashboard choose *Workers & Pages > Create > Import a repository*, set the root directory to this folder, and keep the default deploy command (`npx wrangler deploy`). Add the secrets under *Settings > Variables and Secrets*.
+Push the repo to GitHub or GitLab, then in the dashboard choose *Workers & Pages > Create > Import a repository*. Leave the root directory empty (the config is `wrangler.toml` at the top), leave the build command empty, and keep the deploy command `npx wrangler deploy`. The Worker must be named `moodtrip`, as in `wrangler.toml`. The database is found or created by name, and the tables create themselves. Add the secrets under *Settings > Variables and Secrets*.
 
 ## What is stored
 

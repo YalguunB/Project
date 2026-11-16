@@ -5,10 +5,12 @@
   "type": "module",
   "description": "MoodTrip: plans a trip around how you feel. Static site and API on Cloudflare Workers.",
   "scripts": {
-    "setup": "node scripts/setup.mjs",
+    "build": "sh build.sh cloudflare",
+    "setup": "node backend/scripts/setup.mjs",
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
-    "db:local": "wrangler d1 execute moodtrip-db --local --file=schema.sql",
+    "db:local": "wrangler d1 execute moodtrip-db --local --file=db/schema.sql",
+    "seed:local": "sh db/seed/one-trip-traveler.sh",
     "logs": "wrangler tail"
   },
   "devDependencies": {
