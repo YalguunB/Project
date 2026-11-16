@@ -1,3 +1,4 @@
+"use strict";
 /* features/planner/drag.js — Planner: move stops by keyboard and by pointer drag. */
 /* ---------- planner: move stops (keyboard) ---------- */
 function moveStop(id, dir){

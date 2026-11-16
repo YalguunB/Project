@@ -1,3 +1,4 @@
+"use strict";
 PLACE.reykjavik = {
   "Flybus & check in downtown": ["Transit", "The Flybus runs between Keflavík Airport and Reykjavik in about 45 minutes, and many routes drop you at or near your hotel.", "Book online and ask the driver about your hotel stop.", "45–60 min"],
   "Hot dog at Bæjarins Beztu": ["Food", "Reykjavik’s famous harbour hot dog stand. Order “ein með öllu”, one with everything: lamb sausage with crispy and raw onions, ketchup, sweet mustard and remoulade.", "Say “ein með öllu” and eat standing at the stand.", "20 min"],

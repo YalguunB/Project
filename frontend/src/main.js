@@ -1,0 +1,86 @@
+"use strict";
+/* main.js — The one app script index.html loads. It loads every other file, one after another, in this order.
+   The order is the dependency order: all files share one scope, so a file may only use what the files above it define.
+   A new file needs its line here. */
+(() => {
+  const FILES = [
+  'src/core/api-client.js',
+  'src/components/registry.js',
+  'src/components/gl-canvas.js',
+  'src/components/backdrop.js',
+  'src/components/brand.js',
+  'src/components/top-right.js',
+  'src/components/tooltip.js',
+  'src/components/sheet.js',
+  'src/components/place-panel.js',
+  'src/components/curtain.js',
+  'src/components/loader.js',
+  'src/components/toast.js',
+  'src/components/live-region.js',
+  'src/components/overlays.js',
+  'src/components/mount.js',
+  'src/core/model.js',
+  'src/data/places/00-head.js',
+  'src/data/places/hoian.js',
+  'src/data/places/lisbon.js',
+  'src/data/places/oaxaca.js',
+  'src/data/places/kyoto.js',
+  'src/data/places/reykjavik.js',
+  'src/data/places/spots.js',
+  'src/data/places/geo.js',
+  'src/visuals/scenes.js',
+  'src/core/backend.js',
+  'src/visuals/gl.js',
+  'src/visuals/fx.js',
+  'src/core/constants.js',
+  'src/core/registry.js',
+  'src/i18n/mn.js',
+  'src/core/i18n.js',
+  'src/features/feel/state.js',
+  'src/core/utils.js',
+  'src/core/saved-trip.js',
+  'src/core/profile.js',
+  'src/core/chrome.js',
+  'src/core/view-parts.js',
+  'src/features/matches/crowd.js',
+  'src/features/feel/rounds.js',
+  'src/features/field/field.js',
+  'src/features/matches/report.js',
+  'src/features/reviews/list.js',
+  'src/features/reviews/photo-form.js',
+  'src/features/place/maps-google.js',
+  'src/features/place/panel.js',
+  'src/features/reviews/actions.js',
+  'src/features/engage/nudge.js',
+  'src/features/account/account.js',
+  'src/features/plans/plans.js',
+  'src/features/planner/views.js',
+  'src/features/planner/route-map.js',
+  'src/features/planner/stops.js',
+  'src/features/budget/budget.js',
+  'src/features/feel/game.js',
+  'src/features/feel/battery.js',
+  'src/core/flow.js',
+  'src/features/feel/index.js',
+  'src/features/budget/index.js',
+  'src/features/matches/index.js',
+  'src/features/planner/index.js',
+  'src/features/field/index.js',
+  'src/features/place/index.js',
+  'src/features/reviews/index.js',
+  'src/features/engage/index.js',
+  'src/features/account/index.js',
+  'src/features/plans/index.js',
+  'src/core/events.js',
+  'src/features/planner/drag.js',
+  'src/core/backend-sync.js',
+  'src/core/boot.js'
+  ];
+  for (const src of FILES){
+    const s = document.createElement('script');
+    s.src = src;
+    s.async = false;                                  // run in this order, not in the order they finish downloading
+    s.onerror = () => console.error('MoodTrip: could not load ' + src);
+    document.body.appendChild(s);
+  }
+})();

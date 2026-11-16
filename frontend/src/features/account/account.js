@@ -1,5 +1,6 @@
+"use strict";
 /* features/account/account.js — Account: the top-bar button, the sign-in / sign-up sheet and the account menu.
-   No email and no password reset in this prototype: a username and a password (see backend/worker.js, "accounts"). */
+   No email and no password reset in this prototype: a username and a password (see backend/src/services/accounts.js). */
 const ICON_USER = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="5.5" r="3"/><path d="M2.5 14c.8-2.8 3-4.2 5.5-4.2s4.7 1.4 5.5 4.2" stroke-linecap="round"/></svg>';
 let authMode = 'login';
 function paintAccountBtn(){

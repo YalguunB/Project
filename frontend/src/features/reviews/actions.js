@@ -1,3 +1,4 @@
+"use strict";
 /* features/reviews/actions.js — Reviews: repaint, post, delete. */
 /* The list can change underneath the reader at any moment (that is the point), so only the reviews area is redrawn. The form is left alone. */
 function paintReviews(){

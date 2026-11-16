@@ -1,3 +1,4 @@
+"use strict";
 /* features/reviews/list.js — Reviews: list, stars, aggregate. */
 /* ---------- place panel: what a stop is like, plus live traveler reviews ---------- */
 const REV_SHOWN = 6;

@@ -1,3 +1,4 @@
+"use strict";
 /* features/feel/state.js — Feel: the five rounds and what has been answered. */
 /* ---------- the game: five rounds on one page ---------- */
 const ROUNDS = [

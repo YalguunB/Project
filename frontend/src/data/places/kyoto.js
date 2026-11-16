@@ -1,3 +1,4 @@
+"use strict";
 PLACE.kyoto = {
   "Check in to a machiya near Gion": ["Relax", "A machiya is a traditional wooden townhouse, long and narrow, with tatami floors and a tiny garden. Staying in one puts you inside the old neighbourhood from the first night.", "Shoes come off at the door. Keep your bags compact for steep stairs.", "1 h"],
   "Pontocho alley dinner": ["Food", "A narrow lantern-lit lane beside the Kamo river, lined with small restaurants. Pick a place for yakitori, tempura or kaiseki in an intimate room.", "Many places are tiny. Book ahead or arrive early.", "2 h"],

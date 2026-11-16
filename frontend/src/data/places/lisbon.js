@@ -1,3 +1,4 @@
+"use strict";
 PLACE.lisbon = {
   "Tram 28 ride to your Alfama stay": ["Transit", "Tram 28 rattles through Graça, Alfama and Baixa on narrow tracks, past tiled façades. It is a classic first ride, though it fills fast.", "Ride early or off-peak and keep bags zipped. If it is packed, walk instead.", "30–45 min"],
   "Fado dinner in a tiny tavern": ["Nightlife", "Fado is Portugal’s soulful, guitar-led song tradition, and small taverns in Alfama and Mouraria serve dinner with live singers. The mood is intense and the room goes quiet for each song.", "Book ahead and keep conversation low while the singer performs.", "2–3 h"],

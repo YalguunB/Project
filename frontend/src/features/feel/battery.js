@@ -1,3 +1,4 @@
+"use strict";
 /* features/feel/battery.js — Feel: round 2, the battery. */
 function paintEnergy(){
   const b = $('#battery'); if (!b) return;

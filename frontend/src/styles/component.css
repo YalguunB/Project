@@ -4024,7 +4024,7 @@ html.pl-open body {
   }
 }
 
-/* A named venue, and Google Maps details (Cloudflare build) */
+/* A named venue, and Google Maps details */
 .pl-spot {
   display: flex;
   flex-direction: column;

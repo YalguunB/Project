@@ -1,3 +1,4 @@
+"use strict";
 /* features/place/maps-google.js — Place: Google Maps links and live Google details. */
 /* A free-text Maps search can put an ad or a look-alike first, so a stop with a named venue opens that exact place by its Place ID
    (query_place_id wins over the text). Stops with no venue keep a plain search and say so. */
@@ -12,7 +13,7 @@ function spotHTML(sp){
 }
 const genericMapHTML = (s, d) => `<a class="gmap" href="${esc(mapsUrl(s.title, d))}" target="_blank" rel="noopener noreferrer">Search Google Maps${ICON_OUT}</a>
       <p class="fine">Opens a text search in a new tab. Search results can include ads, so check the name before you go.</p>`;
-/* ---------- Google Maps details: the Cloudflare build only. Its own server holds the API key and hands back rating, photos and reviews.
+/* ---------- Google Maps details: only when window.MT_GOOGLE is set. The backend holds the API key and hands back rating, photos and reviews.
    Google's rules apply: every photo and review keeps its author, review text is shown as returned, the "Google Maps" mark stays on the block,
    and nothing is saved beyond this page view. ---------- */
 const GOOGLE_ON = !!window.MT_GOOGLE;

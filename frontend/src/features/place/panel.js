@@ -1,3 +1,4 @@
+"use strict";
 /* features/place/panel.js — Place: the side drawer / bottom sheet. */
 function placeHTML(s, k, i){
   const d = S.dest, n = S.plan.days[k].stops.length, pid = pidOf(s), info = pid ? placeInfo(d.id, s.title) : null, cost = stopCost(s), spot = info ? spotOf(d.id, s.title) : null;

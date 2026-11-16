@@ -1,0 +1,53 @@
+// MoodTrip on Cloudflare: the one Wrangler config.
+//
+// Wrangler reads this file for `npm run dev`, `npm run deploy` and `npm run setup`, and Cloudflare's Git build reads it too
+// (it runs `npx wrangler deploy` at the top of the repo). Wrangler does not read a wrangler.js; JSONC is JSON that allows comments.
+// Running on your own computer or another host does not use this file: that is `cd backend; npm start` (Express + SQLite).
+//
+//   frontend/   the page, served as is (no build step)
+//   backend/    the API for Cloudflare: backend/worker.js, the same API as the Express server, on D1
+//   db/         the database: schema.sql, and seed/ with hand-written example data
+{
+  // ---------------------------------------------------------------- 1. the Worker
+  "name": "moodtrip",                       // the site becomes https://moodtrip.<your-name>.workers.dev
+  "main": "backend/worker.js",              // the code that answers /api/...
+  "compatibility_date": "2025-09-01",       // which version of the Workers runtime behaviour to use
+
+  // Before every dev/deploy: write backend/spots.json (the Place IDs the Google key may ask about) from frontend/src/data/places/spots.js
+  "build": { "command": "node backend/scripts/make-spots.mjs" },
+
+  // ---------------------------------------------------------------- 2. the website (static files)
+  // Everything in frontend/ is served by Cloudflare itself, from the edge closest to the visitor. Anything that is not /api/...
+  // goes here; the Worker reaches the same files as env.ASSETS. frontend/_headers sets the security and cache headers.
+  "assets": { "directory": "./frontend", "binding": "ASSETS" },
+
+  // ---------------------------------------------------------------- 3. the database (D1)
+  // The team's live database. The Worker creates its own tables on first use (ensureSchema in backend/worker.js).
+  "d1_databases": [
+    { "binding": "DB", "database_name": "moodtrip-db", "database_id": "8b534909-4626-4a14-8aad-1ee942921195" }
+  ],
+
+  // Run the API next to the database instead of next to the visitor: every query is then a few milliseconds.
+  "placement": { "mode": "smart" },
+
+  // db/schema.sql is bundled into the Worker as text, so the Worker can create its own tables
+  "rules": [{ "type": "Text", "globs": ["**/*.sql"], "fallthrough": true }],
+
+  // ---------------------------------------------------------------- 4. settings and secrets
+  // Plain settings are here. Secrets are never written in this file; set them once with:
+  //   npx wrangler secret put GOOGLE_PLACES_API_KEY    (optional: live Google ratings, photos, reviews)
+  //   npx wrangler secret put ADMIN_TOKEN              (optional: 16+ characters, lets you delete any review)
+  // For `npm run dev` they go in .dev.vars instead (copy .dev.vars.example).
+  "vars": { "PLACES_BASE": "https://places.googleapis.com/v1" },
+
+  // ---------------------------------------------------------------- 5. branch previews
+  // Cloudflare builds of branches other than main run `npx wrangler preview`. Previews do not inherit the settings above.
+  // On purpose there is NO database here, so a half-finished branch can never read or write the live data: in a preview the page
+  // works, without reviews, accounts and saved plans. To give previews their own data, create a test database
+  // (npx wrangler d1 create moodtrip-preview-db) and add inside "previews":
+  //   "d1_databases": [{ "binding": "DB", "database_name": "moodtrip-preview-db", "database_id": "<its id>" }]
+  "previews": {
+    "vars": { "PLACES_BASE": "https://places.googleapis.com/v1" },
+    "placement": { "mode": "smart" }
+  }
+}

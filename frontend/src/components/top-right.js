@@ -1,3 +1,4 @@
+"use strict";
 /* components/top-right.js — Meta line, the language switch and the Field button. */
 COMPONENTS['top-right'] = () => `    <div class="top-r">
       <p class="meta" id="meta"></p>

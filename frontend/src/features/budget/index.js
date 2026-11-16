@@ -1,3 +1,4 @@
+"use strict";
 /* features/budget/index.js — Budget: entry points. */
 VIEWS.budget = () => `<section aria-labelledby="h1">
     <header class="head"><p class="label accent" data-fade>Step 2 of 4</p><h1 class="display-l" id="h1" tabindex="-1" data-split>Budget and timing.</h1><p class="body-l muted" data-fade>Set what you’d spend and when you can go. Everything is per person, and flights are not included.</p></header>

@@ -1,7 +1,8 @@
+"use strict";
 /* core/profile.js — The traveler's profile: visits and trips, which segment they are in, and what to ask them next.
 
    Stored in two places, like the saved trip: this browser (localStorage) and, when the shared database is there, the traveler's
-   private document data/users/<id>/profile (Cloudflare: /api/db/profile/<id>, readable only with the traveler's secret).
+   private document data/users/<id>/profile (/api/db/profile/<id>, readable only with the traveler's secret).
 
    Shape (also the shape to write by hand, see docs/engagement.md and db/seed/):
    {

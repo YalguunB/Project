@@ -1,3 +1,4 @@
+"use strict";
 /* core/boot.js — Boot. */
 /* ---------- boot ---------- */
 $('#horizon').innerHTML = Object.entries(HORIZON).map(([k, v]) => v.replace('<svg ', `<svg data-scene="${k}" `)).join('');

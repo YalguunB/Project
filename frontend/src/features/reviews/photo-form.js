@@ -1,3 +1,4 @@
+"use strict";
 /* features/reviews/photo-form.js — Reviews: photo picking and the review form. */
 /* ---------- review photos: picked, shrunk in the browser, uploaded as an asset only when the review is posted ---------- */
 const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];

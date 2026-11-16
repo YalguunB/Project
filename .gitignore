@@ -1,9 +1,9 @@
 node_modules/
-.dev.vars
-.wrangler/
-*.sqlite
-*.sqlite-shm
-*.sqlite-wal
-moodtrip.html
+.env
+db/*.sqlite
+db/*.sqlite-*
 .DS_Store
 Thumbs.db
+.dev.vars
+.wrangler/
+backend/spots.json

@@ -3,18 +3,20 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "MoodTrip: plans a trip around how you feel. Static site and API on Cloudflare Workers.",
+  "description": "MoodTrip: plans a trip around how you feel. Frontend, Express + SQLite backend, and a Cloudflare Worker entry for deploying.",
   "scripts": {
-    "build": "sh build.sh cloudflare",
+    "start": "npm --prefix backend start",
+    "dev": "wrangler dev",
     "setup": "node backend/scripts/setup.mjs",
     "deploy": "wrangler deploy",
-    "dev": "wrangler dev",
     "db:local": "wrangler d1 execute moodtrip-db --local --file=db/schema.sql",
-    "seed:local": "sh db/seed/one-trip-traveler.sh",
+    "seed:local": "sh db/seed/one-trip-traveler.sh http://localhost:8787",
     "logs": "wrangler tail"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  }
 }

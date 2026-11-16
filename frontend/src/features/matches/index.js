@@ -1,3 +1,4 @@
+"use strict";
 /* features/matches/index.js — Matches: entry points. */
 VIEWS.matches = () => { const R = rank().slice(0, 3);
     const lvlWord = ['off season', 'a good month', 'a best month'];

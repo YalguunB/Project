@@ -1,3 +1,4 @@
+"use strict";
 /* ============ SCENERY: inline SVG, no external images ============ */
 let _uid = 0;
 const svgWrap = inner => `<svg viewBox="0 0 300 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">${inner}</svg>`;

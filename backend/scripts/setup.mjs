@@ -3,7 +3,7 @@
    It is safe to run again: it reuses the database it made, and re-deploys the site.
 
    1. signs in to Cloudflare (a browser window opens the first time)
-   2. creates the D1 database "moodtrip-db" (wrangler.toml finds it by name)
+   2. creates the D1 database "moodtrip-db" (wrangler.jsonc finds it by name)
    3. creates the tables from db/schema.sql
    4. deploys the site and its API
    5. optionally stores your Google Places API key and a moderation token as secrets */

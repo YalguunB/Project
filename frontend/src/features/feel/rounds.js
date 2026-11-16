@@ -1,3 +1,4 @@
+"use strict";
 /* features/feel/rounds.js — Feel: one section per round. */
 /* ---------- the game: one section per round ---------- */
 const ROUND_BODY = {

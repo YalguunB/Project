@@ -1,3 +1,4 @@
+"use strict";
 /* i18n/mn.js — Mongolian strings for core/i18n.js.
 
    MN_STRINGS: English text as it appears on the page -> Mongolian.
