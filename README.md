@@ -30,7 +30,6 @@ docs/                 css-architecture.md, i18n.md, engagement.md
 wrangler.toml         the one Cloudflare config (also used by Cloudflare's Git builds)
 package.json          npm scripts: build, dev, deploy, setup, db:local, seed:local, logs
 build.sh              concatenates frontend/src into frontend/public/index.html
-delete/               unused files kept until the team confirms they can be removed
 ```
 
 Rules: a feature folder does not call another feature's functions directly; shared code lives in `frontend/src/core/`.

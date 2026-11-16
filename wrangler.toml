@@ -5,8 +5,8 @@
 #   backend/    the API: one Worker (backend/worker.js)
 #   db/         the database: schema.sql, and seed/ with hand-written example data
 #
-# No database_id here on purpose: Wrangler links the D1 database by its name (moodtrip-db) and creates it on the first
-# deploy if it does not exist yet. The Worker creates its own tables on first use (ensureSchema in backend/worker.js).
+# The database is the team's live D1 database. Without an id, Wrangler would link it by name (moodtrip-db) and create it
+# if missing. The Worker creates its own tables on first use (ensureSchema in backend/worker.js).
 name = "moodtrip"
 main = "backend/worker.js"
 compatibility_date = "2025-09-01"
@@ -23,6 +23,7 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "moodtrip-db"
+database_id = "8b534909-4626-4a14-8aad-1ee942921195"
 
 [vars]
 PLACES_BASE = "https://places.googleapis.com/v1"
