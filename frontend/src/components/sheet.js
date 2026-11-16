@@ -1,3 +1,4 @@
+"use strict";
 /* components/sheet.js — Bottom sheet dialog. */
 COMPONENTS['sheet'] = () => `<div id="sheet" class="sheet-wrap" hidden>
   <div class="sheet-bd" data-act="closesheet"></div>

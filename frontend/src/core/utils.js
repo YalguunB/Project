@@ -1,3 +1,4 @@
+"use strict";
 /* core/utils.js — Small utilities: toast, screen-reader announcements, plural. */
 /* ---------- small utilities ---------- */
 let toastTimer;

@@ -1,3 +1,4 @@
+"use strict";
 /* features/planner/route-map.js — Planner: the route map (OpenFreeMap tiles drawn with MapLibre GL).
 
    - No key and no account: OpenFreeMap's public tiles. MapLibre adds the map credit (OpenFreeMap, OpenMapTiles, OpenStreetMap).
@@ -5,7 +6,7 @@
      It is the CSP build: its worker is a normal file on this site, so the page's Content-Security-Policy needs no blob: workers.
    - The planner redraws itself on every edit; the map element is kept and moved into the new slot, so the map is built once.
    - Pins come from data/places/geo.js and are approximate. Stops with no single place (a spa, a café of your choice) are not pinned.
-   - Only in the Cloudflare build (window.MT_MAP); the claude.ai page has no /vendor files. */
+   - Only when window.MT_MAP is set (frontend/vendor is served by the backend). */
 const MAP_ON = !!window.MT_MAP;
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/positron';
 const MAP_LIB = '/vendor/maplibre-5.24.1/';

@@ -1,3 +1,4 @@
+"use strict";
 /* features/field/index.js — Field: entry points. */
 VIEWS.field = () => `<section class="field-view" aria-labelledby="h1">
     <div class="field-top">

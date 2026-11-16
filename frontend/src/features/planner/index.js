@@ -1,3 +1,4 @@
+"use strict";
 /* features/planner/index.js — Planner: entry points. */
 VIEWS.planner = () => `<section aria-labelledby="h1"><div id="plan">${plannerHTML()}</div></section>`;
 ACT.plan = el => { S.dest = destById(el.dataset.id); S.plan = genPlan(S.dest, S.nights, energyLevel().per); S.adder = null; S.planId = null; go('planner'); };

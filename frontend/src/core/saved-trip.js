@@ -1,3 +1,4 @@
+"use strict";
 /* core/saved-trip.js — Saved trip: validated before it is trusted. */
 /* ---------- saved trip: validated before it is trusted (it comes from storage or the shared database) ---------- */
 function cleanTrip(v){

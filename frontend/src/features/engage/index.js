@@ -1,3 +1,4 @@
+"use strict";
 /* features/engage/index.js — Engage: entry points. The nudge lives in #engageSlot on the start screen. */
 AFTER.intro = paintEngage;
 onProfile(() => { if (S.stage === 'intro') paintEngage(); });

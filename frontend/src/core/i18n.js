@@ -1,3 +1,4 @@
+"use strict";
 /* core/i18n.js — Language switch (English / Mongolian) without touching every template.
 
    The page is written in English. When another language is on:

@@ -1,3 +1,4 @@
+"use strict";
 /* features/account/index.js — Account: entry points. */
 ACT.account = () => BE.account ? openSheetWith(accountMenuHTML()) : openAuth('login');
 ACT.signin = () => openAuth('login');

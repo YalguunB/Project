@@ -1,11 +1,11 @@
 #!/bin/sh
 # A traveler who planned one trip (Kyoto, April 2026, 4 nights), written by hand into the API.
-#   sh db/seed/one-trip-traveler.sh                       -> your local server (npm run dev); also: npm run seed:local
+#   sh db/seed/one-trip-traveler.sh                       -> your local server (cd backend; npm start)
 #   sh db/seed/one-trip-traveler.sh https://<your site>   -> a deployed site (only for testing, then delete it)
 # The id and key below are EXAMPLE values. Anyone who reads this file knows the key, so never use them for a real traveler.
 set -e
 cd "$(dirname "$0")"
-BASE=${1:-http://localhost:8787}
+BASE=${1:-http://localhost:3000}
 ID=0123456789abcdef0123456789abcdef                                   # public id: 32 hex characters
 KEY=fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210  # secret: 64 hex characters (the first write claims the id)
 

@@ -1,3 +1,4 @@
+"use strict";
 /* core/constants.js — Shared helpers, stage names, and the 3D-orb anchors. */
 /* ============ APP: views, events, wiring (GL scene, motion layer, shared backend) ============ */
 const $ = (s, r = document) => r.querySelector(s);

@@ -1,3 +1,4 @@
+"use strict";
 /* components/loader.js — Loading screen. */
 COMPONENTS['loader'] = () => `<div id="loader" role="status" aria-label="Loading MoodTrip">
   <div class="lp"></div>

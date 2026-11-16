@@ -1,3 +1,4 @@
+"use strict";
 /* components/place-panel.js — Place details side panel. */
 COMPONENTS['place-panel'] = () => `<div id="place" class="place-wrap" hidden>
   <div class="place-bd" data-act="closeplace"></div>

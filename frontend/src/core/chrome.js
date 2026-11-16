@@ -1,3 +1,4 @@
+"use strict";
 /* core/chrome.js — Chrome: mood, 3D scene sync, stage nav, render and go(). */
 /* ---------- chrome: mood, 3D scene sync, stage nav ---------- */
 function moodFor(stage){

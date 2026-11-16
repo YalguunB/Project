@@ -1,4 +1,4 @@
-/* MoodTrip on Cloudflare: one Worker for everything dynamic. Static files (public/) are served by Cloudflare itself.
+/* MoodTrip on Cloudflare: one Worker for everything dynamic. Static files (frontend/) are served by Cloudflare itself. The Express server (backend/server.js) answers the same API on SQLite.
 
    GET  /api/place?id=<Place ID>             Google rating, photos and reviews for one of the venues this site uses
    GET  /api/photo?ref=<photo name>&w=<px>   redirects to one Google photo (so the API key never reaches the browser)

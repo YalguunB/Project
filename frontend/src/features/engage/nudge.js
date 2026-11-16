@@ -1,3 +1,4 @@
+"use strict";
 /* features/engage/nudge.js — Engage: one nudge on the start screen, shaped by who is visiting, and a quick "rate your trip" sheet.
 
    Every line here is true for this traveler: their own trip dates, the month's real season score, and counts of real cards in the

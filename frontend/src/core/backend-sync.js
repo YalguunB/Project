@@ -1,3 +1,4 @@
+"use strict";
 /* core/backend-sync.js — React to the shared database. */
 /* ---------- backend: react to the shared database ---------- */
 let crowdSig = '';

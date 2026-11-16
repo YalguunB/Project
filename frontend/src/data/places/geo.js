@@ -1,3 +1,4 @@
+"use strict";
 /* data/places/geo.js — Where the stops are, for the route map in the planner.
 
    [latitude, longitude] for every stop that is one findable place: a temple, a market, a beach, a viewpoint. Stops that could

@@ -1,3 +1,4 @@
+"use strict";
 /* features/plans/plans.js — My plans: every plan saved to the account, with its places and the traveler's own review of each. */
 let plansBack = 'intro', plansOpen = new Set(), delArm = null, delTimer = 0;
 const STAR_SVG = '<i class="rstar" aria-hidden="true"></i>';

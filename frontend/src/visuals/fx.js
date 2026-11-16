@@ -1,3 +1,4 @@
+"use strict";
 /* ============ FX: text reveals, page curtain and loader ============ */
 const FX = (() => {
   const $ = (s, r = document) => r.querySelector(s);

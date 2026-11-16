@@ -1,7 +1,8 @@
+"use strict";
 /* ============ SPOTS: one specific, named venue for each stop that maps to a real place ============
    SPOT[destId][stop title] = [venue name, Google Place ID]
    A Place ID is an identifier, so it is fine to keep here. Ratings, photos and reviews are never stored in this file:
-   the Cloudflare build fetches them live through its own server (see cloudflare/). Stops with no entry (a spa afternoon, an
+   the site fetches them live through its own server (see backend/). Stops with no entry (a spa afternoon, an
    airport transfer) stay generic on purpose, because a free-text Maps search for them returns ads and unrelated places. */
 const SPOT = {
   hoian: {

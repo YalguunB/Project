@@ -1,3 +1,4 @@
+"use strict";
 /* core/flow.js — Navigation actions: moving between screens. */
 ACT.start = () => go('game');
 ACT.skip = () => go('budget');

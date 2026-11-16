@@ -1,3 +1,4 @@
+"use strict";
 /* features/planner/stops.js — Planner: stops, adding, removing, days. */
 /* a stop's guide entry and review id come from its title, so a saved or edited plan can never point reviews at the wrong place */
 const pidMaps = new WeakMap();

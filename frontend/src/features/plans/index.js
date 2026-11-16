@@ -1,3 +1,4 @@
+"use strict";
 /* features/plans/index.js — My plans: entry points. */
 VIEWS.plans = plansViewHTML;
 AFTER.plans = () => { paintPlans(); };

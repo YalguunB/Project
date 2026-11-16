@@ -1,3 +1,4 @@
+"use strict";
 /* features/budget/budget.js — Budget: slider, styles, nights. */
 /* ---------- budget paint ---------- */
 function paintBudget(){

@@ -1,3 +1,4 @@
+"use strict";
 /* ============ GL: Three.js scene behind the UI (mood orb, shader backdrop, dust, satellites, feeling field) ============ */
 const MOODS = {
   start:  { bg:'#F2EBDD', surface:'#FBF7EF', ink:'#2F261D', accent:'#A3502C', accentInk:'#FFFFFF', glow:'#E2B47E', orb:['#EBCB9F','#A9653A','#D6A46C'] },

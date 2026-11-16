@@ -1,3 +1,4 @@
+"use strict";
 /* features/planner/views.js — Planner: cost, month grid, day cards. */
 /* ---------- planner views ---------- */
 const COST_PARTS = [['Stays', 'stays', 'var(--accent)'], ['Food', 'food', 'var(--glow)'], ['Stops', 'stops', 'color-mix(in srgb,var(--accent) 45%,var(--surface))'], ['Local transport', 'trans', 'color-mix(in srgb,var(--text) 55%,var(--surface))']];
