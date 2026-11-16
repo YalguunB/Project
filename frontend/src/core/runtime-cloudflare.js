@@ -1,6 +1,6 @@
 /* ============ CLOUDFLARE RUNTIME ============
    On claude.ai the platform supplies window.claude (shared database, who is viewing). On Cloudflare this file stands in for it,
-   backed by this site's own API (cloudflare/src/worker.js): `db`, `user`, and `auth` (accounts). Traveler photo uploads are not
+   backed by this site's own API (backend/worker.js): `db`, `user`, and `auth` (accounts). Traveler photo uploads are not
    offered here, so `assets` resolves to null and the page hides that control.
 
    Identity:

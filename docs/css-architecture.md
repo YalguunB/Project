@@ -1,6 +1,6 @@
 # CSS architecture
 
-Exactly four CSS files live in `src/styles/`. `build.sh` concatenates them in this order into the page:
+Exactly four CSS files live in `frontend/src/styles/`. `build.sh` concatenates them in this order into the page:
 
 | # | File | Contains |
 |---|------|----------|
@@ -30,9 +30,9 @@ Add one block in `tokens-brand.css`, plus its primitives in `tokens-primitive.cs
 
 - px values are not tokenized and components have no local tokens.
 - Breakpoints are not consolidated.
-- `src/visuals/gl.js` repeats the mood palette hex values.
+- `frontend/src/visuals/gl.js` repeats the mood palette hex values.
 - No Stylelint rule yet for nesting depth or raw colors.
 
 ## JS structure (for reference)
 
-`src/core/` shared code, `src/features/<name>/` one folder per feature with an `index.js` that registers `VIEWS`, `ACT` and `AFTER` entries, `src/visuals/`, `src/data/places/`. File order is listed in `build.sh`.
+`frontend/src/core/` shared code, `frontend/src/features/<name>/` one folder per feature with an `index.js` that registers `VIEWS`, `ACT` and `AFTER` entries, `frontend/src/visuals/`, `frontend/src/data/places/`. File order is listed in `build.sh`.

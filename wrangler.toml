@@ -1,18 +1,23 @@
-# Deploy config for Cloudflare's Git builds ("Workers Builds"), which run `npx wrangler deploy` at the top of the repo.
-# It deploys the same Worker as cloudflare/wrangler.toml (which `npm run setup` and `npm run deploy` use from your computer).
-# Keep the two in step.
+# The one Wrangler config for MoodTrip. Used by `npm run dev`, `npm run deploy`, `npm run setup`,
+# and by Cloudflare's Git builds (which run `npx wrangler deploy` at the top of the repo).
 #
-# No database_id here on purpose: Wrangler links the D1 database by its name (moodtrip-db), and creates it on the first
-# deploy if it does not exist yet. The Worker creates its own tables on first use (see ensureSchema in worker.js).
+#   frontend/   the page: frontend/src is the source, frontend/public is what is served (build with `npm run build`)
+#   backend/    the API: one Worker (backend/worker.js)
+#   db/         the database: schema.sql, and seed/ with hand-written example data
+#
+# No database_id here on purpose: Wrangler links the D1 database by its name (moodtrip-db) and creates it on the first
+# deploy if it does not exist yet. The Worker creates its own tables on first use (ensureSchema in backend/worker.js).
 name = "moodtrip"
-main = "cloudflare/src/worker.js"
+main = "backend/worker.js"
 compatibility_date = "2025-09-01"
 
+# Run the API next to the database instead of next to the visitor: every query is then a few milliseconds.
+# Static files are still served from the edge closest to the visitor.
 [placement]
 mode = "smart"
 
 [assets]
-directory = "./cloudflare/public"
+directory = "./frontend/public"
 binding = "ASSETS"
 
 [[d1_databases]]
@@ -22,6 +27,7 @@ database_name = "moodtrip-db"
 [vars]
 PLACES_BASE = "https://places.googleapis.com/v1"
 
+# db/schema.sql is bundled into the Worker as text, so it can create its own tables
 [[rules]]
 type = "Text"
 globs = ["**/*.sql"]

@@ -8,7 +8,7 @@
    Only text nodes and the attributes people read (aria-label, placeholder, title, alt, aria-valuetext, data-cursor) change.
    Elements marked translate="no" and form fields are left alone, and so is anything that has no translation.
 
-   Strings live in src/i18n/<lang>.js. In the console, MT_I18N.missing() lists English seen on the page without a translation. */
+   Strings live in frontend/src/i18n/<lang>.js. In the console, MT_I18N.missing() lists English seen on the page without a translation. */
 const I18N = (() => {
   const KEY = 'moodtrip:lang';
   const PACKS = { mn:{ strings:typeof MN_STRINGS !== 'undefined' ? MN_STRINGS : {}, rules:typeof MN_RULES !== 'undefined' ? MN_RULES : [],

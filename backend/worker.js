@@ -11,7 +11,7 @@
    GET  /api/health                          which parts are configured
 
    Bindings: DB (D1), secret GOOGLE_PLACES_API_KEY (optional), secret ADMIN_TOKEN (optional, for moderation), var PLACES_BASE. */
-import SCHEMA from '../schema.sql';
+import SCHEMA from '../db/schema.sql';
 import SPOTS from './spots.json';
 
 const ALLOWED = new Set(SPOTS);                      // the API key only ever asks Google about these places

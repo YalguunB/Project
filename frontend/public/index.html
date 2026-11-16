@@ -4523,7 +4523,7 @@ html.pl-open body {
 <script>
 /* ============ CLOUDFLARE RUNTIME ============
    On claude.ai the platform supplies window.claude (shared database, who is viewing). On Cloudflare this file stands in for it,
-   backed by this site's own API (cloudflare/src/worker.js): `db`, `user`, and `auth` (accounts). Traveler photo uploads are not
+   backed by this site's own API (backend/worker.js): `db`, `user`, and `auth` (accounts). Traveler photo uploads are not
    offered here, so `assets` resolves to null and the page hides that control.
 
    Identity:
@@ -7183,7 +7183,7 @@ const MN_RULES = [
    Only text nodes and the attributes people read (aria-label, placeholder, title, alt, aria-valuetext, data-cursor) change.
    Elements marked translate="no" and form fields are left alone, and so is anything that has no translation.
 
-   Strings live in src/i18n/<lang>.js. In the console, MT_I18N.missing() lists English seen on the page without a translation. */
+   Strings live in frontend/src/i18n/<lang>.js. In the console, MT_I18N.missing() lists English seen on the page without a translation. */
 const I18N = (() => {
   const KEY = 'moodtrip:lang';
   const PACKS = { mn:{ strings:typeof MN_STRINGS !== 'undefined' ? MN_STRINGS : {}, rules:typeof MN_RULES !== 'undefined' ? MN_RULES : [],
@@ -7396,7 +7396,7 @@ const resumeBtn = () => saved ? `<button class="btn btn-secondary" data-act="res
    Stored in two places, like the saved trip: this browser (localStorage) and, when the shared database is there, the traveler's
    private document data/users/<id>/profile (Cloudflare: /api/db/profile/<id>, readable only with the traveler's secret).
 
-   Shape (also the shape to write by hand, see docs/engagement.md and cloudflare/seed/):
+   Shape (also the shape to write by hand, see docs/engagement.md and db/seed/):
    {
      v: 1,
      first: 1730000000000,          // first visit, ms since 1970
@@ -8124,7 +8124,7 @@ async function submitRatings(form){
   } catch (e) { err.textContent = BE.explain(e); err.hidden = false; btn.disabled = false; }
 }
 /* features/account/account.js — Account: the top-bar button, the sign-in / sign-up sheet and the account menu.
-   No email and no password reset in this prototype: a username and a password (see cloudflare/src/worker.js, "accounts"). */
+   No email and no password reset in this prototype: a username and a password (see backend/worker.js, "accounts"). */
 const ICON_USER = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="5.5" r="3"/><path d="M2.5 14c.8-2.8 3-4.2 5.5-4.2s4.7 1.4 5.5 4.2" stroke-linecap="round"/></svg>';
 let authMode = 'login';
 function paintAccountBtn(){

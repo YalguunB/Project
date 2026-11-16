@@ -1,7 +1,7 @@
 #!/bin/sh
 # A traveler who planned one trip (Kyoto, April 2026, 4 nights), written by hand into the API.
-#   sh seed/one-trip-traveler.sh                       -> your local server (npm run dev)
-#   sh seed/one-trip-traveler.sh https://<your site>   -> a deployed site (only for testing, then delete it)
+#   sh db/seed/one-trip-traveler.sh                       -> your local server (npm run dev); also: npm run seed:local
+#   sh db/seed/one-trip-traveler.sh https://<your site>   -> a deployed site (only for testing, then delete it)
 # The id and key below are EXAMPLE values. Anyone who reads this file knows the key, so never use them for a real traveler.
 set -e
 cd "$(dirname "$0")"
