@@ -3378,6 +3378,46 @@ html.pl-open body {
   }
 }
 
+/* === feature: feeling colors (core/feeling-colors.js) === */
+.now-feel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  text-align: center;
+  & .chips {
+    justify-content: center;
+  }
+}
+.why-colors {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2) var(--space-4);
+  align-items: start;
+  max-width: 560px;
+  padding: var(--space-4);
+  border-radius: var(--radius-large);
+  border: var(--border);
+  background: var(--surface-a78);
+  & .btn {
+    grid-column: 2;
+    justify-self: start;
+  }
+  & a {
+    color: var(--accent);
+    text-underline-offset: 2px;
+  }
+}
+.wc-swatch {
+  display: block;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: conic-gradient(var(--accent) 0 120deg, var(--glow) 120deg 240deg, var(--border-color) 240deg);
+  box-shadow: 0 0 0 4px var(--surface), 0 0 0 5px var(--border-color);
+}
+
 /* === feature: planner route map === */
 .route-days {
   display: flex;

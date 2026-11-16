@@ -19,7 +19,7 @@ ACT.rmstop = el => {
     refreshPlan(next ? `.grip[data-id="${next.id}"]` : `[data-act="adder"][data-day="${k}"]`); say(`Removed ${s.title}.`);
   };
 ACT.save = async () => {
-    const trip = { v:1, window:S.window, energy:S.energy, bag:S.bag, sound:S.sound, feel:S.feel, budget:S.budget, style:S.style, month:S.month, nights:S.nights, destId:S.dest.id, plan:S.plan };
+    const trip = { v:1, window:S.window, energy:S.energy, bag:S.bag, sound:S.sound, feel:S.feel, now:S.now, colors:S.colors, budget:S.budget, style:S.style, month:S.month, nights:S.nights, destId:S.dest.id, plan:S.plan };
     const where = []; let dbErr = null;
     if (BE.account){                                        // signed in: one of the account's plans (the same one again on the next save)
       try { S.planId = await BE.savePlan({ id:S.planId, name:S.planId ? '' : `${S.dest.name} · ${MONTH_FULL[S.month]}`, trip }); where.push('your account'); } catch (e) { dbErr = e; }

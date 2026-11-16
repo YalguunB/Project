@@ -1,5 +1,6 @@
 /* ===================================================================
-   tokens-brand.css — MoodTrip's brand is its five moods, all in earth tones.
+   tokens-brand.css — MoodTrip's brand is its moods, all in earth tones: five from the window you pick and four from how you feel
+   (color psychology, see frontend/src/core/feeling-colors.js).
    Each mood hands the ten color roles a primitive color. The page switches
    mood with <html data-mood="…">; "start" is the default (no attribute).
    Keep visuals/gl.js MOODS in step with these.
@@ -66,6 +67,58 @@
   --brand-accent-ink: var(--white);
   --brand-glow: var(--olive-400);
   --brand-line: var(--olive-300);
+  --brand-ok: var(--leaf-800);
+  --brand-warn: var(--rust-600);
+  --scheme: light;
+}
+:root[data-mood="sun"] {   /* feeling low or wanting lightness: warm yellow, linked with optimism */
+  --brand-bg: var(--sun-200);
+  --brand-surface: var(--sun-50);
+  --brand-ink: var(--sun-900);
+  --brand-muted: var(--sun-800);
+  --brand-accent: var(--sun-600);
+  --brand-accent-ink: var(--white);
+  --brand-glow: var(--sun-400);
+  --brand-line: var(--sun-300);
+  --brand-ok: var(--leaf-700);
+  --brand-warn: var(--rust-600);
+  --scheme: light;
+}
+:root[data-mood="calm"] {   /* stressed or wanting rest: soft blue, linked with calm */
+  --brand-bg: var(--sky-200);
+  --brand-surface: var(--sky-50);
+  --brand-ink: var(--sky-900);
+  --brand-muted: var(--sky-800);
+  --brand-accent: var(--sky-600);
+  --brand-accent-ink: var(--white);
+  --brand-glow: var(--sky-400);
+  --brand-line: var(--sky-300);
+  --brand-ok: var(--leaf-800);
+  --brand-warn: var(--rust-600);
+  --scheme: light;
+}
+:root[data-mood="rose"] {   /* lonely or wanting closeness: warm rose */
+  --brand-bg: var(--rose-200);
+  --brand-surface: var(--rose-50);
+  --brand-ink: var(--rose-900);
+  --brand-muted: var(--rose-800);
+  --brand-accent: var(--rose-600);
+  --brand-accent-ink: var(--white);
+  --brand-glow: var(--rose-400);
+  --brand-line: var(--rose-300);
+  --brand-ok: var(--leaf-700);
+  --brand-warn: var(--rust-600);
+  --scheme: light;
+}
+:root[data-mood="plum"] {   /* wanting inspiration or pride: lavender, linked with imagination */
+  --brand-bg: var(--plum-200);
+  --brand-surface: var(--plum-50);
+  --brand-ink: var(--plum-900);
+  --brand-muted: var(--plum-800);
+  --brand-accent: var(--plum-600);
+  --brand-accent-ink: var(--white);
+  --brand-glow: var(--plum-400);
+  --brand-line: var(--plum-300);
   --brand-ok: var(--leaf-800);
   --brand-warn: var(--rust-600);
   --scheme: light;

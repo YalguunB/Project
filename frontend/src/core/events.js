@@ -10,16 +10,16 @@ document.addEventListener('change', e => {
   const t = e.target;
   if (t.name === 'window'){
     S.window = t.value; picked = true; touch(1); paintHorizon();
-    document.documentElement.dataset.mood = moodFor('game');
-    if (GL.ok){ GL.setMood(moodFor('game')); pushTraits(); GL.kick(1.2); }
+    applyMood('game'); if (GL.ok){ pushTraits(); GL.kick(1.2); }
   }
   else if (t.name === 'bag'){
     if ($$('input[name="bag"]:checked').length > 3){ t.checked = false; const p = $('#packed'); p.textContent = 'Your bag is full. Unpack one first.'; p.classList.remove('shake'); void p.offsetWidth; p.classList.add('shake'); return; }
     S.bag = $$('input[name="bag"]:checked').map(i => i.value); touch(3); $('#packed').textContent = packedText();
     if (GL.ok){ GL.setBag(S.bag); GL.kick(.8); }
   }
+  else if (t.name === 'now'){ S.now = t.value; touch(2); applyMood('game'); if (GL.ok) GL.kick(1.2); }
   else if (t.name === 'sound'){ S.sound = t.value; touch(4); if (GL.ok){ pushTraits(); GL.kick(1.4); } }
-  else if (t.name === 'feel'){ S.feel = t.value; touch(5); const pw = $('#pillWord'); pw.textContent = FEEL.find(f => f.id === t.value).label.toLowerCase(); pw.classList.remove('empty'); if (GL.ok){ pushTraits(); GL.kick(1.2); } }
+  else if (t.name === 'feel'){ S.feel = t.value; touch(5); const pw = $('#pillWord'); pw.textContent = FEEL.find(f => f.id === t.value).label.toLowerCase(); pw.classList.remove('empty'); applyMood('game'); if (GL.ok){ pushTraits(); GL.kick(1.2); } }
   else if (t.id === 'pfile'){ const f = t.files && t.files[0]; t.value = ''; pickPhoto(f); }
   else if (t.name === 'style'){ S.style = t.value; paintBudget(); }
   else if (t.name === 'month'){ S.month = +t.value; paintBudget(); }

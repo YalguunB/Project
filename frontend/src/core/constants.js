@@ -15,7 +15,7 @@ const GRIP = '<svg width="14" height="20" viewBox="0 0 14 20" fill="currentColor
 const ANCHOR = {                       // where the traveler floats on each screen: [x, y, size] for desktop, then phone
   intro:   [[.8, .66, .8],   [.74, .2, .62]],
   r1:      [[.93, .84, .3],  [.9, .9, .26]],
-  r2:      [[.5, .52, .6],   [.5, .46, .6]],
+  r2:      [[.88, .5, .46],  [.9, .9, .26]],
   r3:      [[.93, .84, .3],  [.9, .9, .26]],
   r4:      [[.93, .84, .3],  [.9, .9, .26]],
   r5:      [[.93, .84, .3],  [.9, .9, .26]],
