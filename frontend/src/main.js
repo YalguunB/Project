@@ -30,6 +30,7 @@
   'src/data/places/geo.js',
   'src/visuals/scenes.js',
   'src/core/backend.js',
+  'src/visuals/traveler.js',
   'src/visuals/gl.js',
   'src/visuals/fx.js',
   'src/core/constants.js',

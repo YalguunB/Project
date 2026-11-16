@@ -1,5 +1,5 @@
 "use strict";
-/* ============ GL: Three.js scene behind the UI (mood orb, shader backdrop, dust, satellites, feeling field) ============ */
+/* ============ GL: Three.js scene behind the UI (the traveler, shader backdrop, dust, satellites, feeling field) ============ */
 const MOODS = {
   start:  { bg:'#F2EBDD', surface:'#FBF7EF', ink:'#2F261D', accent:'#A3502C', accentInk:'#FFFFFF', glow:'#E2B47E', orb:['#EBCB9F','#A9653A','#D6A46C'] },
   tide:   { bg:'#E1E7DF', surface:'#F4F6F0', ink:'#1C2E2B', accent:'#356660', accentInk:'#FFFFFF', glow:'#9CB9AE', orb:['#D3E0D8','#5A857C','#9CB9AE'] },
@@ -81,60 +81,13 @@ const GL = (() => {
   const bg = new T.Mesh(new T.PlaneGeometry(2, 2), bgMat);
   bg.frustumCulled = false; bg.renderOrder = -10; scene.add(bg);
 
-  /* ---------- the orb ---------- */
-  const orbU = {
-    uTime:time, uAmp:{ value:.17 }, uFreq:{ value:1 }, uSpeed:{ value:.3 }, uRidge:{ value:0 }, uPulse:{ value:.03 }, uPulseRate:{ value:1.7 }, uSharp:{ value:1 },
-    uRipple:{ value:0 }, uLight:light, uGloss:{ value:.8 },
-    uColA:{ value:new T.Color() }, uColB:{ value:new T.Color() }, uColC:{ value:new T.Color() }
-  };
-  const orbMat = new T.ShaderMaterial({
-    uniforms:orbU,
-    vertexShader: NOISE + `
-    uniform float uTime,uAmp,uFreq,uSpeed,uRidge,uPulse,uPulseRate,uSharp,uRipple;
-    varying vec3 vN; varying vec3 vV; varying float vD;
-    vec3 disp(vec3 p){
-      float t=uTime*uSpeed;
-      float n=snoise(p*uFreq+vec3(0.,t,t*.5));
-      n=mix(n,1.-abs(n)*2.,uRidge);
-      float d=n*uAmp;
-      d+=uRipple*snoise(p*6.+vec3(t*3.))*.045;
-      d+=uPulse*pow(.5+.5*sin(uTime*uPulseRate+p.y*1.5),uSharp);
-      return p*(1.+d);
-    }
-    void main(){
-      vec3 p=normalize(position);
-      vec3 dp=disp(p);
-      vec3 h=abs(p.y)>.98?vec3(1.,0.,0.):vec3(0.,1.,0.);
-      vec3 tg=normalize(cross(p,h)); vec3 bt=cross(p,tg);
-      float e=.03;
-      vec3 p1=disp(normalize(p+tg*e)); vec3 p2=disp(normalize(p+bt*e));
-      vec3 nn=normalize(cross(p1-dp,p2-dp)); if(dot(nn,p)<0.) nn=-nn;
-      vN=normalize(normalMatrix*nn);
-      vec4 mv=modelViewMatrix*vec4(dp,1.);
-      vV=-mv.xyz; vD=length(dp)-1.;
-      gl_Position=projectionMatrix*mv;
-    }`,
-    fragmentShader:`
-    uniform vec3 uColA,uColB,uColC,uLight; uniform float uGloss,uTime;
-    varying vec3 vN; varying vec3 vV; varying float vD;
-    void main(){
-      vec3 N=normalize(vN); vec3 V=normalize(vV); vec3 L=normalize(uLight);
-      float ndl=dot(N,L); float dif=smoothstep(-.55,1.,ndl);
-      vec3 col=mix(uColB,uColA,dif*.88);
-      float fres=pow(1.-max(dot(N,V),0.),3.);
-      vec3 irid=.5+.5*cos(6.2831*(vec3(0.,.33,.67)+N.y*.45+N.x*.3+uTime*.03));
-      col=mix(col,col*(.8+.4*irid),.06);            // a hint of shimmer only: earthy, matte like fired clay
-      vec3 H=normalize(L+V); float spec=pow(max(dot(N,H),0.),150.)*uGloss;
-      float sheen=pow(max(dot(N,H),0.),14.)*.16*uGloss;
-      col+=uColC*fres*.5;
-      col+=uColC*pow(max(dot(N,-L),0.),2.)*.14;
-      col+=vec3(1.)*(spec*.4+sheen*.7);
-      col+=vD*.22*uColC;
-      gl_FragColor=vec4(col,1.);
-    }`
-  });
-  const orb = new T.Mesh(new T.IcosahedronGeometry(1, 32), orbMat);
-  orb.frustumCulled = false; scene.add(orb);
+  /* ---------- the traveler (visuals/traveler.js) stands where the mood orb used to be ---------- */
+  const traveler = buildTraveler(T, light);
+  traveler.group.traverse(o => { o.frustumCulled = false; });
+  scene.add(traveler.group);
+  const pointer = { x:0, y:0, on:false };
+  addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; pointer.x = e.clientX / innerWidth * 2 - 1; pointer.y = 1 - e.clientY / innerHeight * 2; pointer.on = true; api.invalidate(); }, { passive:true });
+  document.addEventListener('pointerleave', () => { pointer.on = false; });
 
   /* ---------- small glossy bodies (bag satellites + field orbs) ---------- */
   const satVert = `varying vec3 vN; varying vec3 vV;
@@ -237,7 +190,7 @@ const GL = (() => {
     if (instant || REDUCED){ cur.bg.copy(tgt.bg); cur.glow.copy(tgt.glow); cur.accent.copy(tgt.accent); cur.A.copy(tgt.A); cur.B.copy(tgt.B); cur.C.copy(tgt.C); cur.dark = tgt.dark; }
     api.invalidate();
   };
-  api.setAnchor = a => { anchor.x = a.x; anchor.y = a.y; anchor.s = a.s; api.invalidate(); };
+  api.setAnchor = a => { anchor.x = a.x; anchor.y = a.y; anchor.s = a.s; anchor.pin = !!a.pin; api.invalidate(); };
   api.setTraits = t => {
     const w = WIN_FX[t.window] || WIN_FX.sea, s = SOUND_FX[t.sound] || SOUND_FX.lofi, f = FEEL_FX[t.feel] || FEEL_FX.rested;
     energy = t.energy / 100;
@@ -250,7 +203,7 @@ const GL = (() => {
     bgMat.uniforms.uEnergy.value = energy;
     api.invalidate();
   };
-  api.kick = (n = 1) => { orbS.kick = Math.min(1.4, orbS.kick + .5 * n); api.invalidate(); };
+  api.kick = (n = 1) => { orbS.kick = Math.min(1.4, orbS.kick + .5 * n); traveler.wave(); api.invalidate(); };
   api.setOrbVisible = v => { orbS.vis = v ? 1 : 0; api.invalidate(); };
 
   api.setBag = ids => {
@@ -348,26 +301,26 @@ const GL = (() => {
     cur.bg.lerp(tgt.bg, kc); cur.glow.lerp(tgt.glow, kc); cur.accent.lerp(tgt.accent, kc); cur.A.lerp(tgt.A, kc); cur.B.lerp(tgt.B, kc); cur.C.lerp(tgt.C, kc);
     cur.dark += (tgt.dark - cur.dark) * kc;
     bgMat.uniforms.uBg.value.copy(cur.bg); bgMat.uniforms.uGlow.value.copy(cur.glow); bgMat.uniforms.uDark.value = cur.dark;
-    orbU.uColA.value.copy(cur.A); orbU.uColB.value.copy(cur.B); orbU.uColC.value.copy(cur.C);
+    traveler.setColors(cur.A, cur.B, cur.C, cur.accent);
 
-    /* orb params */
+    /* how lively: energy, window, sound and feeling (eased) */
     const kp = REDUCED ? 1 : ease(dt, 2.2);
     for (const k in P) P[k] += (PT[k] - P[k]) * kp;
-    orbU.uAmp.value = P.amp; orbU.uFreq.value = P.freq; orbU.uSpeed.value = P.speed; orbU.uRidge.value = P.ridge;
-    orbU.uPulse.value = P.pulse; orbU.uPulseRate.value = P.rate; orbU.uSharp.value = P.sharp; orbU.uRipple.value = P.ripple; orbU.uGloss.value = P.gloss;
 
     /* orb placement (anchor -> world), spring-eased */
     const vmin = Math.min(V.ww, V.wh), px = V.wh / V.h;
     orbS.tx = (anchor.x - .5) * V.ww;
-    orbS.ty = (.5 - anchor.y) * V.wh + scrollY * px * .45;
+    orbS.ty = (.5 - anchor.y) * V.wh + (anchor.pin ? 0 : scrollY * px * .45);
     orbS.ts = anchor.s * vmin * .5 * (1 + (energy - .35) * .3) * feelScale * orbS.vis;
     const ko = REDUCED ? 1 : ease(dt, 3.2);
     orbS.x += (orbS.tx - orbS.x) * ko; orbS.y += (orbS.ty - orbS.y) * ko; orbS.s += (orbS.ts - orbS.s) * ease(dt, REDUCED ? 30 : 2.4);
     orbS.kick *= Math.exp(-dt * 2.8);
     const sq = 1 + orbS.kick * .12 * Math.sin(time.value * 22);
-    orb.position.set(orbS.x, orbS.y, 0); orb.scale.setScalar(Math.max(.0001, orbS.s * sq));
-    orb.visible = orbS.s > .004;
-    orb.rotation.set(time.value * .03, time.value * .05, 0);
+    const tg = traveler.group;
+    tg.position.set(orbS.x, orbS.y, 0); tg.scale.setScalar(Math.max(.0001, orbS.s * .6 * sq));
+    tg.visible = orbS.s > .004;
+    if (pointer.on) traveler.lookAt((pointer.x - orbS.x / V.ww * 2) * 1.4, (pointer.y - orbS.y / V.wh * 2) * 1.4); else traveler.lookAt(null);
+    traveler.update(time.value, dt, Math.min(1.4, P.speed + P.pulse * 2), REDUCED);
     const sx = .5 + orbS.x / V.ww, sy = .5 + orbS.y / V.wh;
     bgMat.uniforms.uOrb.value.set(sx, sy); bgMat.uniforms.uOrbR.value = orbS.s / V.wh;
 

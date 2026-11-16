@@ -18,7 +18,7 @@ VIEWS.intro = () => `
     <div>
       <div class="sec-head" data-rise><p class="label accent">What makes it different</p><h2 class="display-m">Feelings first. Honest numbers after.</h2></div>
       <div class="pillars">
-        <article class="pillar" data-rise><span class="n">01</span><h3>Feeling first, as a game</h3><p class="small muted">Five quick rounds read your mood and energy. The page and 3D orb respond to every answer.</p></article>
+        <article class="pillar" data-rise><span class="n">01</span><h3>Feeling first, as a game</h3><p class="small muted">Five quick rounds read your mood and energy. The page and the little 3D traveler respond to every answer.</p></article>
         <article class="pillar" data-tilt data-rise><span class="n">02</span><h3>Real feelings from travelers</h3><p class="small muted">Anyone can add an anonymous note on how a place felt. Notes blend into the matches, and you can float your own card in the shared field.</p></article>
         <article class="pillar" data-tilt data-rise><span class="n">03</span><h3>Honest planning</h3><p class="small muted">Budget and best-time estimates sit right beside the plan, so you see the trade-offs early.</p></article>
       </div>
@@ -36,7 +36,7 @@ VIEWS.game = () => `<section class="game" aria-labelledby="h1">
     <header class="game-head">
       <p class="label accent" data-fade>The feeling game</p>
       <h1 class="display-l" id="h1" tabindex="-1" data-split>Tell us how you want to <em>feel.</em></h1>
-      <p class="body-l muted" data-fade>Five quick rounds on one page. Answer in any order and jump around with the steps below. The orb changes with every answer, and anything you skip gets a sensible default.</p>
+      <p class="body-l muted" data-fade>Five quick rounds on one page. Answer in any order and jump around with the steps below. The traveler changes with every answer, and anything you skip gets a sensible default.</p>
       <div class="row" data-fade><button class="btn btn-ghost btn-sm" type="button" data-act="skip">Skip the game</button><button class="btn btn-ghost btn-sm" type="button" id="gStartOver" data-act="restart" ${touched.size ? '' : 'hidden'}>Start over</button></div>
     </header>
     <nav class="gp" id="gp" aria-label="Game progress"><div class="gp-in">

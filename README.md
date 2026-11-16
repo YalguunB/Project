@@ -14,7 +14,7 @@ frontend/            the website (HTML, CSS, vanilla JS). Served as is, nothing 
   src/core/            shared code: model, api-client, state, profile, chrome (render/go), events, i18n, boot
   src/features/        one folder per feature: feel, budget, matches, planner, field, place, reviews, engage, account, plans
   src/i18n/            Mongolian strings (mn.js)
-  src/visuals/         3D scene, motion, SVG scenery
+  src/visuals/         3D scene (traveler.js: the floating explorer), motion, SVG scenery
   src/data/places/     destinations, venues, geo.js (approximate stop positions for the route map)
 backend/             Node.js + Express: serves the frontend and the /api
   server.js            starts the Express server (Node + SQLite)
