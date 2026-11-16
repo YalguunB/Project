@@ -1,3 +1,4 @@
+"use strict";
 
 const BE = (() => {
   const FEEL_IDS = FEEL.map(f => f.id), WIN_IDS = WIN.map(w => w.id), SOUND_IDS = SOUND.map(s => s.id), BAG_IDS = BAG.map(b => b.id), DEST_IDS = DEST.map(d => d.id);

@@ -1,3 +1,4 @@
+"use strict";
 /* features/matches/crowd.js — Matches: what other travelers said about a place. */
 /* ---------- crowd: what other travelers said about a place ---------- */
 function crowdHTML(r){

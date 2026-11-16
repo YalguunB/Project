@@ -1,3 +1,4 @@
+"use strict";
 PLACE.hoian = {
   "Riverside check-in & walk": ["Relax", "Drop your bags, then follow the Thu Bon riverfront on foot. It is flat, shaded in places, and the easiest way to let the journey fall away before anything is planned.", "Keep the first walk short. The Old Town is better once the heat drops.", "1 h"],
   "Lantern-lit Old Town stroll": ["Culture", "After dark the yellow-walled lanes fill with silk lanterns that reflect in the river. Wander slowly past old merchant houses and stop wherever the light looks best.", "The streets are free to wander. Going inside the old houses and temples usually needs a combined ticket.", "1–2 h"],

@@ -1,3 +1,4 @@
+"use strict";
 /* ============ TRAVELER: the floating explorer that stands in for the old mood orb ============
    Built from simple shapes (no model file to download): a little aviator in a leather helmet and goggles, a backpack with a
    bedroll, a scarf that trails behind, mittens and boots. It floats where the orb was and reads the same state:

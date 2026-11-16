@@ -1,3 +1,4 @@
+"use strict";
 /* features/feel/index.js — Feel: entry points (screens, actions, after-render hooks). */
 VIEWS.intro = () => `
   <section class="intro" aria-labelledby="h1">

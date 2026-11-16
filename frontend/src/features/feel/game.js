@@ -1,3 +1,4 @@
+"use strict";
 /* features/feel/game.js — Feel: progress, the round in view, scrolling. */
 /* ---------- the game: progress, the round in view, battery ---------- */
 function resetAnswers(){

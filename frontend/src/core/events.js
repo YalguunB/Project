@@ -1,3 +1,4 @@
+"use strict";
 /* core/events.js — Global event delegation: click, change, input, submit, keys. */
 document.addEventListener('click', e => {
   const nav = e.target.closest('[data-nav]');

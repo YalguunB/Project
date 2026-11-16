@@ -1,3 +1,4 @@
+"use strict";
 /* features/matches/report.js — Matches: report sheet, how did a place feel? */
 /* ---------- report sheet: how did a place feel? ---------- */
 let sheetFor = null, sheetOpener = null;

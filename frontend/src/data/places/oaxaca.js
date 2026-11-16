@@ -1,3 +1,4 @@
+"use strict";
 PLACE.oaxaca = {
   "Zócalo stroll & fresh nieve": ["Culture", "The Zócalo is the city’s shaded main square, ringed by cafés, with the cathedral just to the north. Nieve is Oaxacan ice cream and sorbet in flavours like burnt milk and prickly pear.", "Ask for a taste, or order a small scoop of two flavours.", "1–1.5 h"],
   "Mezcal tasting in a courtyard bar": ["Nightlife", "Mezcal is Oaxaca’s smoky agave spirit. A small bar pours several kinds, with orange slices and worm salt on the side.", "Sip slowly. It is stronger than it tastes.", "1.5 h"],

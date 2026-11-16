@@ -1,3 +1,4 @@
+"use strict";
 /* features/reviews/index.js — Reviews: entry points. */
 ACT.morerev = () => { revAll = !revAll; paintReviews(); const b = $('[data-act="morerev"]'); if (b) b.focus({ preventScroll:true }); };
 ACT.delreview = el => deleteReview(el);

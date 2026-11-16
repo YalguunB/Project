@@ -1,3 +1,4 @@
+"use strict";
 /* features/field/field.js — Field: everyone's shared feeling cards. */
 /* ---------- the field: everyone's shared feeling cards ---------- */
 function cardDetail(c){
