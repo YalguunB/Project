@@ -889,11 +889,10 @@ html.in-game body::before {
       -webkit-text-stroke: 1.5px var(--text);
     }
     & span.sep {
-      color: var(--accent);
-      -webkit-text-stroke: 0;
-      font-size: .55em;
+      display: inline-flex;
       align-self: center;
       padding: 0;
+      -webkit-text-stroke: 0;
     }
   }
 }
@@ -3345,6 +3344,114 @@ html.pl-open body {
   }
 }
 
+/* === the earth icon (marquee separator) === */
+.earth {
+  width: .62em;
+  height: .62em;
+  display: block;
+  & .eg-sea {
+    fill: var(--earth-sea);
+  }
+  & .eg-land {
+    fill: var(--earth-land);
+  }
+  & .eg-sand {
+    fill: var(--earth-sand);
+  }
+  & .eg-grid {
+    fill: none;
+    stroke: var(--white);
+    stroke-opacity: .2;
+    stroke-width: 1.2;
+  }
+  & .eg-shine {
+    fill: none;
+    stroke: var(--white);
+    stroke-opacity: .5;
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+  & .eg-ring {
+    fill: none;
+    stroke: var(--text);
+    stroke-width: 2.4;
+  }
+}
+
+/* === feature: planner route map === */
+.route-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.rday {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  border: var(--border-thin) solid var(--border-color);
+  background: var(--surface);
+  color: var(--muted);
+  font: 600 13px/1 var(--font-body);
+  transition: border-color var(--duration-200),color var(--duration-200),background var(--duration-200);
+  & i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--dc);
+  }
+  &:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+  &[aria-pressed="true"] {
+    border-color: var(--text);
+    background: var(--text);
+    color: var(--page);
+  }
+}
+.route-slot {
+  position: relative;
+  min-height: 380px;
+}
+.route-map {
+  height: 380px;
+  border-radius: var(--radius-large);
+  overflow: hidden;
+  border: var(--border);
+  background: var(--text-a9);
+  isolation: isolate;
+}
+.route-wait {
+  display: grid;
+  place-items: center;
+  height: 100%;
+}
+.rmk {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--white);
+  background: var(--dc);
+  color: var(--white);
+  font: 700 13px/1 var(--font-body);
+  box-shadow: 0 3px 10px rgba(0,0,0,.28);
+  cursor: pointer;
+  transition: transform var(--duration-200);
+  &:hover, &:focus-visible {
+    transform: scale(1.18);
+    z-index: 2;
+  }
+  &[hidden] {
+    display: none;
+  }
+}
+
 /* === language switch === */
 .langbtn {
   min-width: 48px;
@@ -3747,6 +3854,12 @@ html.pl-open body {
     & span {
       display: none;
     }
+  }
+}
+@media (max-width:620px) {
+  .route-slot, .route-map {
+    min-height: 300px;
+    height: 300px;
   }
 }
 @media (max-width:620px) {

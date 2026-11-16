@@ -36,6 +36,7 @@ function plannerHTML(){
       </div>
     </div>
     <div class="panel" data-pop id="crowdPanel">${crowdPanelHTML(d)}</div>
+    ${routePanelHTML()}
     <div class="days">
       ${P.days.map(dayHTML).join('')}
       <button class="add-day" data-act="addday">＋ Add a day</button>

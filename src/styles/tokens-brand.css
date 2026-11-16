@@ -1,49 +1,50 @@
 /* ===================================================================
-   tokens-brand.css — MoodTrip's brand is its five moods. Each mood hands
-   the ten color roles a primitive color. The page switches mood with
-   <html data-mood="…">; "start" is the default (no attribute).
+   tokens-brand.css — MoodTrip's brand is its five moods, all in earth tones.
+   Each mood hands the ten color roles a primitive color. The page switches
+   mood with <html data-mood="…">; "start" is the default (no attribute).
+   Keep visuals/gl.js MOODS in step with these.
    =================================================================== */
 @layer brand {
-:root {
+:root {                         /* parchment and terracotta */
   --brand-bg: var(--sand-50);
-  --brand-surface: var(--white);
+  --brand-surface: var(--sand-100);
   --brand-ink: var(--sand-900);
   --brand-muted: var(--sand-700);
   --brand-accent: var(--sand-500);
   --brand-accent-ink: var(--white);
   --brand-glow: var(--sand-400);
   --brand-line: var(--sand-200);
-  --brand-ok: var(--green-400);
-  --brand-warn: var(--red-400);
+  --brand-ok: var(--leaf-700);
+  --brand-warn: var(--rust-600);
   --scheme: light;
 }
-:root[data-mood="tide"] {
-  --brand-bg: var(--sea-200);
-  --brand-surface: var(--sea-50);
-  --brand-ink: var(--sea-900);
-  --brand-muted: var(--sea-800);
-  --brand-accent: var(--sea-600);
+:root[data-mood="tide"] {       /* sea-facing: lagoon stone */
+  --brand-bg: var(--lagoon-200);
+  --brand-surface: var(--lagoon-50);
+  --brand-ink: var(--lagoon-900);
+  --brand-muted: var(--lagoon-800);
+  --brand-accent: var(--lagoon-600);
   --brand-accent-ink: var(--white);
-  --brand-glow: var(--sea-400);
-  --brand-line: var(--sea-300);
-  --brand-ok: var(--green-900);
-  --brand-warn: var(--red-400);
+  --brand-glow: var(--lagoon-400);
+  --brand-line: var(--lagoon-300);
+  --brand-ok: var(--leaf-800);
+  --brand-warn: var(--rust-600);
   --scheme: light;
 }
-:root[data-mood="dusk"] {
-  --brand-bg: var(--violet-800);
-  --brand-surface: var(--violet-600);
-  --brand-ink: var(--violet-50);
-  --brand-muted: var(--violet-100);
-  --brand-accent: var(--violet-300);
-  --brand-accent-ink: var(--violet-900);
-  --brand-glow: var(--violet-400);
-  --brand-line: var(--violet-500);
-  --brand-ok: var(--green-50);
-  --brand-warn: var(--red-50);
+:root[data-mood="dusk"] {       /* city at night: umber and lamplight */
+  --brand-bg: var(--umber-800);
+  --brand-surface: var(--umber-600);
+  --brand-ink: var(--umber-50);
+  --brand-muted: var(--umber-100);
+  --brand-accent: var(--umber-300);
+  --brand-accent-ink: var(--umber-900);
+  --brand-glow: var(--umber-400);
+  --brand-line: var(--umber-500);
+  --brand-ok: var(--leaf-300);
+  --brand-warn: var(--rust-300);
   --scheme: dark;
 }
-:root[data-mood="ember"] {
+:root[data-mood="ember"] {      /* mountain: fired clay */
   --brand-bg: var(--clay-200);
   --brand-surface: var(--clay-50);
   --brand-ink: var(--clay-900);
@@ -52,21 +53,21 @@
   --brand-accent-ink: var(--white);
   --brand-glow: var(--clay-400);
   --brand-line: var(--clay-300);
-  --brand-ok: var(--green-400);
-  --brand-warn: var(--red-900);
+  --brand-ok: var(--leaf-700);
+  --brand-warn: var(--rust-800);
   --scheme: light;
 }
-:root[data-mood="forest"] {
-  --brand-bg: var(--moss-200);
-  --brand-surface: var(--moss-50);
-  --brand-ink: var(--moss-900);
-  --brand-muted: var(--moss-800);
-  --brand-accent: var(--moss-600);
+:root[data-mood="forest"] {     /* forest edge: olive grove */
+  --brand-bg: var(--olive-200);
+  --brand-surface: var(--olive-50);
+  --brand-ink: var(--olive-900);
+  --brand-muted: var(--olive-800);
+  --brand-accent: var(--olive-600);
   --brand-accent-ink: var(--white);
-  --brand-glow: var(--moss-400);
-  --brand-line: var(--moss-300);
-  --brand-ok: var(--green-400);
-  --brand-warn: var(--red-400);
+  --brand-glow: var(--olive-400);
+  --brand-line: var(--olive-300);
+  --brand-ok: var(--leaf-800);
+  --brand-warn: var(--rust-600);
   --scheme: light;
 }
 }

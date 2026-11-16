@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>MoodTrip</title>
 <meta name="description" content="MoodTrip plans your trip around how you feel.">
-<meta name="theme-color" content="#F7F2EA">
+<meta name="theme-color" content="#F2EBDD">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js">
 <link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js">
@@ -17,68 +17,75 @@
 
 /* Registered color roles (the page cross-fades between moods).
    @property initial values must be literals, so they live here. */
-@property --page { syntax: '<color>'; inherits: true; initial-value: #F7F2EA; }
-@property --surface { syntax: '<color>'; inherits: true; initial-value: #FFFFFF; }
-@property --text { syntax: '<color>'; inherits: true; initial-value: #2B2622; }
-@property --muted { syntax: '<color>'; inherits: true; initial-value: #6E6258; }
-@property --accent { syntax: '<color>'; inherits: true; initial-value: #BC5630; }
+@property --page { syntax: '<color>'; inherits: true; initial-value: #F2EBDD; }
+@property --surface { syntax: '<color>'; inherits: true; initial-value: #FBF7EF; }
+@property --text { syntax: '<color>'; inherits: true; initial-value: #2F261D; }
+@property --muted { syntax: '<color>'; inherits: true; initial-value: #665746; }
+@property --accent { syntax: '<color>'; inherits: true; initial-value: #A3502C; }
 @property --accent-text { syntax: '<color>'; inherits: true; initial-value: #FFFFFF; }
-@property --glow { syntax: '<color>'; inherits: true; initial-value: #F6C9A0; }
-@property --border-color { syntax: '<color>'; inherits: true; initial-value: #E6DCCD; }
-@property --positive { syntax: '<color>'; inherits: true; initial-value: #2E7D4F; }
-@property --danger { syntax: '<color>'; inherits: true; initial-value: #B3391B; }
+@property --glow { syntax: '<color>'; inherits: true; initial-value: #E2B47E; }
+@property --border-color { syntax: '<color>'; inherits: true; initial-value: #DED0B8; }
+@property --positive { syntax: '<color>'; inherits: true; initial-value: #4E6B2A; }
+@property --danger { syntax: '<color>'; inherits: true; initial-value: #A8361A; }
 
 @layer primitives {
 :root {
   /* color ramps (lightest 50 → darkest 900) */
   --white: #FFFFFF;
-  --sand-50: #F7F2EA;
-  --sand-200: #E6DCCD;
-  --sand-400: #F6C9A0;
-  --sand-500: #BC5630;
-  --sand-700: #6E6258;
-  --sand-900: #2B2622;
+  /* MoodTrip is earthy: parchment and terracotta, lagoon stone, night umber, fired clay, olive grove.
+     Every mood's text, muted text, accent and button pairs pass WCAG AA (body text 7:1 or more). */
+  --sand-50: #F2EBDD;
+  --sand-100: #FBF7EF;
+  --sand-200: #DED0B8;
+  --sand-400: #E2B47E;
+  --sand-500: #A3502C;
+  --sand-700: #665746;
+  --sand-900: #2F261D;
 
-  --sea-50: #F7FCFC;
-  --sea-200: #E5F1F2;
-  --sea-300: #C3DDE0;
-  --sea-400: #8CD3DA;
-  --sea-600: #17798A;
-  --sea-800: #3F646C;
-  --sea-900: #0F3039;
+  --lagoon-50: #F4F6F0;
+  --lagoon-200: #E1E7DF;
+  --lagoon-300: #C2CFC4;
+  --lagoon-400: #9CB9AE;
+  --lagoon-600: #356660;
+  --lagoon-800: #45594F;
+  --lagoon-900: #1C2E2B;
 
-  --violet-50: #F3EEFF;
-  --violet-100: #B4ABD6;
-  --violet-300: #B79CFF;
-  --violet-400: #5A3FB8;
-  --violet-500: #433B72;
-  --violet-600: #2E2850;
-  --violet-800: #231E3B;
-  --violet-900: #1A1433;
+  --umber-50: #F3E9DA;
+  --umber-100: #CDB89E;
+  --umber-300: #E0A96E;
+  --umber-400: #8C5A33;
+  --umber-500: #56443A;
+  --umber-600: #34291F;
+  --umber-800: #241B14;
+  --umber-900: #20170F;
 
-  --clay-50: #FFF8F2;
-  --clay-200: #FBE8DA;
-  --clay-300: #EFCFB9;
-  --clay-400: #F8B48A;
-  --clay-600: #C94A22;
-  --clay-800: #8A5A45;
-  --clay-900: #3A1E12;
+  --clay-50: #FBF3EA;
+  --clay-200: #EFDCC6;
+  --clay-300: #E0C3A4;
+  --clay-400: #DB9566;
+  --clay-600: #9C3F1C;
+  --clay-800: #6E4A38;
+  --clay-900: #3A2216;
 
-  --moss-50: #F6FAF2;
-  --moss-200: #E3EBDB;
-  --moss-300: #C5D6BA;
-  --moss-400: #A5CC96;
-  --moss-600: #3A7740;
-  --moss-800: #46604B;
-  --moss-900: #1B2E20;
+  --olive-50: #F5F4E8;
+  --olive-200: #E2E1CB;
+  --olive-300: #C9C9A6;
+  --olive-400: #ADB57A;
+  --olive-600: #52622A;
+  --olive-800: #4C5236;
+  --olive-900: #262A18;
 
-  --green-50: #7BD9A4;
-  --green-400: #2E7D4F;
-  --green-900: #1F7A4D;
+  --lagoon-500: #4F7F77;
+  --olive-500: #8C9A4B;
+  --ochre-400: #C9A15E;
 
-  --red-50: #FF9A86;
-  --red-400: #B3391B;
-  --red-900: #A8260F;
+  --leaf-300: #A9C77F;
+  --leaf-700: #4E6B2A;
+  --leaf-800: #3E5F22;
+
+  --rust-300: #F29A7E;
+  --rust-600: #A8361A;
+  --rust-800: #8E2410;
 
   --cream-100: #F6EFE4;
   --cocoa-900: #1F1A17;
@@ -160,51 +167,52 @@
 }
 }
 /* ===================================================================
-   tokens-brand.css — MoodTrip's brand is its five moods. Each mood hands
-   the ten color roles a primitive color. The page switches mood with
-   <html data-mood="…">; "start" is the default (no attribute).
+   tokens-brand.css — MoodTrip's brand is its five moods, all in earth tones.
+   Each mood hands the ten color roles a primitive color. The page switches
+   mood with <html data-mood="…">; "start" is the default (no attribute).
+   Keep visuals/gl.js MOODS in step with these.
    =================================================================== */
 @layer brand {
-:root {
+:root {                         /* parchment and terracotta */
   --brand-bg: var(--sand-50);
-  --brand-surface: var(--white);
+  --brand-surface: var(--sand-100);
   --brand-ink: var(--sand-900);
   --brand-muted: var(--sand-700);
   --brand-accent: var(--sand-500);
   --brand-accent-ink: var(--white);
   --brand-glow: var(--sand-400);
   --brand-line: var(--sand-200);
-  --brand-ok: var(--green-400);
-  --brand-warn: var(--red-400);
+  --brand-ok: var(--leaf-700);
+  --brand-warn: var(--rust-600);
   --scheme: light;
 }
-:root[data-mood="tide"] {
-  --brand-bg: var(--sea-200);
-  --brand-surface: var(--sea-50);
-  --brand-ink: var(--sea-900);
-  --brand-muted: var(--sea-800);
-  --brand-accent: var(--sea-600);
+:root[data-mood="tide"] {       /* sea-facing: lagoon stone */
+  --brand-bg: var(--lagoon-200);
+  --brand-surface: var(--lagoon-50);
+  --brand-ink: var(--lagoon-900);
+  --brand-muted: var(--lagoon-800);
+  --brand-accent: var(--lagoon-600);
   --brand-accent-ink: var(--white);
-  --brand-glow: var(--sea-400);
-  --brand-line: var(--sea-300);
-  --brand-ok: var(--green-900);
-  --brand-warn: var(--red-400);
+  --brand-glow: var(--lagoon-400);
+  --brand-line: var(--lagoon-300);
+  --brand-ok: var(--leaf-800);
+  --brand-warn: var(--rust-600);
   --scheme: light;
 }
-:root[data-mood="dusk"] {
-  --brand-bg: var(--violet-800);
-  --brand-surface: var(--violet-600);
-  --brand-ink: var(--violet-50);
-  --brand-muted: var(--violet-100);
-  --brand-accent: var(--violet-300);
-  --brand-accent-ink: var(--violet-900);
-  --brand-glow: var(--violet-400);
-  --brand-line: var(--violet-500);
-  --brand-ok: var(--green-50);
-  --brand-warn: var(--red-50);
+:root[data-mood="dusk"] {       /* city at night: umber and lamplight */
+  --brand-bg: var(--umber-800);
+  --brand-surface: var(--umber-600);
+  --brand-ink: var(--umber-50);
+  --brand-muted: var(--umber-100);
+  --brand-accent: var(--umber-300);
+  --brand-accent-ink: var(--umber-900);
+  --brand-glow: var(--umber-400);
+  --brand-line: var(--umber-500);
+  --brand-ok: var(--leaf-300);
+  --brand-warn: var(--rust-300);
   --scheme: dark;
 }
-:root[data-mood="ember"] {
+:root[data-mood="ember"] {      /* mountain: fired clay */
   --brand-bg: var(--clay-200);
   --brand-surface: var(--clay-50);
   --brand-ink: var(--clay-900);
@@ -213,21 +221,21 @@
   --brand-accent-ink: var(--white);
   --brand-glow: var(--clay-400);
   --brand-line: var(--clay-300);
-  --brand-ok: var(--green-400);
-  --brand-warn: var(--red-900);
+  --brand-ok: var(--leaf-700);
+  --brand-warn: var(--rust-800);
   --scheme: light;
 }
-:root[data-mood="forest"] {
-  --brand-bg: var(--moss-200);
-  --brand-surface: var(--moss-50);
-  --brand-ink: var(--moss-900);
-  --brand-muted: var(--moss-800);
-  --brand-accent: var(--moss-600);
+:root[data-mood="forest"] {     /* forest edge: olive grove */
+  --brand-bg: var(--olive-200);
+  --brand-surface: var(--olive-50);
+  --brand-ink: var(--olive-900);
+  --brand-muted: var(--olive-800);
+  --brand-accent: var(--olive-600);
   --brand-accent-ink: var(--white);
-  --brand-glow: var(--moss-400);
-  --brand-line: var(--moss-300);
-  --brand-ok: var(--green-400);
-  --brand-warn: var(--red-400);
+  --brand-glow: var(--olive-400);
+  --brand-line: var(--olive-300);
+  --brand-ok: var(--leaf-800);
+  --brand-warn: var(--rust-600);
   --scheme: light;
 }
 }
@@ -250,6 +258,10 @@
   --positive: var(--brand-ok);
   --danger: var(--brand-warn);
   --energy: .35;
+  /* the earth icon keeps its own colors in every mood, so it always reads as the Earth */
+  --earth-sea: var(--lagoon-500);
+  --earth-land: var(--olive-500);
+  --earth-sand: var(--ochre-400);
 
   --border: var(--line-medium) solid var(--border-color);
   --border-thin: var(--line-thin) solid var(--border-color);
@@ -1164,11 +1176,10 @@ html.in-game body::before {
       -webkit-text-stroke: 1.5px var(--text);
     }
     & span.sep {
-      color: var(--accent);
-      -webkit-text-stroke: 0;
-      font-size: .55em;
+      display: inline-flex;
       align-self: center;
       padding: 0;
+      -webkit-text-stroke: 0;
     }
   }
 }
@@ -3620,6 +3631,114 @@ html.pl-open body {
   }
 }
 
+/* === the earth icon (marquee separator) === */
+.earth {
+  width: .62em;
+  height: .62em;
+  display: block;
+  & .eg-sea {
+    fill: var(--earth-sea);
+  }
+  & .eg-land {
+    fill: var(--earth-land);
+  }
+  & .eg-sand {
+    fill: var(--earth-sand);
+  }
+  & .eg-grid {
+    fill: none;
+    stroke: var(--white);
+    stroke-opacity: .2;
+    stroke-width: 1.2;
+  }
+  & .eg-shine {
+    fill: none;
+    stroke: var(--white);
+    stroke-opacity: .5;
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+  & .eg-ring {
+    fill: none;
+    stroke: var(--text);
+    stroke-width: 2.4;
+  }
+}
+
+/* === feature: planner route map === */
+.route-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.rday {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  border: var(--border-thin) solid var(--border-color);
+  background: var(--surface);
+  color: var(--muted);
+  font: 600 13px/1 var(--font-body);
+  transition: border-color var(--duration-200),color var(--duration-200),background var(--duration-200);
+  & i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--dc);
+  }
+  &:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+  &[aria-pressed="true"] {
+    border-color: var(--text);
+    background: var(--text);
+    color: var(--page);
+  }
+}
+.route-slot {
+  position: relative;
+  min-height: 380px;
+}
+.route-map {
+  height: 380px;
+  border-radius: var(--radius-large);
+  overflow: hidden;
+  border: var(--border);
+  background: var(--text-a9);
+  isolation: isolate;
+}
+.route-wait {
+  display: grid;
+  place-items: center;
+  height: 100%;
+}
+.rmk {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--white);
+  background: var(--dc);
+  color: var(--white);
+  font: 700 13px/1 var(--font-body);
+  box-shadow: 0 3px 10px rgba(0,0,0,.28);
+  cursor: pointer;
+  transition: transform var(--duration-200);
+  &:hover, &:focus-visible {
+    transform: scale(1.18);
+    z-index: 2;
+  }
+  &[hidden] {
+    display: none;
+  }
+}
+
 /* === language switch === */
 .langbtn {
   min-width: 48px;
@@ -4025,6 +4144,12 @@ html.pl-open body {
   }
 }
 @media (max-width:620px) {
+  .route-slot, .route-map {
+    min-height: 300px;
+    height: 300px;
+  }
+}
+@media (max-width:620px) {
   .pc-stats {
     grid-template-columns: repeat(2,1fr);
   }
@@ -4394,7 +4519,7 @@ html.pl-open body {
 <script>setTimeout(function(){var l=document.getElementById("loader");if(l)l.hidden=true;},9000);</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script>window.MT_GOOGLE=true;</script>
+<script>window.MT_GOOGLE=true;window.MT_MAP=true;</script>
 <script>
 /* ============ CLOUDFLARE RUNTIME ============
    On claude.ai the platform supplies window.claude (shared database, who is viewing). On Cloudflare this file stands in for it,
@@ -5081,6 +5206,120 @@ const SPOT = {
 };
 const GID_RE = /^[A-Za-z0-9_-]{20,200}$/;
 const spotOf = (destId, title) => { const s = SPOT[destId] && SPOT[destId][title]; return s && GID_RE.test(s[1]) ? { name:s[0], gid:s[1] } : null; };
+/* data/places/geo.js — Where the stops are, for the route map in the planner.
+
+   [latitude, longitude] for every stop that is one findable place: a temple, a market, a beach, a viewpoint. Stops that could
+   be anywhere ("Spa afternoon", "Slow breakfast at a kissaten") have no entry and are not pinned, rather than pinned somewhere
+   made up. Positions are approximate (hand-entered for this prototype) and the map says so; correct them here.
+   c = the city's centre [lat, lng] and z = its zoom, for a plan with nothing pinned yet. */
+const GEO = {
+  hoian: { c:[15.8775, 108.3280], z:13.5, p:{
+    'Riverside check-in & walk':[15.8768, 108.3285],
+    'Lantern-lit Old Town stroll':[15.8773, 108.3264],
+    'Sunrise tai chi, An Bang Beach':[15.9147, 108.3405],
+    'Market visit & cooking class':[15.8769, 108.3311],
+    'Banh mi at the central market':[15.8771, 108.3306],
+    'Candle release on the river':[15.8765, 108.3277],
+    'Bicycle through rice paddies':[15.8960, 108.3375],
+    'Water-coconut grove lunch':[15.8790, 108.3650],
+    'Lazy morning on the sand':[15.9140, 108.3408],
+    'Cao lau lunch crawl':[15.8778, 108.3298],
+    'Sunbed & fresh coconut':[15.9125, 108.3415],
+    'Seafood by the shore':[15.9160, 108.3398],
+    'Basket-boat paddle':[15.8782, 108.3642],
+    'Coconut-forest lunch':[15.8797, 108.3657],
+    'Pottery village workshop':[15.8790, 108.3060],
+    'Night-market browse':[15.8755, 108.3265],
+    'Thu Bon river ferry':[15.8760, 108.3292],
+    'Final coffee by the river':[15.8766, 108.3289],
+    'Last stroll through the Old Town':[15.8776, 108.3276]
+  } },
+  lisbon: { c:[38.7110, -9.1400], z:13, p:{
+    'Tram 28 ride to your Alfama stay':[38.7114, -9.1300],
+    'Miradouro viewpoint at golden hour':[38.7118, -9.1305],
+    'Airport metro & coffee in Chiado':[38.7107, -9.1420],
+    'Wander Alfama’s back lanes':[38.7122, -9.1290],
+    'Time Out Market lunch':[38.7069, -9.1459],
+    'Rooftop sunset in Bairro Alto':[38.7130, -9.1450],
+    'Belém Tower & the river path':[38.6916, -9.2160],
+    'Pastéis de Belém & MAAT':[38.6975, -9.2032],
+    'LX Factory lunch & bookshop':[38.7036, -9.1784],
+    'Quinta da Regaleira wells':[38.7963, -9.3961],
+    'Pena Palace gardens':[38.7876, -9.3906],
+    'Cascais seafood dinner':[38.6967, -9.4207],
+    'Train to Cascais & coastal walk':[38.6979, -9.4215],
+    'Sunbathe at Carcavelos':[38.6789, -9.3360],
+    'Beach lunch at Guincho':[38.7300, -9.4730],
+    'Sunset at Cabo da Roca':[38.7804, -9.4989],
+    'Azulejo tile museum':[38.7247, -9.1137],
+    'Secondhand shops in Príncipe Real':[38.7166, -9.1490],
+    'Petiscos lunch in Graça':[38.7170, -9.1310],
+    'Ginjinha & live jazz':[38.7146, -9.1381],
+    'Gulbenkian garden afternoon':[38.7375, -9.1540],
+    'Sardine lunch in Alcântara':[38.7040, -9.1780],
+    'Last walk along the Tagus':[38.7068, -9.1405]
+  } },
+  oaxaca: { c:[17.0606, -96.7253], z:13.5, p:{
+    'Zócalo stroll & fresh nieve':[17.0607, -96.7254],
+    'Mercado 20 de Noviembre breakfast':[17.0580, -96.7266],
+    'Walk Calle Alcalá to Santo Domingo':[17.0657, -96.7234],
+    'Live music in the plaza':[17.0611, -96.7250],
+    'Monte Albán at opening time':[17.0436, -96.7678],
+    'Lunch in Xoxocotlán':[17.0270, -96.7350],
+    'Barro negro pottery village':[16.9590, -96.7080],
+    'Zapotec weaving in Teotitlán':[17.0300, -96.5200],
+    'Hierve el Agua viewpoint':[16.8657, -96.2760],
+    'Sunset at Cerro del Fortín':[17.0680, -96.7330],
+    'Botanical garden guided walk':[17.0652, -96.7225],
+    'Mezcal distillery in Matatlán':[16.8660, -96.3830],
+    'Artisan workshops in Arrazola':[17.0400, -96.7900],
+    'Lunch under the giant Tule tree':[17.0466, -96.6363],
+    'Sunrise yoga in the botanical garden':[17.0649, -96.7221],
+    'Last Zócalo loop':[17.0609, -96.7252]
+  } },
+  kyoto: { c:[35.0116, 135.7681], z:12.5, p:{
+    'Check in to a machiya near Gion':[35.0037, 135.7750],
+    'Pontocho alley dinner':[35.0050, 135.7708],
+    'Walk the edge of the Philosopher’s Path':[35.0220, 135.7940],
+    'Early Fushimi Inari gates':[34.9671, 135.7727],
+    'Tea ceremony in Gion':[35.0031, 135.7760],
+    'Evening stroll down Hanamikoji':[35.0020, 135.7750],
+    'Arashiyama bamboo grove at dawn':[35.0170, 135.6713],
+    'Tenryu-ji garden & moss walk':[35.0156, 135.6738],
+    'Tofu lunch by the river':[35.0130, 135.6780],
+    'Kinkaku-ji in morning light':[35.0394, 135.7292],
+    'Nishiki Market tasting':[35.0050, 135.7650],
+    'Ryoan-ji rock garden':[35.0345, 135.7183],
+    'Ramen back at Kyoto Station':[34.9858, 135.7588],
+    'Deer park & Todai-ji':[34.6890, 135.8398],
+    'Kasuga Taisha lantern path':[34.6812, 135.8484],
+    'Sunset on the Kamo river bank':[35.0080, 135.7710],
+    'Last look at the river':[35.0100, 135.7715]
+  } },
+  reykjavik: { c:[64.1466, -21.9426], z:13, p:{
+    'Hot dog at Bæjarins Beztu':[64.1485, -21.9399],
+    'Harbour walk':[64.1510, -21.9410],
+    'Coffee on Laugavegur':[64.1440, -21.9270],
+    'Laugardalslaug hot pools':[64.1430, -21.8780],
+    'Hallgrímskirkja tower view':[64.1417, -21.9266],
+    'Sun Voyager sculpture walk':[64.1476, -21.9223],
+    'Fish-soup lunch at the harbour':[64.1505, -21.9430],
+    'Þingvellir & Geysir day tour':[64.2559, -21.1299],
+    'Gullfoss waterfall':[64.3271, -20.1199],
+    'Secret Lagoon soak':[64.1373, -20.3094],
+    'Blue Lagoon soak':[63.8804, -22.4495],
+    'Seafood supper in the old harbour':[64.1515, -21.9425],
+    'Reykjanes lava-field drive':[63.8500, -22.5000],
+    'Lagoon-side lunch':[63.8800, -22.4490],
+    'Whale-watching from the Old Harbour':[64.1525, -21.9420],
+    'Viðey Island ferry & walk':[64.1640, -21.8540],
+    'Sunset geothermal soak':[64.1162, -21.9470],
+    'National Museum':[64.1418, -21.9483],
+    'Sunrise coast walk':[64.1640, -22.0220],
+    'Perlan observation deck':[64.1290, -21.9190],
+    'Last harbour stroll':[64.1508, -21.9415]
+  } }
+};
 /* ============ SCENERY: inline SVG, no external images ============ */
 let _uid = 0;
 const svgWrap = inner => `<svg viewBox="0 0 300 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">${inner}</svg>`;
@@ -5090,82 +5329,82 @@ const pine = (x, y, h, c) => { const w = h * .5;
 const rect = (x, y, w, h, c, extra = '') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}" ${extra}/>`;
 
 const SCENES = {
-  sea: u => svgWrap(`<defs>${grad('a'+u, [[0,'#FBD3A5'],[.6,'#F6A98A'],[1,'#F3C6A8']])}</defs>
+  sea: u => svgWrap(`<defs>${grad('a'+u, [[0,'#EAD2B6'],[.6,'#E0B2A0'],[1,'#E4C9B7']])}</defs>
     ${rect(0,0,300,220,`url(#a${u})`)}
-    <circle cx="205" cy="104" r="34" fill="#FFF1D0"/>
-    ${rect(0,118,300,102,'#3E8FA3')}${rect(0,118,300,10,'#7CC0CB','opacity=".6"')}
-    <path d="M178 126h52M186 134h36M194 142h20" stroke="#FFE9B8" stroke-width="3" stroke-linecap="round" opacity=".75"/>
-    <path d="M0 152q25-8 50 0t50 0t50 0t50 0t50 0t50 0V220H0z" fill="#2C7C92"/>
-    <path d="M0 182q30-8 60 0t60 0t60 0t60 0t60 0V220H0z" fill="#1F6680"/>
-    <path d="M60 134l14-24v24z" fill="#FFF8EA"/><path d="M76 134l-2-18 10 18z" fill="#F9D9BF"/><path d="M56 135h32l-5 6H62z" fill="#8A4B3A"/>`),
-  mountain: u => svgWrap(`<defs>${grad('a'+u, [[0,'#C6D9F0'],[1,'#F6E7E6']])}</defs>
-    ${rect(0,0,300,220,`url(#a${u})`)}<circle cx="70" cy="58" r="18" fill="#FFF6E3"/>
-    <path d="M-10 172L60 96l45 44 45-60 65 70 45-50 70 60v60H-10z" fill="#9DB4D1"/>
-    <path d="M-10 204L40 132l45 44 55-72 60 76 50-46 80 62v24H-10z" fill="#5F7A9F"/>
+    <circle cx="205" cy="104" r="34" fill="#F4EDDB"/>
+    ${rect(0,118,300,102,'#528B8F')}${rect(0,118,300,10,'#8CBABB','opacity=".6"')}
+    <path d="M178 126h52M186 134h36M194 142h20" stroke="#EFE3C8" stroke-width="3" stroke-linecap="round" opacity=".75"/>
+    <path d="M0 152q25-8 50 0t50 0t50 0t50 0t50 0t50 0V220H0z" fill="#40797E"/>
+    <path d="M0 182q30-8 60 0t60 0t60 0t60 0t60 0V220H0z" fill="#32666D"/>
+    <path d="M60 134l14-24v24z" fill="#FAF6EF"/><path d="M76 134l-2-18 10 18z" fill="#EDDACB"/><path d="M56 135h32l-5 6H62z" fill="#7A544A"/>`),
+  mountain: u => svgWrap(`<defs>${grad('a'+u, [[0,'#CEDEE8'],[1,'#F3EAE9']])}</defs>
+    ${rect(0,0,300,220,`url(#a${u})`)}<circle cx="70" cy="58" r="18" fill="#F9F4E9"/>
+    <path d="M-10 172L60 96l45 44 45-60 65 70 45-50 70 60v60H-10z" fill="#A7BAC7"/>
+    <path d="M-10 204L40 132l45 44 55-72 60 76 50-46 80 62v24H-10z" fill="#6C8392"/>
     <path d="M140 104l-18 24 10-4 8 8 9-9 9 5z" fill="#fff" opacity=".92"/>
-    <path d="M-10 206q90-22 170-4t170-8V220H-10z" fill="#3E5B4A"/>${pine(40,212,26,'#2C4638')}${pine(62,214,20,'#2C4638')}${pine(250,212,28,'#2C4638')}`),
+    <path d="M-10 206q90-22 170-4t170-8V220H-10z" fill="#44554B"/>${pine(40,212,26,'#314138')}${pine(62,214,20,'#314138')}${pine(250,212,28,'#314138')}`),
   city: u => { let win = '';
     const b = [[8,134,38],[50,106,30],[84,142,44],[132,84,34],[170,124,48],[222,102,32],[258,142,44]];
     b.forEach(([x, y, w], bi) => { for (let r = y + 10; r < 212; r += 14) for (let c = x + 6; c < x + w - 6; c += 10)
-      if (((r * 7 + c * 3 + bi) % 5) < 2) win += rect(c, r, 4, 6, (r + c) % 3 ? '#FFC857' : '#FF8FB1'); });
-    return svgWrap(`<defs>${grad('a'+u, [[0,'#17123A'],[.7,'#4A2F6E'],[1,'#B24F7C']])}</defs>
-    ${rect(0,0,300,220,`url(#a${u})`)}<circle cx="232" cy="46" r="15" fill="#FFF3D6"/>
+      if (((r * 7 + c * 3 + bi) % 5) < 2) win += rect(c, r, 4, 6, (r + c) % 3 ? '#D9BB7D' : '#E6A8B9'); });
+    return svgWrap(`<defs>${grad('a'+u, [[0,'#1A2432'],[.7,'#3C4861'],[1,'#9E6377']])}</defs>
+    ${rect(0,0,300,220,`url(#a${u})`)}<circle cx="232" cy="46" r="15" fill="#F6EFDF"/>
     <g fill="#fff" opacity=".7"><circle cx="30" cy="30" r="1.2"/><circle cx="80" cy="52" r="1"/><circle cx="130" cy="24" r="1.3"/><circle cx="180" cy="60" r="1"/><circle cx="268" cy="86" r="1.1"/><circle cx="110" cy="70" r="1"/></g>
-    <g fill="#0F0C24">${b.map(([x, y, w]) => `<rect x="${x}" y="${y}" width="${w}" height="${220-y}"/>`).join('')}</g>${win}
-    <path d="M150 84v-14" stroke="#0F0C24" stroke-width="2"/>`); },
-  forest: u => svgWrap(`<defs>${grad('a'+u, [[0,'#EEF6DC'],[1,'#BFDDA6']])}</defs>
-    ${rect(0,0,300,220,`url(#a${u})`)}<circle cx="224" cy="58" r="26" fill="#FFFBE0" opacity=".9"/>
-    ${[20,70,120,176,232,282].map((x,i)=>pine(x,150,70+(i%3)*10,'#A5C896')).join('')}
-    ${[0,52,100,152,208,262].map((x,i)=>pine(x,184,92+(i%2)*14,'#5E9460')).join('')}
-    ${[26,90,150,214,276].map((x,i)=>pine(x,226,128+(i%3)*10,'#2F6B3F')).join('')}
-    <path d="M0 202q60-10 130-2t170-6V220H0z" fill="#25552F"/>`),
-  hoian: u => svgWrap(`<defs>${grad('a'+u, [[0,'#FFD98A'],[1,'#F7A55F']])}</defs>
+    <g fill="#11171F">${b.map(([x, y, w]) => `<rect x="${x}" y="${y}" width="${w}" height="${220-y}"/>`).join('')}</g>${win}
+    <path d="M150 84v-14" stroke="#11171F" stroke-width="2"/>`); },
+  forest: u => svgWrap(`<defs>${grad('a'+u, [[0,'#ECF1E1'],[1,'#C0D2B1']])}</defs>
+    ${rect(0,0,300,220,`url(#a${u})`)}<circle cx="224" cy="58" r="26" fill="#F8F6E7" opacity=".9"/>
+    ${[20,70,120,176,232,282].map((x,i)=>pine(x,150,70+(i%3)*10,'#A9BEA0')).join('')}
+    ${[0,52,100,152,208,262].map((x,i)=>pine(x,184,92+(i%2)*14,'#69896A')).join('')}
+    ${[26,90,150,214,276].map((x,i)=>pine(x,226,128+(i%3)*10,'#3B5F45')).join('')}
+    <path d="M0 202q60-10 130-2t170-6V220H0z" fill="#2F4B35"/>`),
+  hoian: u => svgWrap(`<defs>${grad('a'+u, [[0,'#E5D0A4'],[1,'#D9A77D']])}</defs>
     ${rect(0,0,300,220,`url(#a${u})`)}
-    ${rect(0,142,300,78,'#2D6F80')}
-    <path d="M0 146h300" stroke="#7CC0CB" stroke-width="2" opacity=".6"/>
-    <path d="M18 130h58v-34L47 80 18 96z" fill="#F5C453"/><path d="M12 98L47 78l35 20-4 5-31-17-31 17z" fill="#B4563A"/>${rect(30,110,10,20,'#6B3A2A')}${rect(54,108,10,12,'#6B3A2A')}
-    <path d="M84 130h64v-44L116 70 84 86z" fill="#F2A65A"/><path d="M78 88l38-20 38 20-4 5-34-17-34 17z" fill="#A24A33"/>${rect(98,104,12,26,'#6B3A2A')}${rect(122,102,12,14,'#6B3A2A')}
-    <path d="M156 130h60v-40l-30-16-30 16z" fill="#F5C453"/><path d="M150 92l36-20 36 20-4 5-32-17-32 17z" fill="#B4563A"/>${rect(172,106,12,24,'#6B3A2A')}
-    <path d="M226 130h62v-32l-31-14-31 14z" fill="#E98E4B"/><path d="M220 100l37-18 37 18-4 5-33-15-33 15z" fill="#A24A33"/>
-    <path d="M0 40Q75 74 150 44T300 52" stroke="#6B3A2A" stroke-width="1.6" fill="none"/>
-    ${[[28,56,'#E8452C'],[70,66,'#F58A2E'],[112,60,'#E8452C'],[154,46,'#FFC857'],[196,48,'#E8452C'],[238,52,'#F58A2E'],[278,56,'#E8452C']].map(([x,y,c])=>`<circle cx="${x}" cy="${y+8}" r="9" fill="${c}"/><circle cx="${x}" cy="${y+8}" r="14" fill="${c}" opacity=".2"/><path d="M${x} ${y+17}v8" stroke="${c}" stroke-width="1.5"/>`).join('')}
-    ${[[40,164,'#E8452C'],[110,176,'#F58A2E'],[190,168,'#FFC857'],[250,182,'#E8452C']].map(([x,y,c])=>`<ellipse cx="${x}" cy="${y}" rx="14" ry="3" fill="${c}" opacity=".6"/>`).join('')}
-    <path d="M200 198l16-6h46l12 6z" fill="#3B2A22"/>`),
+    ${rect(0,142,300,78,'#3E6C6F')}
+    <path d="M0 146h300" stroke="#8CBABB" stroke-width="2" opacity=".6"/>
+    <path d="M18 130h58v-34L47 80 18 96z" fill="#D5B773"/><path d="M12 98L47 78l35 20-4 5-31-17-31 17z" fill="#9C6352"/>${rect(30,110,10,20,'#5E4137')}${rect(54,108,10,12,'#5E4137')}
+    <path d="M84 130h64v-44L116 70 84 86z" fill="#D4A678"/><path d="M78 88l38-20 38 20-4 5-34-17-34 17z" fill="#8C5749"/>${rect(98,104,12,26,'#5E4137')}${rect(122,102,12,14,'#5E4137')}
+    <path d="M156 130h60v-40l-30-16-30 16z" fill="#D5B773"/><path d="M150 92l36-20 36 20-4 5-32-17-32 17z" fill="#9C6352"/>${rect(172,106,12,24,'#5E4137')}
+    <path d="M226 130h62v-32l-31-14-31 14z" fill="#C9936B"/><path d="M220 100l37-18 37 18-4 5-33-15-33 15z" fill="#8C5749"/>
+    <path d="M0 40Q75 74 150 44T300 52" stroke="#5E4137" stroke-width="1.6" fill="none"/>
+    ${[[28,56,'#C26152'],[70,66,'#CD8D56'],[112,60,'#C26152'],[154,46,'#D9BB7D'],[196,48,'#C26152'],[238,52,'#CD8D56'],[278,56,'#C26152']].map(([x,y,c])=>`<circle cx="${x}" cy="${y+8}" r="9" fill="${c}"/><circle cx="${x}" cy="${y+8}" r="14" fill="${c}" opacity=".2"/><path d="M${x} ${y+17}v8" stroke="${c}" stroke-width="1.5"/>`).join('')}
+    ${[[40,164,'#C26152'],[110,176,'#CD8D56'],[190,168,'#D9BB7D'],[250,182,'#C26152']].map(([x,y,c])=>`<ellipse cx="${x}" cy="${y}" rx="14" ry="3" fill="${c}" opacity=".6"/>`).join('')}
+    <path d="M200 198l16-6h46l12 6z" fill="#362C27"/>`),
   lisbon: u => { let h = '';
-    const pal = ['#F2D39B','#E9A78D','#F6E7CB','#D98A66','#EDC24F'];
+    const pal = ['#E1CEAC','#D7AF9F','#EDE4D4','#C2937D','#CDB46F'];
     for (let r = 0; r < 6; r++) for (let c = 0; c < 9; c++){
       const x = c * 36 - r * 12 + (r % 2) * 14 - 10, y = 66 + r * 19 + c * 4;
-      h += rect(x, y, 31, 22, pal[(r * 3 + c * 2) % 5]) + `<path d="M${x-2} ${y} l17-9 l17 9z" fill="#C4572F"/>` + rect(x+8, y+6, 6, 9, '#6C4A3C', 'opacity=".55"') + rect(x+19, y+6, 5, 7, '#6C4A3C', 'opacity=".4"'); }
-    return svgWrap(`<defs>${grad('a'+u, [[0,'#8EC5F0'],[1,'#EAF5FB']])}</defs>
-    ${rect(0,0,300,220,`url(#a${u})`)}<circle cx="248" cy="40" r="16" fill="#FFF6D6"/>${h}
-    ${rect(0,176,300,44,'#3F8FC2')}<path d="M0 186q20-6 40 0t40 0t40 0t40 0t40 0t40 0t40 0" stroke="#9AD0EE" stroke-width="2" fill="none"/>
-    ${rect(40,150,52,22,'#F2B632')}${rect(46,155,10,8,'#FFF3C4')}${rect(60,155,10,8,'#FFF3C4')}${rect(74,155,10,8,'#FFF3C4')}<path d="M66 150v-14M58 136h16" stroke="#3B2A22" stroke-width="2"/>`); },
-  oaxaca: u => svgWrap(`<defs>${grad('a'+u, [[0,'#FFCF7A'],[1,'#F78F6B']])}</defs>
+      h += rect(x, y, 31, 22, pal[(r * 3 + c * 2) % 5]) + `<path d="M${x-2} ${y} l17-9 l17 9z" fill="#A6654D"/>` + rect(x+8, y+6, 6, 9, '#624E46', 'opacity=".55"') + rect(x+19, y+6, 5, 7, '#624E46', 'opacity=".4"'); }
+    return svgWrap(`<defs>${grad('a'+u, [[0,'#A2C7DC'],[1,'#EDF4F8']])}</defs>
+    ${rect(0,0,300,220,`url(#a${u})`)}<circle cx="248" cy="40" r="16" fill="#F6F1DF"/>${h}
+    ${rect(0,176,300,44,'#598CA8')}<path d="M0 186q20-6 40 0t40 0t40 0t40 0t40 0t40 0t40 0" stroke="#ABCCDD" stroke-width="2" fill="none"/>
+    ${rect(40,150,52,22,'#CCA858')}${rect(46,155,10,8,'#F2EBD1')}${rect(60,155,10,8,'#F2EBD1')}${rect(74,155,10,8,'#F2EBD1')}<path d="M66 150v-14M58 136h16" stroke="#362C27" stroke-width="2"/>`); },
+  oaxaca: u => svgWrap(`<defs>${grad('a'+u, [[0,'#E1C798'],[1,'#DB9D87']])}</defs>
     ${rect(0,0,300,220,`url(#a${u})`)}
-    <path d="M-10 128l50-44 40 30 50-52 60 56 50-34 70 44v60H-10z" fill="#B76A7A" opacity=".75"/>
-    ${[[0,'#E85D8B',104],[58,'#2BA6A0',90],[116,'#F5C242',108],[174,'#F28A3B',94],[232,'#7B5CC8',106]].map(([x,c,y])=>`${rect(x,y,62,220-y,c)}${rect(x,y,62,7,'#fff','opacity=".28"')}${rect(x+10,y+22,14,20,'#3A2630')}${rect(x+36,y+22,14,20,'#3A2630')}${rect(x+20,y+66,20,54,'#3A2630','opacity=".82"')}`).join('')}
-    <path d="M0 30Q75 56 150 34T300 40" stroke="#3A2630" stroke-width="1.4" fill="none"/>
-    ${Array.from({length:12},(_, i)=>{ const x = 10 + i * 25, y = 34 + Math.sin(i * .9) * 8 + (i > 5 ? -2 : 4); return `<path d="M${x} ${y}h16v18l-3-3-3 3-2-3-3 3-2-3-3 3z" fill="${['#E85D8B','#2BA6A0','#F5C242','#fff','#7B5CC8'][i%5]}"/>`; }).join('')}`),
-  kyoto: u => svgWrap(`<defs>${grad('a'+u, [[0,'#F9D7E3'],[1,'#FFF4EC']])}</defs>
+    <path d="M-10 128l50-44 40 30 50-52 60 56 50-34 70 44v60H-10z" fill="#A87983" opacity=".75"/>
+    ${[[0,'#CC7990',104],[58,'#448D85',90],[116,'#D1B366',108],[174,'#CD8F60',94],[232,'#728AB2',106]].map(([x,c,y])=>`${rect(x,y,62,220-y,c)}${rect(x,y,62,7,'#fff','opacity=".28"')}${rect(x+10,y+22,14,20,'#362A2E')}${rect(x+36,y+22,14,20,'#362A2E')}${rect(x+20,y+66,20,54,'#362A2E','opacity=".82"')}`).join('')}
+    <path d="M0 30Q75 56 150 34T300 40" stroke="#362A2E" stroke-width="1.4" fill="none"/>
+    ${Array.from({length:12},(_, i)=>{ const x = 10 + i * 25, y = 34 + Math.sin(i * .9) * 8 + (i > 5 ? -2 : 4); return `<path d="M${x} ${y}h16v18l-3-3-3 3-2-3-3 3-2-3-3 3z" fill="${['#CC7990','#448D85','#D1B366','#fff','#728AB2'][i%5]}"/>`; }).join('')}`),
+  kyoto: u => svgWrap(`<defs>${grad('a'+u, [[0,'#F2DEE4'],[1,'#FBF5F0']])}</defs>
     ${rect(0,0,300,220,`url(#a${u})`)}
-    <path d="M-10 150q60-50 130-22t200-30v122H-10z" fill="#E9CCD7" opacity=".85"/>
-    <path d="M214 160v-70h4V70h10v20h4v70z" fill="#8A5A55"/><path d="M204 92h46l-6-10h-34zM208 116h38l-5-9h-28zM212 140h30l-4-8h-22z" fill="#6E403D"/>
-    <path d="M70 178v-84M130 178v-84" stroke="#D6402C" stroke-width="10"/><path d="M56 100q44 8 88 0v-12q-44 8-88 0z" fill="#D6402C"/><path d="M64 118h72" stroke="#D6402C" stroke-width="7"/>
-    <path d="M-10 190q80-14 160-4t160-8v42H-10z" fill="#9D6B63" opacity=".55"/>
-    <path d="M0 20q50 10 90 40" stroke="#6E403D" stroke-width="3" fill="none"/>
-    ${[[18,28],[34,38],[52,48],[70,58],[26,48],[44,60],[84,64],[12,12],[40,22],[60,34]].map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="${7+(i%3)*2}" fill="${i%2?'#F6A9C4':'#FAC9DA'}"/>`).join('')}
-    ${[[160,60],[190,100],[250,140],[110,150],[280,60]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3" fill="#F6A9C4"/>`).join('')}
+    <path d="M-10 150q60-50 130-22t200-30v122H-10z" fill="#E3D2D7" opacity=".85"/>
+    <path d="M214 160v-70h4V70h10v20h4v70z" fill="#7F6360"/><path d="M204 92h46l-6-10h-34zM208 116h38l-5-9h-28zM212 140h30l-4-8h-22z" fill="#644947"/>
+    <path d="M70 178v-84M130 178v-84" stroke="#B45A4E" stroke-width="10"/><path d="M56 100q44 8 88 0v-12q-44 8-88 0z" fill="#B45A4E"/><path d="M64 118h72" stroke="#B45A4E" stroke-width="7"/>
+    <path d="M-10 190q80-14 160-4t160-8v42H-10z" fill="#91736F" opacity=".55"/>
+    <path d="M0 20q50 10 90 40" stroke="#644947" stroke-width="3" fill="none"/>
+    ${[[18,28],[34,38],[52,48],[70,58],[26,48],[44,60],[84,64],[12,12],[40,22],[60,34]].map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="${7+(i%3)*2}" fill="${i%2?'#E7B8C6':'#F0D3DB'}"/>`).join('')}
+    ${[[160,60],[190,100],[250,140],[110,150],[280,60]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3" fill="#E7B8C6"/>`).join('')}
     <path d="M0 176q70-14 150-4t150-10v10H0z" fill="#fff" opacity=".45"/>`),
-  reykjavik: u => svgWrap(`<defs>${grad('a'+u, [[0,'#071A33'],[1,'#12506A']])}
-    <linearGradient id="b${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5BF0B2" stop-opacity=".0"/><stop offset=".5" stop-color="#5BF0B2" stop-opacity=".55"/><stop offset="1" stop-color="#8B7CFF" stop-opacity=".0"/></linearGradient></defs>
+  reykjavik: u => svgWrap(`<defs>${grad('a'+u, [[0,'#10202A'],[1,'#245158']])}
+    <linearGradient id="b${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#79D2B1" stop-opacity=".0"/><stop offset=".5" stop-color="#79D2B1" stop-opacity=".55"/><stop offset="1" stop-color="#99B9E2" stop-opacity=".0"/></linearGradient></defs>
     ${rect(0,0,300,220,`url(#a${u})`)}
     <path d="M-10 40Q60 90 120 50T220 60T310 20V110Q230 80 170 100T60 120T-10 90z" fill="url(#b${u})"/>
     <g fill="#fff" opacity=".75"><circle cx="24" cy="26" r="1.2"/><circle cx="96" cy="14" r="1"/><circle cx="168" cy="22" r="1.3"/><circle cx="262" cy="42" r="1"/><circle cx="214" cy="12" r="1"/></g>
-    <path d="M-10 150l60-52 42 36 52-60 66 64 40-30 60 40v72H-10z" fill="#2B3E5E"/>
-    <path d="M142 74l-16 20 8-4 8 8 8-8 9 5z" fill="#EAF2FA"/><path d="M50 98l-12 14 7-3 5 6 6-5 5 3z" fill="#EAF2FA"/>
-    ${rect(0,186,300,34,'#E9EEF3')}
-    <path d="M152 196v-58l-6-6v-8l6-10 6 10v8l-6 6z" fill="#F4F7FA"/><path d="M146 150h12M146 168h12" stroke="#B9C6D6" stroke-width="2"/>${rect(138,186,28,10,'#F4F7FA')}
-    ${[[10,'#D8504A'],[42,'#3C8DBC'],[76,'#E9B949'],[200,'#D8504A'],[236,'#2BA6A0'],[266,'#3C8DBC']].map(([x,c])=>`<path d="M${x} 196v-12l12-8 12 8v12z" fill="${c}"/>`).join('')}`)
+    <path d="M-10 150l60-52 42 36 52-60 66 64 40-30 60 40v72H-10z" fill="#354754"/>
+    <path d="M142 74l-16 20 8-4 8 8 8-8 9 5z" fill="#EDF3F7"/><path d="M50 98l-12 14 7-3 5 6 6-5 5 3z" fill="#EDF3F7"/>
+    ${rect(0,186,300,34,'#EBEFF1')}
+    <path d="M152 196v-58l-6-6v-8l6-10 6 10v8l-6 6z" fill="#F5F7F9"/><path d="M146 150h12M146 168h12" stroke="#BFC9D0" stroke-width="2"/>${rect(138,186,28,10,'#F5F7F9')}
+    ${[[10,'#BC6A66'],[42,'#5688A2'],[76,'#C9AC69'],[200,'#BC6A66'],[236,'#448D85'],[266,'#5688A2']].map(([x,c])=>`<path d="M${x} 196v-12l12-8 12 8v12z" fill="${c}"/>`).join('')}`)
 };
 const scene = name => SCENES[name]('s' + (++_uid));
 
@@ -5526,11 +5765,11 @@ const BE = (() => {
 })();
 /* ============ GL: Three.js scene behind the UI (mood orb, shader backdrop, dust, satellites, feeling field) ============ */
 const MOODS = {
-  start:  { bg:'#F7F2EA', surface:'#FFFFFF', ink:'#2B2622', accent:'#BC5630', accentInk:'#FFFFFF', glow:'#F6C9A0', orb:['#FFD9B8','#E98A5C','#FFB98A'] },
-  tide:   { bg:'#E5F1F2', surface:'#F7FCFC', ink:'#0F3039', accent:'#17798A', accentInk:'#FFFFFF', glow:'#8CD3DA', orb:['#CBF3F6','#4FA3B2','#8CD3DA'] },
-  dusk:   { bg:'#231E3B', surface:'#2E2850', ink:'#F3EEFF', accent:'#B79CFF', accentInk:'#1A1433', glow:'#5A3FB8', orb:['#7B5AD6','#3A2A7A','#B79CFF'] },
-  ember:  { bg:'#FBE8DA', surface:'#FFF8F2', ink:'#3A1E12', accent:'#C94A22', accentInk:'#FFFFFF', glow:'#F8B48A', orb:['#FFD6BC','#E0784E','#F8B48A'] },
-  forest: { bg:'#E3EBDB', surface:'#F6FAF2', ink:'#1B2E20', accent:'#3A7740', accentInk:'#FFFFFF', glow:'#A5CC96', orb:['#D8EEC6','#6FA877','#A5CC96'] }
+  start:  { bg:'#F2EBDD', surface:'#FBF7EF', ink:'#2F261D', accent:'#A3502C', accentInk:'#FFFFFF', glow:'#E2B47E', orb:['#EBCB9F','#A9653A','#D6A46C'] },
+  tide:   { bg:'#E1E7DF', surface:'#F4F6F0', ink:'#1C2E2B', accent:'#356660', accentInk:'#FFFFFF', glow:'#9CB9AE', orb:['#D3E0D8','#5A857C','#9CB9AE'] },
+  dusk:   { bg:'#241B14', surface:'#34291F', ink:'#F3E9DA', accent:'#E0A96E', accentInk:'#20170F', glow:'#8C5A33', orb:['#8C5A33','#3B2A1E','#E0A96E'] },
+  ember:  { bg:'#EFDCC6', surface:'#FBF3EA', ink:'#3A2216', accent:'#9C3F1C', accentInk:'#FFFFFF', glow:'#DB9566', orb:['#F0C9A4','#B05A30','#DB9566'] },
+  forest: { bg:'#E2E1CB', surface:'#F5F4E8', ink:'#262A18', accent:'#52622A', accentInk:'#FFFFFF', glow:'#ADB57A', orb:['#DCDDB4','#7A8444','#ADB57A'] }
 };
 
 const GL = (() => {
@@ -5648,12 +5887,12 @@ const GL = (() => {
       vec3 col=mix(uColB,uColA,dif*.88);
       float fres=pow(1.-max(dot(N,V),0.),3.);
       vec3 irid=.5+.5*cos(6.2831*(vec3(0.,.33,.67)+N.y*.45+N.x*.3+uTime*.03));
-      col=mix(col,col*(.8+.4*irid),.2);
+      col=mix(col,col*(.8+.4*irid),.06);            // a hint of shimmer only: earthy, matte like fired clay
       vec3 H=normalize(L+V); float spec=pow(max(dot(N,H),0.),150.)*uGloss;
       float sheen=pow(max(dot(N,H),0.),14.)*.16*uGloss;
       col+=uColC*fres*.5;
       col+=uColC*pow(max(dot(N,-L),0.),2.)*.14;
-      col+=vec3(1.)*(spec*.75+sheen);
+      col+=vec3(1.)*(spec*.4+sheen*.7);
       col+=vD*.22*uColC;
       gl_FragColor=vec4(col,1.);
     }`
@@ -6702,6 +6941,17 @@ const MN_STRINGS = {
   "Comment posted.": "Коммент нийтлэгдлээ.",
   "Comment deleted.": "Коммент устгагдлаа.",
 
+  /* ---------- route map ---------- */
+  "Your route · {0}": "Таны маршрут · {0}",
+  "Where each day takes you": "Өдөр бүр хаашаа явах вэ",
+  "Show on the map": "Газрын зураг дээр харуулах",
+  "All days": "Бүх өдөр",
+  "Map of your route": "Таны маршрутын газрын зураг",
+  "Loading the map…": "Газрын зургийг ачаалж байна…",
+  "The map could not load right now. The plan below works without it.": "Газрын зураг одоогоор ачаалагдсангүй. Доорх төлөвлөгөө үүнгүйгээр ажиллана.",
+  "{0} of {1} stops are on the map. Pins are approximate, and stops that are not one place (a spa, a café of your choice) are left off. Tap a pin for the place.": "{1} газраас {0} нь газрын зураг дээр байна. Байршил ойролцоо бөгөөд нэг тодорхой газар биш зогсоолуудыг (спа, дуртай кафе гэх мэт) тэмдэглээгүй. Дэлгэрэнгүйг харахын тулд тэмдэг дээр дарна уу.",
+  "Day {0}, stop {1}: {2}": "{0}-р өдөр, {1}-р зогсоол: {2}",
+
   /* ---------- errors from the shared database ---------- */
   "This link is view-only for you, so posting is switched off. Ask the owner for Contributor access.": "Энэ холбоос танд зөвхөн харах эрхтэй тул нийтлэх хаалттай. Эзэмшигчээс Contributor эрх хүсээрэй.",
   "The shared database is full, so nothing more can be added right now.": "Нийтийн мэдээллийн сан дүүрсэн тул одоогоор юу ч нэмэх боломжгүй.",
@@ -7330,7 +7580,19 @@ const packedText = () => touched.has(3) ? ['Nothing packed yet · pick up to thr
 const capFirst = s => s.charAt(0).toUpperCase() + s.slice(1);
 const dflt = n => touched.has(n) ? '' : ' <span class="muted">· default</span>';
 const bagNames = () => S.bag.map(id => BAG.find(b => b.id === id).name.toLowerCase());
-const marq = FEEL.map(f => `<span>${f.label}</span><span class="sep">✺</span>`).join('');
+/* a small flat Earth, drawn for MoodTrip (the separator in the moving banner) */
+const EARTH_ICON = `<svg class="earth" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+  <circle class="eg-sea" cx="32" cy="32" r="28"/>
+  <path class="eg-land" d="M15 17c3-3 8-4 12-2 2 1 2 4 0 5-3 1-4 3-2 5 2 3 5 4 4 8-1 3-4 4-4 8 0 3-2 6-4 8-2-3-3-6-3-9 0-4-4-5-6-9-2-5-1-10 3-14z"/>
+  <path class="eg-sand" d="M20 22c2 0 3 2 2 3s-3 1-3-1 0-2 1-2z"/>
+  <path class="eg-land" d="M36 9c5-1 11 1 15 5 2 2 1 4-1 5-3 1-5 0-7 2-1 2 1 4 3 5 3 2 4 5 2 8-2 4-5 6-6 10-1 3-3 5-5 6-1-4 0-7-2-10-2-4-6-5-6-9s4-5 4-8c0-3-3-5-1-8 1-3 2-5 4-6z"/>
+  <path class="eg-sand" d="M41 30c3 0 5 2 4 5-1 2-3 4-5 3s-2-4-1-6 1-2 2-2z"/>
+  <path class="eg-land" d="M45 46c2-1 5-1 6 1s-1 4-4 4-3-3-2-5z"/>
+  <path class="eg-grid" d="M32 4a28 28 0 0 1 0 56M32 4a12 28 0 0 0 0 56M32 4a12 28 0 0 1 0 56M4.6 27h54.8M6.5 42h51"/>
+  <path class="eg-shine" d="M14 18a24 24 0 0 1 14-10"/>
+  <circle class="eg-ring" cx="32" cy="32" r="28"/>
+</svg>`;
+const marq = FEEL.map(f => `<span>${f.label}</span><span class="sep">${EARTH_ICON}</span>`).join('');
 
 /* star words for every rating control */
 const STAR_WORDS = ['Poor', 'Fair', 'Good', 'Great', 'Superb'];
@@ -8044,6 +8306,7 @@ function plannerHTML(){
       </div>
     </div>
     <div class="panel" data-pop id="crowdPanel">${crowdPanelHTML(d)}</div>
+    ${routePanelHTML()}
     <div class="days">
       ${P.days.map(dayHTML).join('')}
       <button class="add-day" data-act="addday">＋ Add a day</button>
@@ -8062,6 +8325,100 @@ function dayHTML(day, k){
     <button class="btn btn-secondary btn-sm" data-act="adder" data-day="${k}" aria-expanded="${S.adder === k}">＋ Add a stop</button>
     ${S.adder === k ? adderHTML(k) : ''}
   </section>`;
+}
+/* features/planner/route-map.js — Planner: the route map (OpenFreeMap tiles drawn with MapLibre GL).
+
+   - No key and no account: OpenFreeMap's public tiles. MapLibre adds the map credit (OpenFreeMap, OpenMapTiles, OpenStreetMap).
+   - MapLibre (about 1 MB) is served from this site (/vendor) and loaded only when a plan is on screen, so nobody else pays for it.
+     It is the CSP build: its worker is a normal file on this site, so the page's Content-Security-Policy needs no blob: workers.
+   - The planner redraws itself on every edit; the map element is kept and moved into the new slot, so the map is built once.
+   - Pins come from data/places/geo.js and are approximate. Stops with no single place (a spa, a café of your choice) are not pinned.
+   - Only in the Cloudflare build (window.MT_MAP); the claude.ai page has no /vendor files. */
+const MAP_ON = !!window.MT_MAP;
+const MAP_STYLE = 'https://tiles.openfreemap.org/styles/positron';
+const MAP_LIB = '/vendor/maplibre-5.24.1/';
+const DAY_COLORS = ['#A3502C', '#356660', '#B7862A', '#5D6E2F', '#7A4A63', '#B0603C', '#3F5E7A', '#7C5A3A'];   // earth tones, one per day
+const dayColor = k => DAY_COLORS[k % DAY_COLORS.length];
+let mapLib = null, mapEl = null, routeMap = null, routeReady = false, mapDestId = null, mapDay = -1, mapMarkers = [];
+
+function loadMapLib(){
+  if (mapLib) return mapLib;
+  mapLib = new Promise((ok, no) => {
+    const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = MAP_LIB + 'maplibre-gl.css'; document.head.appendChild(css);
+    const js = document.createElement('script'); js.src = MAP_LIB + 'maplibre-gl-csp.js'; js.async = true;
+    js.onload = () => { try { window.maplibregl.setWorkerUrl(MAP_LIB + 'maplibre-gl-csp-worker.js'); ok(window.maplibregl); } catch (e) { no(e); } };
+    js.onerror = () => { mapLib = null; no(new Error('load')); };
+    document.head.appendChild(js);
+  });
+  return mapLib;
+}
+/* every pinned stop of the plan, per day, in plan order */
+function routePoints(){
+  const g = GEO[S.dest.id] || { p:{} };
+  return S.plan.days.map((day, k) => day.stops.map((s, i) => ({ s, k, i, ll:!s.custom && g.p[s.title] })).filter(x => x.ll));
+}
+function routePanelHTML(){
+  if (!MAP_ON) return '';
+  const pts = routePoints(), pinned = pts.reduce((n, d) => n + d.length, 0), total = S.plan.days.reduce((n, d) => n + d.stops.length, 0);
+  if (mapDay >= S.plan.days.length) mapDay = -1;
+  return `<div class="panel route-panel" data-pop>
+    <div class="cost-top"><div><p class="label muted">Your route · ${esc(S.dest.name)}</p><p class="title" style="margin-top:4px">Where each day takes you</p></div>
+      <div class="route-days" role="group" aria-label="Show on the map">
+        <button type="button" class="rday" data-act="mapday" data-day="-1" aria-pressed="${mapDay < 0}">All days</button>
+        ${S.plan.days.map((_, k) => `<button type="button" class="rday" data-act="mapday" data-day="${k}" aria-pressed="${mapDay === k}" style="--dc:${dayColor(k)}"><i aria-hidden="true"></i>Day ${k + 1}</button>`).join('')}
+      </div></div>
+    <div id="routeMapSlot" class="route-slot"></div>
+    <p class="fine">${pinned} of ${total} stops are on the map. Pins are approximate, and stops that are not one place (a spa, a café of your choice) are left off. Tap a pin for the place.</p>
+  </div>`;
+}
+async function mountRouteMap(){
+  if (!MAP_ON) return;
+  const slot = $('#routeMapSlot'); if (!slot) return;
+  if (!mapEl){
+    mapEl = document.createElement('div'); mapEl.className = 'route-map';
+    mapEl.setAttribute('role', 'region'); mapEl.setAttribute('aria-label', 'Map of your route'); mapEl.setAttribute('translate', 'no');
+    mapEl.innerHTML = '<p class="route-wait fine">Loading the map…</p>';
+  }
+  slot.appendChild(mapEl);
+  if (routeMap){ routeMap.resize(); paintRoute(mapDestId !== S.dest.id); return; }
+  let lib;
+  try { lib = await loadMapLib(); } catch (e) { mapEl.innerHTML = '<p class="route-wait fine">The map could not load right now. The plan below works without it.</p>'; return; }
+  if (routeMap || !mapEl.isConnected || !S.dest) return;
+  mapEl.innerHTML = '';
+  const g = GEO[S.dest.id];
+  routeMap = new lib.Map({ container:mapEl, style:MAP_STYLE, center:g ? [g.c[1], g.c[0]] : [0, 20], zoom:g ? g.z : 1.5,
+    cooperativeGestures:true, attributionControl:{ compact:true }, fadeDuration:0 });
+  routeMap.addControl(new lib.NavigationControl({ showCompass:false }), 'top-right');
+  routeMap.on('load', () => { routeReady = true; paintRoute(true); });
+}
+function paintRoute(fit){
+  if (!routeMap || !routeReady || !S.plan || !S.dest) return;
+  const lib = window.maplibregl, days = routePoints(), show = (k) => mapDay < 0 || mapDay === k;
+  mapMarkers.forEach(m => m.remove()); mapMarkers = [];
+  days.forEach((list, k) => list.forEach((x, n) => {
+    const el = document.createElement('button');
+    el.type = 'button'; el.className = 'rmk'; el.dataset.act = 'place'; el.dataset.id = x.s.id;
+    el.style.setProperty('--dc', dayColor(k)); el.textContent = n + 1; el.hidden = !show(k);
+    el.setAttribute('aria-label', `Day ${k + 1}, stop ${n + 1}: ${x.s.title}`); el.title = `Day ${k + 1} · ${x.s.title}`;
+    mapMarkers.push(new lib.Marker({ element:el, anchor:'center' }).setLngLat([x.ll[1], x.ll[0]]).addTo(routeMap));
+  }));
+  const lines = { type:'FeatureCollection', features:days.map((list, k) => ({ type:'Feature', properties:{ c:dayColor(k), on:show(k) ? 1 : 0 },
+    geometry:{ type:'LineString', coordinates:list.map(x => [x.ll[1], x.ll[0]]) } })).filter(f => f.geometry.coordinates.length > 1) };
+  const src = routeMap.getSource('route');
+  if (src) src.setData(lines);
+  else {
+    routeMap.addSource('route', { type:'geojson', data:lines });
+    routeMap.addLayer({ id:'route', type:'line', source:'route', layout:{ 'line-cap':'round', 'line-join':'round' },
+      paint:{ 'line-color':['get', 'c'], 'line-width':3, 'line-opacity':['*', 0.75, ['get', 'on']], 'line-dasharray':[1.5, 1.5] } });
+  }
+  if (fit || mapDestId !== S.dest.id){
+    mapDestId = S.dest.id;
+    const vis = days.flatMap((list, k) => show(k) ? list : []);
+    if (vis.length){
+      const b = new lib.LngLatBounds(); vis.forEach(x => b.extend([x.ll[1], x.ll[0]]));
+      routeMap.fitBounds(b, { padding:48, maxZoom:15, duration:FX.reduced ? 0 : 700 });
+    } else { const g = GEO[S.dest.id]; if (g) routeMap.jumpTo({ center:[g.c[1], g.c[0]], zoom:g.z }); }
+  }
 }
 /* features/planner/stops.js — Planner: stops, adding, removing, days. */
 /* a stop's guide entry and review id come from its title, so a saved or edited plan can never point reviews at the wrong place */
@@ -8101,6 +8458,7 @@ function refreshPlan(focusSel){
   const root = $('#plan'); if (!root) return;
   root.innerHTML = plannerHTML();
   FX.bind(root);
+  mountRouteMap();
   if (focusSel){ const el = $(focusSel, root); if (el) el.focus({ preventScroll:true }); }
 }
 function locate(id){ for (let k = 0; k < S.plan.days.length; k++){ const i = S.plan.days[k].stops.findIndex(s => s.id === id); if (i >= 0) return [k, i]; } return null; }
@@ -8436,6 +8794,12 @@ ACT.save = async () => {
     toast(where.length ? `Plan saved to ${where.join(' and ')}.${dbErr ? ' The shared database could not be reached.' : BE.account ? ' Find it in My plans.' : BE.canAccount ? ' Sign in to keep it in your account.' : ''}` : dbErr ? BE.explain(dbErr) : 'This browser blocks saving here. Your plan is still on screen.');
   };
 ACT.resume = () => { if (!saved) return; restoreTrip(saved); go('planner'); };
+AFTER.planner = () => { mountRouteMap(); };
+ACT.mapday = el => {
+  mapDay = +el.dataset.day;
+  $$('.rday').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.day === mapDay)));
+  paintRoute(true);
+};
 /* features/field/index.js — Field: entry points. */
 VIEWS.field = () => `<section class="field-view" aria-labelledby="h1">
     <div class="field-top">

@@ -1,10 +1,10 @@
 /* ============ GL: Three.js scene behind the UI (mood orb, shader backdrop, dust, satellites, feeling field) ============ */
 const MOODS = {
-  start:  { bg:'#F7F2EA', surface:'#FFFFFF', ink:'#2B2622', accent:'#BC5630', accentInk:'#FFFFFF', glow:'#F6C9A0', orb:['#FFD9B8','#E98A5C','#FFB98A'] },
-  tide:   { bg:'#E5F1F2', surface:'#F7FCFC', ink:'#0F3039', accent:'#17798A', accentInk:'#FFFFFF', glow:'#8CD3DA', orb:['#CBF3F6','#4FA3B2','#8CD3DA'] },
-  dusk:   { bg:'#231E3B', surface:'#2E2850', ink:'#F3EEFF', accent:'#B79CFF', accentInk:'#1A1433', glow:'#5A3FB8', orb:['#7B5AD6','#3A2A7A','#B79CFF'] },
-  ember:  { bg:'#FBE8DA', surface:'#FFF8F2', ink:'#3A1E12', accent:'#C94A22', accentInk:'#FFFFFF', glow:'#F8B48A', orb:['#FFD6BC','#E0784E','#F8B48A'] },
-  forest: { bg:'#E3EBDB', surface:'#F6FAF2', ink:'#1B2E20', accent:'#3A7740', accentInk:'#FFFFFF', glow:'#A5CC96', orb:['#D8EEC6','#6FA877','#A5CC96'] }
+  start:  { bg:'#F2EBDD', surface:'#FBF7EF', ink:'#2F261D', accent:'#A3502C', accentInk:'#FFFFFF', glow:'#E2B47E', orb:['#EBCB9F','#A9653A','#D6A46C'] },
+  tide:   { bg:'#E1E7DF', surface:'#F4F6F0', ink:'#1C2E2B', accent:'#356660', accentInk:'#FFFFFF', glow:'#9CB9AE', orb:['#D3E0D8','#5A857C','#9CB9AE'] },
+  dusk:   { bg:'#241B14', surface:'#34291F', ink:'#F3E9DA', accent:'#E0A96E', accentInk:'#20170F', glow:'#8C5A33', orb:['#8C5A33','#3B2A1E','#E0A96E'] },
+  ember:  { bg:'#EFDCC6', surface:'#FBF3EA', ink:'#3A2216', accent:'#9C3F1C', accentInk:'#FFFFFF', glow:'#DB9566', orb:['#F0C9A4','#B05A30','#DB9566'] },
+  forest: { bg:'#E2E1CB', surface:'#F5F4E8', ink:'#262A18', accent:'#52622A', accentInk:'#FFFFFF', glow:'#ADB57A', orb:['#DCDDB4','#7A8444','#ADB57A'] }
 };
 
 const GL = (() => {
@@ -122,12 +122,12 @@ const GL = (() => {
       vec3 col=mix(uColB,uColA,dif*.88);
       float fres=pow(1.-max(dot(N,V),0.),3.);
       vec3 irid=.5+.5*cos(6.2831*(vec3(0.,.33,.67)+N.y*.45+N.x*.3+uTime*.03));
-      col=mix(col,col*(.8+.4*irid),.2);
+      col=mix(col,col*(.8+.4*irid),.06);            // a hint of shimmer only: earthy, matte like fired clay
       vec3 H=normalize(L+V); float spec=pow(max(dot(N,H),0.),150.)*uGloss;
       float sheen=pow(max(dot(N,H),0.),14.)*.16*uGloss;
       col+=uColC*fres*.5;
       col+=uColC*pow(max(dot(N,-L),0.),2.)*.14;
-      col+=vec3(1.)*(spec*.75+sheen);
+      col+=vec3(1.)*(spec*.4+sheen*.7);
       col+=vD*.22*uColC;
       gl_FragColor=vec4(col,1.);
     }`

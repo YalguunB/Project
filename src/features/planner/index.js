@@ -31,3 +31,9 @@ ACT.save = async () => {
     toast(where.length ? `Plan saved to ${where.join(' and ')}.${dbErr ? ' The shared database could not be reached.' : BE.account ? ' Find it in My plans.' : BE.canAccount ? ' Sign in to keep it in your account.' : ''}` : dbErr ? BE.explain(dbErr) : 'This browser blocks saving here. Your plan is still on screen.');
   };
 ACT.resume = () => { if (!saved) return; restoreTrip(saved); go('planner'); };
+AFTER.planner = () => { mountRouteMap(); };
+ACT.mapday = el => {
+  mapDay = +el.dataset.day;
+  $$('.rday').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.day === mapDay)));
+  paintRoute(true);
+};

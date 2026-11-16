@@ -601,6 +601,17 @@ const MN_STRINGS = {
   "Comment posted.": "Коммент нийтлэгдлээ.",
   "Comment deleted.": "Коммент устгагдлаа.",
 
+  /* ---------- route map ---------- */
+  "Your route · {0}": "Таны маршрут · {0}",
+  "Where each day takes you": "Өдөр бүр хаашаа явах вэ",
+  "Show on the map": "Газрын зураг дээр харуулах",
+  "All days": "Бүх өдөр",
+  "Map of your route": "Таны маршрутын газрын зураг",
+  "Loading the map…": "Газрын зургийг ачаалж байна…",
+  "The map could not load right now. The plan below works without it.": "Газрын зураг одоогоор ачаалагдсангүй. Доорх төлөвлөгөө үүнгүйгээр ажиллана.",
+  "{0} of {1} stops are on the map. Pins are approximate, and stops that are not one place (a spa, a café of your choice) are left off. Tap a pin for the place.": "{1} газраас {0} нь газрын зураг дээр байна. Байршил ойролцоо бөгөөд нэг тодорхой газар биш зогсоолуудыг (спа, дуртай кафе гэх мэт) тэмдэглээгүй. Дэлгэрэнгүйг харахын тулд тэмдэг дээр дарна уу.",
+  "Day {0}, stop {1}: {2}": "{0}-р өдөр, {1}-р зогсоол: {2}",
+
   /* ---------- errors from the shared database ---------- */
   "This link is view-only for you, so posting is switched off. Ask the owner for Contributor access.": "Энэ холбоос танд зөвхөн харах эрхтэй тул нийтлэх хаалттай. Эзэмшигчээс Contributor эрх хүсээрэй.",
   "The shared database is full, so nothing more can be added right now.": "Нийтийн мэдээллийн сан дүүрсэн тул одоогоор юу ч нэмэх боломжгүй.",

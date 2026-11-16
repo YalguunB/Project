@@ -36,6 +36,7 @@ function refreshPlan(focusSel){
   const root = $('#plan'); if (!root) return;
   root.innerHTML = plannerHTML();
   FX.bind(root);
+  mountRouteMap();
   if (focusSel){ const el = $(focusSel, root); if (el) el.focus({ preventScroll:true }); }
 }
 function locate(id){ for (let k = 0; k < S.plan.days.length; k++){ const i = S.plan.days[k].stops.findIndex(s => s.id === id); if (i >= 0) return [k, i]; } return null; }
