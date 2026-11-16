@@ -25,3 +25,9 @@ PLACES_BASE = "https://places.googleapis.com/v1"
 # Secrets are set with `wrangler secret put`, never written here:
 #   GOOGLE_PLACES_API_KEY   shows Google ratings, photos and reviews (optional)
 #   ADMIN_TOKEN             lets you delete any traveler review (optional)
+
+# schema.sql is bundled into the Worker as text, so it can create its own tables on first use
+[[rules]]
+type = "Text"
+globs = ["**/*.sql"]
+fallthrough = true

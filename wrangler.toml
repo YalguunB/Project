@@ -1,0 +1,28 @@
+# Deploy config for Cloudflare's Git builds ("Workers Builds"), which run `npx wrangler deploy` at the top of the repo.
+# It deploys the same Worker as cloudflare/wrangler.toml (which `npm run setup` and `npm run deploy` use from your computer).
+# Keep the two in step.
+#
+# No database_id here on purpose: Wrangler links the D1 database by its name (moodtrip-db), and creates it on the first
+# deploy if it does not exist yet. The Worker creates its own tables on first use (see ensureSchema in worker.js).
+name = "moodtrip"
+main = "cloudflare/src/worker.js"
+compatibility_date = "2025-09-01"
+
+[placement]
+mode = "smart"
+
+[assets]
+directory = "./cloudflare/public"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "moodtrip-db"
+
+[vars]
+PLACES_BASE = "https://places.googleapis.com/v1"
+
+[[rules]]
+type = "Text"
+globs = ["**/*.sql"]
+fallthrough = true

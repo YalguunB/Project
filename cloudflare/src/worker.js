@@ -11,6 +11,7 @@
    GET  /api/health                          which parts are configured
 
    Bindings: DB (D1), secret GOOGLE_PLACES_API_KEY (optional), secret ADMIN_TOKEN (optional, for moderation), var PLACES_BASE. */
+import SCHEMA from '../schema.sql';
 import SPOTS from './spots.json';
 
 const ALLOWED = new Set(SPOTS);                      // the API key only ever asks Google about these places
@@ -123,6 +124,17 @@ async function photo(request, env, url, t) {
 
 /* ---------------------------------------------------------------- shared documents (D1) ---------------------------------------------------------------- */
 const enc = new TextEncoder();
+
+/* The tables, created on first use. A fresh deploy (for example from a Git build, which cannot run setup) works without a
+   separate database step; afterwards this is one cheap batch of CREATE ... IF NOT EXISTS per Worker instance. */
+let schemaReady = null;
+function ensureSchema(env) {
+  if (!schemaReady) {
+    const statements = SCHEMA.replace(/--[^\n]*/g, '').split(';').map(x => x.trim()).filter(Boolean);
+    schemaReady = env.DB.batch(statements.map(q => env.DB.prepare(q))).catch(e => { schemaReady = null; throw e; });
+  }
+  return schemaReady;
+}
 const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 const randHex = n => hex(crypto.getRandomValues(new Uint8Array(n)));
 async function sha256(s) { return hex(await crypto.subtle.digest('SHA-256', enc.encode(s))); }
@@ -189,6 +201,7 @@ function stampNames(coll, d, sess) {
 
 async function store(request, env, url, t) {
   if (!env.DB) return json({ error:'no_database' }, 503);
+  await ensureSchema(env);
   const [coll, id] = url.pathname.split('/').filter(Boolean).slice(2);
   const priv = PRIVATE.has(coll);
   if (!SHARED.has(coll) && !priv) return json({ error:'not_found' }, 404);
@@ -265,6 +278,7 @@ async function changed(t, pairs) {
 }
 async function sync(request, env, url, t) {
   if (!env.DB) return json({ error:'no_database' }, 503);
+  await ensureSchema(env);
   if (request.method !== 'GET') return json({ error:'method_not_allowed' }, 405);
   const pairs = [...url.searchParams.entries()].filter(([c]) => SHARED.has(c)).slice(0, SHARED.size);
   if (!pairs.length) return json({ error:'nothing_asked' }, 400);
@@ -286,6 +300,7 @@ async function newSession(t, id, name) {
 }
 async function auth(request, env, url, t) {
   if (!env.DB) return json({ error:'no_database' }, 503);
+  await ensureSchema(env);
   const what = url.pathname.slice('/api/auth/'.length);
   if (what === 'me') {
     if (request.method !== 'GET') return json({ error:'method_not_allowed' }, 405);
