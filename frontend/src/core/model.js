@@ -128,12 +128,13 @@ const CROWD = {};
 
 /* ----- State ----- */
 /* what an unanswered round falls back to (the game page can be left half-finished) */
-const ANSWER_DEFAULTS = { window:'sea', energy:35, bag:['journal','swim','paperback'], sound:'lofi', feel:'rested' };
+const ANSWER_DEFAULTS = { window:'sea', energy:35, bag:['journal','swim','paperback'], sound:'lofi', feel:'rested', now:null };   // now: how you feel right now (core/feeling-colors.js)
 const S = {
   stage:'intro', reached:-1, cardSeen:false,
   ...ANSWER_DEFAULTS, bag:ANSWER_DEFAULTS.bag.slice(),
   budget:1800, style:'comfy', month:2, nights:7,
-  dest:null, plan:null, adder:null, planId:null   // planId: which of the account's saved plans is on screen
+  dest:null, plan:null, adder:null, planId:null,  // planId: which of the account's saved plans is on screen
+  colors:'feeling'                                 // 'feeling': colors follow how you feel; 'window': the window's own colors
 };
 const ORDER = ['intro','game','card','budget','matches','planner'];
 
@@ -152,7 +153,7 @@ const energyWord = e => e < 15 ? 'Drained' : e < 45 ? 'Running low' : e < 70 ? '
 
 function archetype(){
   const w = WIN.find(x => x.id === S.window), f = FEEL.find(x => x.id === S.feel), lvl = energyLevel();
-  return { w, f, lvl, mood:w.mood, name:`${lvl.pace}-${w.noun} ${f.role}`,
+  return { w, f, lvl, mood:feelingPalette().mood, name:`${lvl.pace}-${w.noun} ${f.role}`,
            traits:[f.label, w.trait, lvl.trait], headline:`A ${lvl.adj}, ${w.word} kind of trip.` };
 }
 

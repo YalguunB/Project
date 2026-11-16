@@ -20,6 +20,7 @@
   'src/components/overlays.js',
   'src/components/mount.js',
   'src/core/model.js',
+  'src/core/feeling-colors.js',
   'src/data/places/00-head.js',
   'src/data/places/hoian.js',
   'src/data/places/lisbon.js',

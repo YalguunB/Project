@@ -5,6 +5,10 @@ const MOODS = {
   tide:   { bg:'#E1E7DF', surface:'#F4F6F0', ink:'#1C2E2B', accent:'#356660', accentInk:'#FFFFFF', glow:'#9CB9AE', orb:['#D3E0D8','#5A857C','#9CB9AE'] },
   dusk:   { bg:'#241B14', surface:'#34291F', ink:'#F3E9DA', accent:'#E0A96E', accentInk:'#20170F', glow:'#8C5A33', orb:['#8C5A33','#3B2A1E','#E0A96E'] },
   ember:  { bg:'#EFDCC6', surface:'#FBF3EA', ink:'#3A2216', accent:'#9C3F1C', accentInk:'#FFFFFF', glow:'#DB9566', orb:['#F0C9A4','#B05A30','#DB9566'] },
+  sun:    { bg:'#F6ECCB', surface:'#FFFBEF', ink:'#3A2E12', accent:'#8A5A00', accentInk:'#FFFFFF', glow:'#F2C44E', orb:['#F7DE8E','#C9922A','#F2C44E'] },
+  calm:   { bg:'#E2EAF0', surface:'#F5F8FA', ink:'#1C2A36', accent:'#335C7A', accentInk:'#FFFFFF', glow:'#9DBAD0', orb:['#D5E2EC','#5E819C','#9DBAD0'] },
+  rose:   { bg:'#F4E1DA', surface:'#FCF5F2', ink:'#3A2220', accent:'#9C4053', accentInk:'#FFFFFF', glow:'#E7A9A0', orb:['#F2CFC6','#B86A6E','#E7A9A0'] },
+  plum:   { bg:'#E7E1EC', surface:'#F8F5FA', ink:'#2A2133', accent:'#664884', accentInk:'#FFFFFF', glow:'#B7A3CC', orb:['#DDD3E7','#7E6896','#B7A3CC'] },
   forest: { bg:'#E2E1CB', surface:'#F5F4E8', ink:'#262A18', accent:'#52622A', accentInk:'#FFFFFF', glow:'#ADB57A', orb:['#DCDDB4','#7A8444','#ADB57A'] }
 };
 
@@ -203,6 +207,7 @@ const GL = (() => {
     bgMat.uniforms.uEnergy.value = energy;
     api.invalidate();
   };
+  api.setCheer = on => { traveler.setCheer(on); api.invalidate(); };
   api.kick = (n = 1) => { orbS.kick = Math.min(1.4, orbS.kick + .5 * n); traveler.wave(); api.invalidate(); };
   api.setOrbVisible = v => { orbS.vis = v ? 1 : 0; api.invalidate(); };
 

@@ -72,7 +72,9 @@ VIEWS.card = () => { const A = archetype(), snd = SOUND.find(s => s.id === S.sou
         <dt>Bag</dt><dd>${S.bag.length ? capFirst(bagNames().join(', ')) : 'Nothing, very light'}${dflt(3)}</dd>
         <dt>Soundtrack</dt><dd>${snd.name}${dflt(4)}</dd>
         <dt>Come home feeling</dt><dd>${A.f.label}${dflt(5)}</dd>
+        ${S.now ? `<dt>Right now</dt><dd>${NOW.find(n => n.id === S.now).label}</dd>` : ''}
       </dl>
+      <div id="whyColors">${colorsWhyHTML()}</div>
       <div class="row" data-fade><button class="btn btn-primary" data-act="next">Set budget &amp; timing</button><button class="btn btn-secondary" data-act="share">Share card</button><button class="btn btn-ghost" data-act="change">Change my answers</button></div>
       <textarea class="copybox" id="copybox" readonly hidden aria-label="Feeling card text, ready to copy"></textarea>
     </div></section>`; };
@@ -85,3 +87,8 @@ ACT.share = async () => {
     try { await navigator.clipboard.writeText(text); toast('Copied your feeling card as text.'); }
     catch (e) { const box = $('#copybox'); box.value = text; box.hidden = false; box.focus(); box.select(); toast('Copy blocked here. The text is selected, so you can copy it yourself.'); }
   };
+ACT.colormode = () => {
+  S.colors = S.colors === 'window' ? 'feeling' : 'window';
+  applyMood(); const box = $('#whyColors'); if (box){ box.innerHTML = colorsWhyHTML(); FX.bind(box); }
+  toast(S.colors === 'window' ? 'Back to your window’s colors.' : 'Colors follow how you feel again.');
+};

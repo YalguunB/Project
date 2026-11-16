@@ -2,7 +2,12 @@
 /* core/chrome.js — Chrome: mood, 3D scene sync, stage nav, render and go(). */
 /* ---------- chrome: mood, 3D scene sync, stage nav ---------- */
 function moodFor(stage){
-  return stage === 'intro' ? 'start' : stage === 'field' ? 'dusk' : stage === 'game' ? (picked ? archetype().mood : 'start') : archetype().mood;
+  return stage === 'intro' ? 'start' : stage === 'field' ? 'dusk' : stage === 'game' ? (picked || S.now || touched.has(5) ? archetype().mood : 'start') : archetype().mood;
+}
+/* re-color the page (and the 3D scene) for the current answers; the traveler cheers when the colors are lifting a low mood */
+function applyMood(stage = S.stage){
+  document.documentElement.dataset.mood = moodFor(stage);
+  if (GL.ok){ GL.setMood(moodFor(stage)); GL.setCheer(isLifting()); }
 }
 function anchorFor(stage){
   const a = (ANCHOR[stage] || ANCHOR.intro)[innerWidth <= 860 ? 1 : 0];   // same breakpoint as the single-column layout
@@ -19,7 +24,7 @@ const bagOn = stage => stage === 'game' ? gRound >= 3 : BAG_STAGES.has(stage);
 function pushTraits(){ if (GL.ok) GL.setTraits({ window:S.window, energy:S.energy, sound:S.sound, feel:S.feel }); }
 function syncGL(stage){
   if (!GL.ok) return;
-  GL.setMood(moodFor(stage));
+  GL.setMood(moodFor(stage)); GL.setCheer(isLifting());
   pushTraits();
   GL.setBag(bagOn(stage) ? S.bag : []);
   GL.setAnchor(stage === 'game' ? gameAnchor() : anchorFor(stage));

@@ -68,6 +68,39 @@
   --olive-500: #8C9A4B;
   --ochre-400: #C9A15E;
 
+  /* feeling palettes (color psychology): warm yellow, soft blue, warm rose, lavender */
+  --sun-50: #FFFBEF;
+  --sun-200: #F6ECCB;
+  --sun-300: #E6D49C;
+  --sun-400: #F2C44E;
+  --sun-600: #8A5A00;
+  --sun-800: #66552B;
+  --sun-900: #3A2E12;
+
+  --sky-50: #F5F8FA;
+  --sky-200: #E2EAF0;
+  --sky-300: #C5D3DE;
+  --sky-400: #9DBAD0;
+  --sky-600: #335C7A;
+  --sky-800: #435666;
+  --sky-900: #1C2A36;
+
+  --rose-50: #FCF5F2;
+  --rose-200: #F4E1DA;
+  --rose-300: #E8C8C0;
+  --rose-400: #E7A9A0;
+  --rose-600: #9C4053;
+  --rose-800: #6B4943;
+  --rose-900: #3A2220;
+
+  --plum-50: #F8F5FA;
+  --plum-200: #E7E1EC;
+  --plum-300: #D3C9DC;
+  --plum-400: #B7A3CC;
+  --plum-600: #664884;
+  --plum-800: #564964;
+  --plum-900: #2A2133;
+
   --leaf-300: #A9C77F;
   --leaf-700: #4E6B2A;
   --leaf-800: #3E5F22;

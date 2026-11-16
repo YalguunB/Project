@@ -17,7 +17,7 @@ function cleanTrip(v){
   const has = (list, id, dflt) => list.some(x => x.id === id) ? id : dflt;
   return {
     window:has(WIN, v.window, 'sea'), energy:clamp(Math.round(+v.energy) || 0, 0, 100), bag:(Array.isArray(v.bag) ? v.bag : []).filter(b => BAG.some(x => x.id === b)).slice(0, 3),
-    sound:has(SOUND, v.sound, 'lofi'), feel:has(FEEL, v.feel, 'rested'), budget:clamp(Math.round(+v.budget) || 1800, 500, 5000),
+    sound:has(SOUND, v.sound, 'lofi'), feel:has(FEEL, v.feel, 'rested'), now:NOW.some(n => n.id === v.now) ? v.now : null, colors:v.colors === 'window' ? 'window' : 'feeling', budget:clamp(Math.round(+v.budget) || 1800, 500, 5000),
     style:has(STYLE, v.style, 'comfy'), month:clamp(Math.round(+v.month) || 0, 0, 11), nights:clamp(Math.round(+v.nights) || 7, 3, 8),
     destId:d.id, plan:{ days }
   };

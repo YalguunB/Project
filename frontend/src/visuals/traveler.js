@@ -64,7 +64,8 @@ function buildTraveler(T, light){
   blob(M.cheek, .08, .05, .03, -.24, -.1, .35, head); blob(M.cheek, .08, .05, .03, .24, -.1, .35, head);
   const eyes = [blob(M.ink, .05, .075, .03, -.13, -.01, .4, head), blob(M.ink, .05, .075, .03, .13, -.01, .4, head)];
   blob(M.white, .016, .02, .01, -.115, .02, .43, head); blob(M.white, .016, .02, .01, .145, .02, .43, head);
-  blob(M.ink, .05, .018, .02, 0, -.17, .39, head);                                  // a small smile line
+  const mouth = new T.Mesh(new T.TorusGeometry(.06, .014, 8, 20, Math.PI), M.ink);   // a smile: half a ring, open side up
+  mouth.rotation.z = Math.PI; mouth.position.set(0, -.13, .405); mouth.rotation.x = -.25; head.add(mouth);
   const helmet = new T.Mesh(new T.SphereGeometry(1, 36, 22, 0, Math.PI * 2, 0, Math.PI * .5), M.leather);
   helmet.scale.set(.475, .475, .475); helmet.position.set(0, .01, -.02); helmet.rotation.x = -.42; head.add(helmet);   // front edge above the eyes, back covers the nape
   blob(M.leather, .1, .2, .14, -.42, -.12, -.03, head); blob(M.leather, .1, .2, .14, .42, -.12, -.03, head);
@@ -81,7 +82,7 @@ function buildTraveler(T, light){
 
   root.rotation.y = -.22;                   // a slight three-quarter view, turned toward the page
   const look = { x:0, y:0, tx:0, ty:0, idle:0 };
-  let wave = 0, blink = 0, nextBlink = 2;
+  let wave = 0, blink = 0, nextBlink = 2, cheer = 0, cheerOn = false, nextCheer = 1.5;
 
   return {
     group:root,
@@ -93,6 +94,8 @@ function buildTraveler(T, light){
     /* pointer in -1..1 screen units relative to the traveler; null = no pointer (touch, or it left the window) */
     lookAt(dx, dy){ if (dx === null){ look.idle = 1; return; } look.idle = 0; look.tx = Math.max(-1, Math.min(1, dx)); look.ty = Math.max(-1, Math.min(1, dy)); },
     wave(){ wave = 1; },
+    /* cheering someone up (they said they feel low, stressed, tired, lonely or restless): a wider smile and a wave now and then */
+    setCheer(on){ cheerOn = !!on; if (on) nextCheer = Math.min(nextCheer, .6); },
     /* t: scene time, dt: seconds, speed: how lively (energy and sound), still: reduced motion */
     update(t, dt, speed, still){
       const s = still ? 0 : 1, k = 1 - Math.exp(-dt * 4);
@@ -118,6 +121,10 @@ function buildTraveler(T, light){
         m.position.set(.16 + d * .075 - look.x * d * .025, -.05 - d * .03 + Math.sin(ph) * .03 * d * s, -.22 - d * .07);
         m.rotation.z = Math.sin(ph) * .4 * s;
       });
+      /* cheering: the smile widens, and every few seconds a friendly wave */
+      cheer += ((cheerOn ? 1 : 0) - cheer) * k;
+      mouth.scale.set(1 + cheer * .55, 1 + cheer * .7, 1);
+      if (cheerOn && !still){ nextCheer -= dt; if (nextCheer < 0){ wave = 1; nextCheer = 6 + Math.random() * 3; } }
       /* blinking */
       nextBlink -= dt; if (nextBlink < 0){ blink = 1; nextBlink = 2.5 + Math.random() * 3; }
       blink = Math.max(0, blink - dt * 9); const e = 1 - Math.sin(Math.min(1, blink) * Math.PI) * .9;
