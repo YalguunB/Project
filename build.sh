@@ -93,7 +93,7 @@ if [ "$1" = "cloudflare" ]; then
     echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
     echo '<title>MoodTrip</title>'
     echo '<meta name="description" content="MoodTrip plans your trip around how you feel.">'
-    echo '<meta name="theme-color" content="#F7F2EA">'
+    echo '<meta name="theme-color" content="#F2EBDD">'
     echo "$FONTS"
     echo '<style>'
     cat $CSS

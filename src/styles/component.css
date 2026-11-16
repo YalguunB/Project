@@ -889,11 +889,10 @@ html.in-game body::before {
       -webkit-text-stroke: 1.5px var(--text);
     }
     & span.sep {
-      color: var(--accent);
-      -webkit-text-stroke: 0;
-      font-size: .55em;
+      display: inline-flex;
       align-self: center;
       padding: 0;
+      -webkit-text-stroke: 0;
     }
   }
 }
@@ -3342,6 +3341,40 @@ html.pl-open body {
     min-height: 30px;
     padding: 0 12px;
     font-size: 13px;
+  }
+}
+
+/* === the earth icon (marquee separator) === */
+.earth {
+  width: .62em;
+  height: .62em;
+  display: block;
+  & .eg-sea {
+    fill: var(--earth-sea);
+  }
+  & .eg-land {
+    fill: var(--earth-land);
+  }
+  & .eg-sand {
+    fill: var(--earth-sand);
+  }
+  & .eg-grid {
+    fill: none;
+    stroke: var(--white);
+    stroke-opacity: .2;
+    stroke-width: 1.2;
+  }
+  & .eg-shine {
+    fill: none;
+    stroke: var(--white);
+    stroke-opacity: .5;
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+  & .eg-ring {
+    fill: none;
+    stroke: var(--text);
+    stroke-width: 2.4;
   }
 }
 

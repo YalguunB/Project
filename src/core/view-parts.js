@@ -5,7 +5,19 @@ const packedText = () => touched.has(3) ? ['Nothing packed yet · pick up to thr
 const capFirst = s => s.charAt(0).toUpperCase() + s.slice(1);
 const dflt = n => touched.has(n) ? '' : ' <span class="muted">· default</span>';
 const bagNames = () => S.bag.map(id => BAG.find(b => b.id === id).name.toLowerCase());
-const marq = FEEL.map(f => `<span>${f.label}</span><span class="sep">✺</span>`).join('');
+/* a small flat Earth, drawn for MoodTrip (the separator in the moving banner) */
+const EARTH_ICON = `<svg class="earth" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+  <circle class="eg-sea" cx="32" cy="32" r="28"/>
+  <path class="eg-land" d="M15 17c3-3 8-4 12-2 2 1 2 4 0 5-3 1-4 3-2 5 2 3 5 4 4 8-1 3-4 4-4 8 0 3-2 6-4 8-2-3-3-6-3-9 0-4-4-5-6-9-2-5-1-10 3-14z"/>
+  <path class="eg-sand" d="M20 22c2 0 3 2 2 3s-3 1-3-1 0-2 1-2z"/>
+  <path class="eg-land" d="M36 9c5-1 11 1 15 5 2 2 1 4-1 5-3 1-5 0-7 2-1 2 1 4 3 5 3 2 4 5 2 8-2 4-5 6-6 10-1 3-3 5-5 6-1-4 0-7-2-10-2-4-6-5-6-9s4-5 4-8c0-3-3-5-1-8 1-3 2-5 4-6z"/>
+  <path class="eg-sand" d="M41 30c3 0 5 2 4 5-1 2-3 4-5 3s-2-4-1-6 1-2 2-2z"/>
+  <path class="eg-land" d="M45 46c2-1 5-1 6 1s-1 4-4 4-3-3-2-5z"/>
+  <path class="eg-grid" d="M32 4a28 28 0 0 1 0 56M32 4a12 28 0 0 0 0 56M32 4a12 28 0 0 1 0 56M4.6 27h54.8M6.5 42h51"/>
+  <path class="eg-shine" d="M14 18a24 24 0 0 1 14-10"/>
+  <circle class="eg-ring" cx="32" cy="32" r="28"/>
+</svg>`;
+const marq = FEEL.map(f => `<span>${f.label}</span><span class="sep">${EARTH_ICON}</span>`).join('');
 
 /* star words for every rating control */
 const STAR_WORDS = ['Poor', 'Fair', 'Good', 'Great', 'Superb'];

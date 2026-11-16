@@ -9,7 +9,7 @@
 const MAP_ON = !!window.MT_MAP;
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/positron';
 const MAP_LIB = '/vendor/maplibre-5.24.1/';
-const DAY_COLORS = ['#c8553d', '#2a7f9e', '#7a5bb5', '#3b8f5a', '#c28a1e', '#c2456e', '#4f6fd1', '#8a6b4e'];
+const DAY_COLORS = ['#A3502C', '#356660', '#B7862A', '#5D6E2F', '#7A4A63', '#B0603C', '#3F5E7A', '#7C5A3A'];   // earth tones, one per day
 const dayColor = k => DAY_COLORS[k % DAY_COLORS.length];
 let mapLib = null, mapEl = null, routeMap = null, routeReady = false, mapDestId = null, mapDay = -1, mapMarkers = [];
 

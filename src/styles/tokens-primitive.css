@@ -6,68 +6,75 @@
 
 /* Registered color roles (the page cross-fades between moods).
    @property initial values must be literals, so they live here. */
-@property --page { syntax: '<color>'; inherits: true; initial-value: #F7F2EA; }
-@property --surface { syntax: '<color>'; inherits: true; initial-value: #FFFFFF; }
-@property --text { syntax: '<color>'; inherits: true; initial-value: #2B2622; }
-@property --muted { syntax: '<color>'; inherits: true; initial-value: #6E6258; }
-@property --accent { syntax: '<color>'; inherits: true; initial-value: #BC5630; }
+@property --page { syntax: '<color>'; inherits: true; initial-value: #F2EBDD; }
+@property --surface { syntax: '<color>'; inherits: true; initial-value: #FBF7EF; }
+@property --text { syntax: '<color>'; inherits: true; initial-value: #2F261D; }
+@property --muted { syntax: '<color>'; inherits: true; initial-value: #665746; }
+@property --accent { syntax: '<color>'; inherits: true; initial-value: #A3502C; }
 @property --accent-text { syntax: '<color>'; inherits: true; initial-value: #FFFFFF; }
-@property --glow { syntax: '<color>'; inherits: true; initial-value: #F6C9A0; }
-@property --border-color { syntax: '<color>'; inherits: true; initial-value: #E6DCCD; }
-@property --positive { syntax: '<color>'; inherits: true; initial-value: #2E7D4F; }
-@property --danger { syntax: '<color>'; inherits: true; initial-value: #B3391B; }
+@property --glow { syntax: '<color>'; inherits: true; initial-value: #E2B47E; }
+@property --border-color { syntax: '<color>'; inherits: true; initial-value: #DED0B8; }
+@property --positive { syntax: '<color>'; inherits: true; initial-value: #4E6B2A; }
+@property --danger { syntax: '<color>'; inherits: true; initial-value: #A8361A; }
 
 @layer primitives {
 :root {
   /* color ramps (lightest 50 → darkest 900) */
   --white: #FFFFFF;
-  --sand-50: #F7F2EA;
-  --sand-200: #E6DCCD;
-  --sand-400: #F6C9A0;
-  --sand-500: #BC5630;
-  --sand-700: #6E6258;
-  --sand-900: #2B2622;
+  /* MoodTrip is earthy: parchment and terracotta, lagoon stone, night umber, fired clay, olive grove.
+     Every mood's text, muted text, accent and button pairs pass WCAG AA (body text 7:1 or more). */
+  --sand-50: #F2EBDD;
+  --sand-100: #FBF7EF;
+  --sand-200: #DED0B8;
+  --sand-400: #E2B47E;
+  --sand-500: #A3502C;
+  --sand-700: #665746;
+  --sand-900: #2F261D;
 
-  --sea-50: #F7FCFC;
-  --sea-200: #E5F1F2;
-  --sea-300: #C3DDE0;
-  --sea-400: #8CD3DA;
-  --sea-600: #17798A;
-  --sea-800: #3F646C;
-  --sea-900: #0F3039;
+  --lagoon-50: #F4F6F0;
+  --lagoon-200: #E1E7DF;
+  --lagoon-300: #C2CFC4;
+  --lagoon-400: #9CB9AE;
+  --lagoon-600: #356660;
+  --lagoon-800: #45594F;
+  --lagoon-900: #1C2E2B;
 
-  --violet-50: #F3EEFF;
-  --violet-100: #B4ABD6;
-  --violet-300: #B79CFF;
-  --violet-400: #5A3FB8;
-  --violet-500: #433B72;
-  --violet-600: #2E2850;
-  --violet-800: #231E3B;
-  --violet-900: #1A1433;
+  --umber-50: #F3E9DA;
+  --umber-100: #CDB89E;
+  --umber-300: #E0A96E;
+  --umber-400: #8C5A33;
+  --umber-500: #56443A;
+  --umber-600: #34291F;
+  --umber-800: #241B14;
+  --umber-900: #20170F;
 
-  --clay-50: #FFF8F2;
-  --clay-200: #FBE8DA;
-  --clay-300: #EFCFB9;
-  --clay-400: #F8B48A;
-  --clay-600: #C94A22;
-  --clay-800: #8A5A45;
-  --clay-900: #3A1E12;
+  --clay-50: #FBF3EA;
+  --clay-200: #EFDCC6;
+  --clay-300: #E0C3A4;
+  --clay-400: #DB9566;
+  --clay-600: #9C3F1C;
+  --clay-800: #6E4A38;
+  --clay-900: #3A2216;
 
-  --moss-50: #F6FAF2;
-  --moss-200: #E3EBDB;
-  --moss-300: #C5D6BA;
-  --moss-400: #A5CC96;
-  --moss-600: #3A7740;
-  --moss-800: #46604B;
-  --moss-900: #1B2E20;
+  --olive-50: #F5F4E8;
+  --olive-200: #E2E1CB;
+  --olive-300: #C9C9A6;
+  --olive-400: #ADB57A;
+  --olive-600: #52622A;
+  --olive-800: #4C5236;
+  --olive-900: #262A18;
 
-  --green-50: #7BD9A4;
-  --green-400: #2E7D4F;
-  --green-900: #1F7A4D;
+  --lagoon-500: #4F7F77;
+  --olive-500: #8C9A4B;
+  --ochre-400: #C9A15E;
 
-  --red-50: #FF9A86;
-  --red-400: #B3391B;
-  --red-900: #A8260F;
+  --leaf-300: #A9C77F;
+  --leaf-700: #4E6B2A;
+  --leaf-800: #3E5F22;
+
+  --rust-300: #F29A7E;
+  --rust-600: #A8361A;
+  --rust-800: #8E2410;
 
   --cream-100: #F6EFE4;
   --cocoa-900: #1F1A17;

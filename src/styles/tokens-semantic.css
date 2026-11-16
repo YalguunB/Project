@@ -17,6 +17,10 @@
   --positive: var(--brand-ok);
   --danger: var(--brand-warn);
   --energy: .35;
+  /* the earth icon keeps its own colors in every mood, so it always reads as the Earth */
+  --earth-sea: var(--lagoon-500);
+  --earth-land: var(--olive-500);
+  --earth-sand: var(--ochre-400);
 
   --border: var(--line-medium) solid var(--border-color);
   --border-thin: var(--line-thin) solid var(--border-color);
