@@ -33,3 +33,17 @@ PLACES_BASE = "https://places.googleapis.com/v1"
 type = "Text"
 globs = ["**/*.sql"]
 fallthrough = true
+
+# Branch previews (Cloudflare builds of branches other than main run `npx wrangler preview`).
+# Previews do not inherit the settings above. On purpose there is NO database here, so a half-finished branch can never
+# read or write the live data: in a preview the page works, without reviews, accounts and saved plans.
+# To give previews their own data, create a test database (npx wrangler d1 create moodtrip-preview-db) and add:
+#   [[previews.d1_databases]]
+#   binding = "DB"
+#   database_name = "moodtrip-preview-db"
+#   database_id = "<its id>"
+[previews.vars]
+PLACES_BASE = "https://places.googleapis.com/v1"
+
+[previews.placement]
+mode = "smart"
