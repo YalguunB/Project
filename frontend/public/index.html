@@ -5763,7 +5763,133 @@ const BE = (() => {
   };
   return api;
 })();
-/* ============ GL: Three.js scene behind the UI (mood orb, shader backdrop, dust, satellites, feeling field) ============ */
+/* ============ TRAVELER: the floating explorer that stands in for the old mood orb ============
+   Built from simple shapes (no model file to download): a little aviator in a leather helmet and goggles, a backpack with a
+   bedroll, a scarf that trails behind, mittens and boots. It floats where the orb was and reads the same state:
+   - colors: suit = the mood's light tone, helmet and backpack = its mid tone, bedroll = its glow, scarf = the accent
+   - energy and the chosen sound set how fast it bobs and paddles; "kick" (every answer in the game) makes it wave
+   - it turns its head toward the pointer; on touch screens it looks around by itself
+   The material is a soft "clay" shader: wrapped light, warm shadows, a gentle rim, almost no shine. */
+function buildTraveler(T, light){
+  const vert = `varying vec3 vN; varying vec3 vV;
+    void main(){ vN=normalize(normalMatrix*normal); vec4 mv=modelViewMatrix*vec4(position,1.); vV=-mv.xyz; gl_Position=projectionMatrix*mv; }`;
+  const frag = `uniform vec3 uCol,uRim,uLight; uniform float uGloss;
+    varying vec3 vN; varying vec3 vV;
+    void main(){
+      vec3 N=normalize(vN); vec3 V=normalize(vV); vec3 L=normalize(uLight);
+      float w=dot(N,L)*.5+.5;
+      float dif=smoothstep(.08,.95,w);
+      vec3 col=uCol*mix(.58,1.04,dif);
+      col=mix(col,col*vec3(1.,.86,.78),(1.-dif)*.4);            // warm, earthy shadows
+      float fres=pow(1.-max(dot(N,V),0.),2.6);
+      vec3 H=normalize(L+V); float spec=pow(max(dot(N,H),0.),36.)*uGloss;
+      col+=uRim*fres*.32+vec3(1.)*spec*.22;
+      gl_FragColor=vec4(col,1.);
+    }`;
+  const rim = { value:new T.Color('#E2B47E') };
+  const mats = [];
+  const clay = (c, gloss = .35) => { const m = new T.ShaderMaterial({ uniforms:{ uCol:{ value:new T.Color(c) }, uRim:rim, uLight:light, uGloss:{ value:gloss } }, vertexShader:vert, fragmentShader:frag }); mats.push(m); return m; };
+  const M = {
+    suit:clay('#EBCB9F'), suitShade:clay('#D9B486'), leather:clay('#A9653A'), pack:clay('#8E5634'), roll:clay('#D6A46C'),
+    scarf:clay('#A3502C'), skin:clay('#E7B48D', .2), cheek:clay('#E39A7E', .1), ink:clay('#2F261D', .6), lens:clay('#3E5A57', 1.6),
+    brass:clay('#C9A15E', 1.2), boot:clay('#4A3426', .5), white:clay('#FBF7EF', .2)
+  };
+  const SPH = new T.SphereGeometry(1, 36, 26), SPH_LO = new T.SphereGeometry(1, 20, 14);
+  const blob = (mat, sx, sy, sz, x = 0, y = 0, z = 0, parent, geo = SPH) => {
+    const m = new T.Mesh(geo, mat); m.scale.set(sx, sy, sz); m.position.set(x, y, z); m.frustumCulled = false; (parent || root).add(m); return m;
+  };
+  const piv = (x, y, z, parent) => { const g = new T.Group(); g.position.set(x, y, z); (parent || root).add(g); return g; };
+
+  const root = new T.Group();            // placed and scaled like the orb
+  const body = piv(0, -.12, 0);          // everything that bobs and leans
+  /* torso: a soft pear in the suit color, a belt, a chest pocket */
+  blob(M.suit, .5, .56, .44, 0, 0, 0, body);
+  blob(M.suitShade, .51, .09, .45, 0, -.18, 0, body);
+  blob(M.brass, .07, .06, .03, 0, -.18, .45, body);
+  blob(M.suitShade, .14, .12, .05, -.2, .16, .38, body);
+  /* backpack with a bedroll on top */
+  blob(M.pack, .4, .44, .22, 0, .04, -.42, body);
+  blob(M.leather, .3, .14, .08, 0, -.16, -.6, body);
+  const roll = new T.Mesh(new T.CylinderGeometry(.14, .14, .78, 24), M.roll); roll.rotation.z = Math.PI / 2; roll.position.set(0, .5, -.42); body.add(roll);
+  blob(M.leather, .15, .15, .02, -.2, .5, -.42, body).rotation.y = Math.PI / 2;
+  blob(M.leather, .15, .15, .02, .2, .5, -.42, body).rotation.y = Math.PI / 2;
+  /* straps over the shoulders */
+  [-1, 1].forEach(s => { const st = blob(M.leather, .07, .2, .05, s * .25, .3, .27, body); st.rotation.z = s * .15; st.rotation.x = -.5; });
+
+  /* scarf: a ring around the neck and a tail that trails and waves */
+  const neck = piv(0, .46, 0, body);
+  blob(M.scarf, .4, .13, .36, 0, 0, 0, neck);
+  const tail = [];
+  for (let i = 0; i < 5; i++) tail.push(blob(M.scarf, .1 - i * .01, .075 - i * .006, .035, 0, 0, 0, neck, SPH_LO));
+
+  /* head: face, cheeks, eyes, then the leather aviator helmet, ear flaps and goggles up on the forehead */
+  const head = piv(0, .78, 0, body);
+  blob(M.skin, .44, .42, .42, 0, 0, 0, head);
+  blob(M.cheek, .08, .05, .03, -.24, -.1, .35, head); blob(M.cheek, .08, .05, .03, .24, -.1, .35, head);
+  const eyes = [blob(M.ink, .05, .075, .03, -.13, -.01, .4, head), blob(M.ink, .05, .075, .03, .13, -.01, .4, head)];
+  blob(M.white, .016, .02, .01, -.115, .02, .43, head); blob(M.white, .016, .02, .01, .145, .02, .43, head);
+  blob(M.ink, .05, .018, .02, 0, -.17, .39, head);                                  // a small smile line
+  const helmet = new T.Mesh(new T.SphereGeometry(1, 36, 22, 0, Math.PI * 2, 0, Math.PI * .5), M.leather);
+  helmet.scale.set(.475, .475, .475); helmet.position.set(0, .01, -.02); helmet.rotation.x = -.42; head.add(helmet);   // front edge above the eyes, back covers the nape
+  blob(M.leather, .1, .2, .14, -.42, -.12, -.03, head); blob(M.leather, .1, .2, .14, .42, -.12, -.03, head);
+  const strap = new T.Mesh(new T.TorusGeometry(.47, .03, 10, 48), M.pack); strap.rotation.x = Math.PI / 2 - .5; strap.position.y = .13; head.add(strap);
+  [-1, 1].forEach(s => {
+    const ring = new T.Mesh(new T.TorusGeometry(.105, .032, 14, 32), M.brass); ring.position.set(s * .145, .3, .38); ring.rotation.x = -.62; head.add(ring);
+    const lens = blob(M.lens, .09, .09, .035, s * .145, .3, .38, head); lens.rotation.x = -.62;
+  });
+
+  /* arms (pivot at the shoulder) with mittens, legs (pivot at the hip) with boots */
+  const arm = s => { const p = piv(s * .46, .22, 0, body); blob(M.suit, .13, .3, .13, s * .06, -.24, 0, p); blob(M.leather, .13, .12, .12, s * .1, -.52, .02, p); return p; };
+  const leg = s => { const p = piv(s * .2, -.45, 0, body); blob(M.suitShade, .15, .24, .15, 0, -.18, 0, p); blob(M.boot, .16, .12, .22, 0, -.42, .05, p); return p; };
+  const armL = arm(-1), armR = arm(1), legL = leg(-1), legR = leg(1);
+
+  root.rotation.y = -.22;                   // a slight three-quarter view, turned toward the page
+  const look = { x:0, y:0, tx:0, ty:0, idle:0 };
+  let wave = 0, blink = 0, nextBlink = 2;
+
+  return {
+    group:root,
+    setColors(A, B, C, accent){
+      M.suit.uniforms.uCol.value.copy(A); M.suitShade.uniforms.uCol.value.copy(A).multiplyScalar(.9);
+      M.leather.uniforms.uCol.value.copy(B); M.pack.uniforms.uCol.value.copy(B).multiplyScalar(.82);
+      M.roll.uniforms.uCol.value.copy(C); M.scarf.uniforms.uCol.value.copy(accent); rim.value.copy(C);
+    },
+    /* pointer in -1..1 screen units relative to the traveler; null = no pointer (touch, or it left the window) */
+    lookAt(dx, dy){ if (dx === null){ look.idle = 1; return; } look.idle = 0; look.tx = Math.max(-1, Math.min(1, dx)); look.ty = Math.max(-1, Math.min(1, dy)); },
+    wave(){ wave = 1; },
+    /* t: scene time, dt: seconds, speed: how lively (energy and sound), still: reduced motion */
+    update(t, dt, speed, still){
+      const s = still ? 0 : 1, k = 1 - Math.exp(-dt * 4);
+      if (look.idle){ look.tx = Math.sin(t * .4) * .6; look.ty = Math.sin(t * .27) * .25; }
+      look.x += (look.tx - look.x) * k; look.y += (look.ty - look.y) * k;
+      const sp = .7 + speed * 1.6;
+      body.position.y = -.12 + Math.sin(t * 1.1 * sp) * .06 * s;
+      body.rotation.z = Math.sin(t * .7 * sp) * .05 * s;
+      body.rotation.x = .06 + Math.sin(t * .9 * sp + 1) * .04 * s;
+      body.rotation.y = look.x * .15;
+      head.rotation.y = look.x * .38; head.rotation.x = -look.y * .22; head.rotation.z = -look.x * .05;
+      /* arms paddle the air; a wave lifts the right arm high */
+      wave *= Math.exp(-dt * 1.6);
+      armL.rotation.z = -.35 - Math.sin(t * 1.4 * sp) * .18 * s; armL.rotation.x = Math.sin(t * 1.4 * sp + 1) * .25 * s;
+      armR.rotation.z = .35 + Math.sin(t * 1.4 * sp + 2) * .18 * s + wave * 2.1; armR.rotation.x = Math.sin(t * 1.4 * sp + 3) * .25 * s - wave * .3;
+      armR.rotation.y = wave * Math.sin(t * 14) * .5;
+      /* legs drift and kick slowly, like treading water */
+      legL.rotation.x = Math.sin(t * 1.2 * sp) * .32 * s; legR.rotation.x = Math.sin(t * 1.2 * sp + Math.PI) * .32 * s;
+      legL.rotation.z = -.08; legR.rotation.z = .08;
+      /* the scarf tail trails behind and ripples */
+      tail.forEach((m, i) => {
+        const d = i + 1, ph = t * 3.2 * sp - i * .7;
+        m.position.set(.16 + d * .075 - look.x * d * .025, -.05 - d * .03 + Math.sin(ph) * .03 * d * s, -.22 - d * .07);
+        m.rotation.z = Math.sin(ph) * .4 * s;
+      });
+      /* blinking */
+      nextBlink -= dt; if (nextBlink < 0){ blink = 1; nextBlink = 2.5 + Math.random() * 3; }
+      blink = Math.max(0, blink - dt * 9); const e = 1 - Math.sin(Math.min(1, blink) * Math.PI) * .9;
+      eyes.forEach(m => { m.scale.y = .075 * e; });
+    }
+  };
+}
+/* ============ GL: Three.js scene behind the UI (the traveler, shader backdrop, dust, satellites, feeling field) ============ */
 const MOODS = {
   start:  { bg:'#F2EBDD', surface:'#FBF7EF', ink:'#2F261D', accent:'#A3502C', accentInk:'#FFFFFF', glow:'#E2B47E', orb:['#EBCB9F','#A9653A','#D6A46C'] },
   tide:   { bg:'#E1E7DF', surface:'#F4F6F0', ink:'#1C2E2B', accent:'#356660', accentInk:'#FFFFFF', glow:'#9CB9AE', orb:['#D3E0D8','#5A857C','#9CB9AE'] },
@@ -5845,60 +5971,13 @@ const GL = (() => {
   const bg = new T.Mesh(new T.PlaneGeometry(2, 2), bgMat);
   bg.frustumCulled = false; bg.renderOrder = -10; scene.add(bg);
 
-  /* ---------- the orb ---------- */
-  const orbU = {
-    uTime:time, uAmp:{ value:.17 }, uFreq:{ value:1 }, uSpeed:{ value:.3 }, uRidge:{ value:0 }, uPulse:{ value:.03 }, uPulseRate:{ value:1.7 }, uSharp:{ value:1 },
-    uRipple:{ value:0 }, uLight:light, uGloss:{ value:.8 },
-    uColA:{ value:new T.Color() }, uColB:{ value:new T.Color() }, uColC:{ value:new T.Color() }
-  };
-  const orbMat = new T.ShaderMaterial({
-    uniforms:orbU,
-    vertexShader: NOISE + `
-    uniform float uTime,uAmp,uFreq,uSpeed,uRidge,uPulse,uPulseRate,uSharp,uRipple;
-    varying vec3 vN; varying vec3 vV; varying float vD;
-    vec3 disp(vec3 p){
-      float t=uTime*uSpeed;
-      float n=snoise(p*uFreq+vec3(0.,t,t*.5));
-      n=mix(n,1.-abs(n)*2.,uRidge);
-      float d=n*uAmp;
-      d+=uRipple*snoise(p*6.+vec3(t*3.))*.045;
-      d+=uPulse*pow(.5+.5*sin(uTime*uPulseRate+p.y*1.5),uSharp);
-      return p*(1.+d);
-    }
-    void main(){
-      vec3 p=normalize(position);
-      vec3 dp=disp(p);
-      vec3 h=abs(p.y)>.98?vec3(1.,0.,0.):vec3(0.,1.,0.);
-      vec3 tg=normalize(cross(p,h)); vec3 bt=cross(p,tg);
-      float e=.03;
-      vec3 p1=disp(normalize(p+tg*e)); vec3 p2=disp(normalize(p+bt*e));
-      vec3 nn=normalize(cross(p1-dp,p2-dp)); if(dot(nn,p)<0.) nn=-nn;
-      vN=normalize(normalMatrix*nn);
-      vec4 mv=modelViewMatrix*vec4(dp,1.);
-      vV=-mv.xyz; vD=length(dp)-1.;
-      gl_Position=projectionMatrix*mv;
-    }`,
-    fragmentShader:`
-    uniform vec3 uColA,uColB,uColC,uLight; uniform float uGloss,uTime;
-    varying vec3 vN; varying vec3 vV; varying float vD;
-    void main(){
-      vec3 N=normalize(vN); vec3 V=normalize(vV); vec3 L=normalize(uLight);
-      float ndl=dot(N,L); float dif=smoothstep(-.55,1.,ndl);
-      vec3 col=mix(uColB,uColA,dif*.88);
-      float fres=pow(1.-max(dot(N,V),0.),3.);
-      vec3 irid=.5+.5*cos(6.2831*(vec3(0.,.33,.67)+N.y*.45+N.x*.3+uTime*.03));
-      col=mix(col,col*(.8+.4*irid),.06);            // a hint of shimmer only: earthy, matte like fired clay
-      vec3 H=normalize(L+V); float spec=pow(max(dot(N,H),0.),150.)*uGloss;
-      float sheen=pow(max(dot(N,H),0.),14.)*.16*uGloss;
-      col+=uColC*fres*.5;
-      col+=uColC*pow(max(dot(N,-L),0.),2.)*.14;
-      col+=vec3(1.)*(spec*.4+sheen*.7);
-      col+=vD*.22*uColC;
-      gl_FragColor=vec4(col,1.);
-    }`
-  });
-  const orb = new T.Mesh(new T.IcosahedronGeometry(1, 32), orbMat);
-  orb.frustumCulled = false; scene.add(orb);
+  /* ---------- the traveler (visuals/traveler.js) stands where the mood orb used to be ---------- */
+  const traveler = buildTraveler(T, light);
+  traveler.group.traverse(o => { o.frustumCulled = false; });
+  scene.add(traveler.group);
+  const pointer = { x:0, y:0, on:false };
+  addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; pointer.x = e.clientX / innerWidth * 2 - 1; pointer.y = 1 - e.clientY / innerHeight * 2; pointer.on = true; api.invalidate(); }, { passive:true });
+  document.addEventListener('pointerleave', () => { pointer.on = false; });
 
   /* ---------- small glossy bodies (bag satellites + field orbs) ---------- */
   const satVert = `varying vec3 vN; varying vec3 vV;
@@ -6001,7 +6080,7 @@ const GL = (() => {
     if (instant || REDUCED){ cur.bg.copy(tgt.bg); cur.glow.copy(tgt.glow); cur.accent.copy(tgt.accent); cur.A.copy(tgt.A); cur.B.copy(tgt.B); cur.C.copy(tgt.C); cur.dark = tgt.dark; }
     api.invalidate();
   };
-  api.setAnchor = a => { anchor.x = a.x; anchor.y = a.y; anchor.s = a.s; api.invalidate(); };
+  api.setAnchor = a => { anchor.x = a.x; anchor.y = a.y; anchor.s = a.s; anchor.pin = !!a.pin; api.invalidate(); };
   api.setTraits = t => {
     const w = WIN_FX[t.window] || WIN_FX.sea, s = SOUND_FX[t.sound] || SOUND_FX.lofi, f = FEEL_FX[t.feel] || FEEL_FX.rested;
     energy = t.energy / 100;
@@ -6014,7 +6093,7 @@ const GL = (() => {
     bgMat.uniforms.uEnergy.value = energy;
     api.invalidate();
   };
-  api.kick = (n = 1) => { orbS.kick = Math.min(1.4, orbS.kick + .5 * n); api.invalidate(); };
+  api.kick = (n = 1) => { orbS.kick = Math.min(1.4, orbS.kick + .5 * n); traveler.wave(); api.invalidate(); };
   api.setOrbVisible = v => { orbS.vis = v ? 1 : 0; api.invalidate(); };
 
   api.setBag = ids => {
@@ -6112,26 +6191,26 @@ const GL = (() => {
     cur.bg.lerp(tgt.bg, kc); cur.glow.lerp(tgt.glow, kc); cur.accent.lerp(tgt.accent, kc); cur.A.lerp(tgt.A, kc); cur.B.lerp(tgt.B, kc); cur.C.lerp(tgt.C, kc);
     cur.dark += (tgt.dark - cur.dark) * kc;
     bgMat.uniforms.uBg.value.copy(cur.bg); bgMat.uniforms.uGlow.value.copy(cur.glow); bgMat.uniforms.uDark.value = cur.dark;
-    orbU.uColA.value.copy(cur.A); orbU.uColB.value.copy(cur.B); orbU.uColC.value.copy(cur.C);
+    traveler.setColors(cur.A, cur.B, cur.C, cur.accent);
 
-    /* orb params */
+    /* how lively: energy, window, sound and feeling (eased) */
     const kp = REDUCED ? 1 : ease(dt, 2.2);
     for (const k in P) P[k] += (PT[k] - P[k]) * kp;
-    orbU.uAmp.value = P.amp; orbU.uFreq.value = P.freq; orbU.uSpeed.value = P.speed; orbU.uRidge.value = P.ridge;
-    orbU.uPulse.value = P.pulse; orbU.uPulseRate.value = P.rate; orbU.uSharp.value = P.sharp; orbU.uRipple.value = P.ripple; orbU.uGloss.value = P.gloss;
 
     /* orb placement (anchor -> world), spring-eased */
     const vmin = Math.min(V.ww, V.wh), px = V.wh / V.h;
     orbS.tx = (anchor.x - .5) * V.ww;
-    orbS.ty = (.5 - anchor.y) * V.wh + scrollY * px * .45;
+    orbS.ty = (.5 - anchor.y) * V.wh + (anchor.pin ? 0 : scrollY * px * .45);
     orbS.ts = anchor.s * vmin * .5 * (1 + (energy - .35) * .3) * feelScale * orbS.vis;
     const ko = REDUCED ? 1 : ease(dt, 3.2);
     orbS.x += (orbS.tx - orbS.x) * ko; orbS.y += (orbS.ty - orbS.y) * ko; orbS.s += (orbS.ts - orbS.s) * ease(dt, REDUCED ? 30 : 2.4);
     orbS.kick *= Math.exp(-dt * 2.8);
     const sq = 1 + orbS.kick * .12 * Math.sin(time.value * 22);
-    orb.position.set(orbS.x, orbS.y, 0); orb.scale.setScalar(Math.max(.0001, orbS.s * sq));
-    orb.visible = orbS.s > .004;
-    orb.rotation.set(time.value * .03, time.value * .05, 0);
+    const tg = traveler.group;
+    tg.position.set(orbS.x, orbS.y, 0); tg.scale.setScalar(Math.max(.0001, orbS.s * .6 * sq));
+    tg.visible = orbS.s > .004;
+    if (pointer.on) traveler.lookAt((pointer.x - orbS.x / V.ww * 2) * 1.4, (pointer.y - orbS.y / V.wh * 2) * 1.4); else traveler.lookAt(null);
+    traveler.update(time.value, dt, Math.min(1.4, P.speed + P.pulse * 2), REDUCED);
     const sx = .5 + orbS.x / V.ww, sy = .5 + orbS.y / V.wh;
     bgMat.uniforms.uOrb.value.set(sx, sy); bgMat.uniforms.uOrbR.value = orbS.s / V.wh;
 
@@ -6318,18 +6397,18 @@ const SAVE_KEY = 'moodtrip:saved:v1';
 const GRIP = '<svg width="14" height="20" viewBox="0 0 14 20" fill="currentColor" aria-hidden="true"><circle cx="4" cy="4" r="1.7"/><circle cx="10" cy="4" r="1.7"/><circle cx="4" cy="10" r="1.7"/><circle cx="10" cy="10" r="1.7"/><circle cx="4" cy="16" r="1.7"/><circle cx="10" cy="16" r="1.7"/></svg>';
 /* where the 3D orb sits on each screen: [desktop, phone] = [x, y, size] as fractions of the viewport.
    r1..r5 are the five rounds of the one-page game: the orb moves to the round that is in view. */
-const ANCHOR = {
-  intro:   [[.73, .52, .86], [.5, .26, .98]],
-  r1:      [[.5, .66, .62],  [.5, .56, .7]],
+const ANCHOR = {                       // where the traveler floats on each screen: [x, y, size] for desktop, then phone
+  intro:   [[.8, .66, .8],   [.74, .2, .62]],
+  r1:      [[.93, .84, .3],  [.9, .9, .26]],
   r2:      [[.5, .52, .6],   [.5, .46, .6]],
-  r3:      [[.5, .60, .58],  [.5, .50, .72]],
-  r4:      [[.5, .62, .58],  [.5, .52, .72]],
-  r5:      [[.5, .56, .74],  [.5, .48, .8]],
-  card:    [[.22, .52, .52], [.5, .2, .55]],
-  budget:  [[.93, .20, .42], [.82, .12, .42]],
-  matches: [[.98, .07, .34], [.85, .09, .4]],
-  planner: [[.97, .05, .3],  [.86, .08, .36]],
-  plans:   [[.95, .14, .36], [.86, .08, .36]]
+  r3:      [[.93, .84, .3],  [.9, .9, .26]],
+  r4:      [[.93, .84, .3],  [.9, .9, .26]],
+  r5:      [[.93, .84, .3],  [.9, .9, .26]],
+  card:    [[.9, .24, .36],  [.5, .2, .55]],
+  budget:  [[.93, .22, .4],  [.84, .15, .38]],
+  matches: [[.95, .2, .3],   [.86, .15, .34]],
+  planner: [[.95, .2, .28],  [.86, .15, .32]],
+  plans:   [[.95, .2, .3],   [.86, .15, .32]]
 };
 const BAG_STAGES = new Set(['card']); // the game shows the bag from round 3 on (see bagOn)
 let picked = false; // has the traveler chosen a window yet (round 1 shifts the whole mood)
@@ -6399,7 +6478,7 @@ const MN_STRINGS = {
   "What makes it different": "Юугаараа ялгаатай вэ",
   "Feelings first. Honest numbers after.": "Эхлээд мэдрэмж. Дараа нь шударга тоо.",
   "Feeling first, as a game": "Мэдрэмж эхэнд, тоглоом хэлбэрээр",
-  "Five quick rounds read your mood and energy. The page and 3D orb respond to every answer.": "Таван богино шат таны сэтгэл санаа, эрч хүчийг уншина. Хуудас болон 3D бөмбөлөг хариулт бүрт хариу үзүүлнэ.",
+  "Five quick rounds read your mood and energy. The page and the little 3D traveler respond to every answer.": "Таван богино шат таны сэтгэл санаа, эрч хүчийг уншина. Хуудас болон 3D аялагч хариулт бүрт хариу үзүүлнэ.",
   "Real feelings from travelers": "Аялагчдын бодит мэдрэмж",
   "Anyone can add an anonymous note on how a place felt. Notes blend into the matches, and you can float your own card in the shared field.": "Хэн ч газар ямар мэдрэмж төрүүлснийг нэргүйгээр тэмдэглэж болно. Тэмдэглэлүүд тохиролд нөлөөлж, та өөрийн картаа нийтийн талбарт хөвүүлж болно.",
   "Honest planning": "Шударга төлөвлөлт",
@@ -6471,7 +6550,7 @@ const MN_STRINGS = {
   "The feeling game": "Мэдрэмжийн тоглоом",
   "Tell us how you want to": "Хэрхэн",
   "feel.": "мэдрэхийг хүсэж байгаагаа хэлээрэй.",
-  "Five quick rounds on one page. Answer in any order and jump around with the steps below. The orb changes with every answer, and anything you skip gets a sensible default.": "Нэг хуудсанд таван богино шат. Дурын дарааллаар хариулж, доорх алхмуудаар үсэрч болно. Бөмбөлөг хариулт бүрт өөрчлөгдөж, алгассан зүйлд боломжийн анхны утга өгнө.",
+  "Five quick rounds on one page. Answer in any order and jump around with the steps below. The traveler changes with every answer, and anything you skip gets a sensible default.": "Нэг хуудсанд таван богино шат. Дурын дарааллаар хариулж, доорх алхмуудаар үсэрч болно. Аялагч хариулт бүрт өөрчлөгдөж, алгассан зүйлд боломжийн анхны утга өгнө.",
   "Start over": "Дахин эхлэх",
   "Game progress": "Тоглоомын явц",
   "Rounds answered": "Хариулсан шат",
@@ -7509,7 +7588,8 @@ function anchorFor(stage){
 /* the game's orb follows the round in view; round 2 also swells with the battery level */
 function gameAnchor(){
   const a = anchorFor('r' + gRound);
-  return gRound === 2 ? { x:a.x, y:a.y, s:a.s * (.72 + S.energy / 100 * .5) } : a;
+  // pinned to the screen (no scroll drift), so the traveler never slides under the round's cards
+  return gRound === 2 ? { x:a.x, y:a.y, s:a.s * (.72 + S.energy / 100 * .5), pin:true } : { ...a, pin:true };
 }
 const bagOn = stage => stage === 'game' ? gRound >= 3 : BAG_STAGES.has(stage);
 function pushTraits(){ if (GL.ok) GL.setTraits({ window:S.window, energy:S.energy, sound:S.sound, feel:S.feel }); }
@@ -8633,7 +8713,7 @@ VIEWS.intro = () => `
     <div>
       <div class="sec-head" data-rise><p class="label accent">What makes it different</p><h2 class="display-m">Feelings first. Honest numbers after.</h2></div>
       <div class="pillars">
-        <article class="pillar" data-rise><span class="n">01</span><h3>Feeling first, as a game</h3><p class="small muted">Five quick rounds read your mood and energy. The page and 3D orb respond to every answer.</p></article>
+        <article class="pillar" data-rise><span class="n">01</span><h3>Feeling first, as a game</h3><p class="small muted">Five quick rounds read your mood and energy. The page and the little 3D traveler respond to every answer.</p></article>
         <article class="pillar" data-tilt data-rise><span class="n">02</span><h3>Real feelings from travelers</h3><p class="small muted">Anyone can add an anonymous note on how a place felt. Notes blend into the matches, and you can float your own card in the shared field.</p></article>
         <article class="pillar" data-tilt data-rise><span class="n">03</span><h3>Honest planning</h3><p class="small muted">Budget and best-time estimates sit right beside the plan, so you see the trade-offs early.</p></article>
       </div>
@@ -8651,7 +8731,7 @@ VIEWS.game = () => `<section class="game" aria-labelledby="h1">
     <header class="game-head">
       <p class="label accent" data-fade>The feeling game</p>
       <h1 class="display-l" id="h1" tabindex="-1" data-split>Tell us how you want to <em>feel.</em></h1>
-      <p class="body-l muted" data-fade>Five quick rounds on one page. Answer in any order and jump around with the steps below. The orb changes with every answer, and anything you skip gets a sensible default.</p>
+      <p class="body-l muted" data-fade>Five quick rounds on one page. Answer in any order and jump around with the steps below. The traveler changes with every answer, and anything you skip gets a sensible default.</p>
       <div class="row" data-fade><button class="btn btn-ghost btn-sm" type="button" data-act="skip">Skip the game</button><button class="btn btn-ghost btn-sm" type="button" id="gStartOver" data-act="restart" ${touched.size ? '' : 'hidden'}>Start over</button></div>
     </header>
     <nav class="gp" id="gp" aria-label="Game progress"><div class="gp-in">

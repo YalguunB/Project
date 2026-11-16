@@ -12,7 +12,7 @@ frontend/             what runs in the browser
 │  ├─ core/           shared code: model, backend client, state, chrome (render/go), events, i18n, boot
 │  ├─ data/places/    destinations, venues, and geo.js (approximate stop positions for the route map)
 │  ├─ i18n/           Mongolian strings (mn.js), see docs/i18n.md
-│  ├─ visuals/        3D scene, motion, SVG scenery
+│  ├─ visuals/        3D scene (traveler.js: the floating explorer), motion, SVG scenery
 │  ├─ features/       one folder per feature: feel, budget, matches, planner, field, place, reviews,
 │  │                  engage, account, plans; each index.js registers its screens (VIEWS), actions (ACT), hooks (AFTER)
 │  ├─ components/     page markup split into components (mount.js renders them)

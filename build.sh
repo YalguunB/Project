@@ -29,6 +29,7 @@ PARTS="
   frontend/src/data/places/geo.js
   frontend/src/visuals/scenes.js
   frontend/src/core/backend.js
+  frontend/src/visuals/traveler.js
   frontend/src/visuals/gl.js
   frontend/src/visuals/fx.js
   frontend/src/core/constants.js

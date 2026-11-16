@@ -11,7 +11,8 @@ function anchorFor(stage){
 /* the game's orb follows the round in view; round 2 also swells with the battery level */
 function gameAnchor(){
   const a = anchorFor('r' + gRound);
-  return gRound === 2 ? { x:a.x, y:a.y, s:a.s * (.72 + S.energy / 100 * .5) } : a;
+  // pinned to the screen (no scroll drift), so the traveler never slides under the round's cards
+  return gRound === 2 ? { x:a.x, y:a.y, s:a.s * (.72 + S.energy / 100 * .5), pin:true } : { ...a, pin:true };
 }
 const bagOn = stage => stage === 'game' ? gRound >= 3 : BAG_STAGES.has(stage);
 function pushTraits(){ if (GL.ok) GL.setTraits({ window:S.window, energy:S.energy, sound:S.sound, feel:S.feel }); }
