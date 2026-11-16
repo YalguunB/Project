@@ -17,7 +17,7 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "moodtrip-db"
-database_id = "00000000-0000-0000-0000-000000000000"   # `npm run setup` fills this in
+database_id = "8b534909-4626-4a14-8aad-1ee942921195"   # `npm run setup` fills this in
 
 [vars]
 PLACES_BASE = "https://places.googleapis.com/v1"
